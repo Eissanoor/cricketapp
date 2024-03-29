@@ -14,7 +14,7 @@ const auth = require("../middleware/auth");
 const { profile } = require("console");
 const cloudinary = require("cloudinary").v2;
 const mongoose = require("mongoose");
-const {matchDetails, teamDetails} = require("../database/firebase")
+const { matchDetails, teamDetails } = require("../database/firebase")
 const EmailVarify = require("../model/varifyemail");
 const providerRegister = require("../model/providerregister");
 const Player = require("../model/player");
@@ -947,7 +947,7 @@ router.put("/in-team-add-player", async (req, res) =>
     const teamID = req.body.teamID;
     const adminId = req.body.adminId;
     const newPlayers = req.body.newPlayers;
- 
+
     const checkAdmin = await providerRegister.findOne({ _id: adminId });
     if (!checkAdmin || checkAdmin.status === 0) {
       return res.status(404).json({
@@ -1072,3 +1072,4 @@ router.post("/create", async (req, res) =>
   res.send({ msg: "User Added" });
 });
 module.exports = router;
+//
