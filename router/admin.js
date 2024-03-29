@@ -14,7 +14,7 @@ const auth = require("../middleware/auth");
 const { profile } = require("console");
 const cloudinary = require("cloudinary").v2;
 const mongoose = require("mongoose");
-
+const {matchDetails, teamDetails} = require("../database/firebase")
 const EmailVarify = require("../model/varifyemail");
 const providerRegister = require("../model/providerregister");
 const Player = require("../model/player");
@@ -1064,5 +1064,11 @@ router.put("/share-team", async (req, res) =>
       data: null,
     });
   }
+});
+router.post("/create", async (req, res) =>
+{
+  const data = req.body;
+  await matchDetails.add({ data });
+  res.send({ msg: "User Added" });
 });
 module.exports = router;
