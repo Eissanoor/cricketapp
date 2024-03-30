@@ -14,11 +14,12 @@ const auth = require("../middleware/auth");
 const { profile } = require("console");
 const cloudinary = require("cloudinary").v2;
 const mongoose = require("mongoose");
-const { matchDetails, teamDetails } = require("../database/firebase")
+const { firebase_matchDetails, teamDetails } = require("../database/firebase")
 const EmailVarify = require("../model/varifyemail");
 const providerRegister = require("../model/providerregister");
 const Player = require("../model/player");
 const Team = require("../model/team");
+const MatchDetails = require("../model/match_details")
 const cors = require("cors");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
@@ -1107,6 +1108,185 @@ router.get("/create", async (req, res) =>
   const snapshot = await matchDetails.get();
   const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   res.send(list);
+});
+router.post("/add-match-details", async (req, res) =>
+{
+  try {
+    const {
+      team1,
+      team2,
+      matchType,
+      ballType,
+      pitchType,
+      numberOfOvers,
+      oversPerBowler,
+      cityOrTown,
+      ground,
+      matchDateTime,
+      whoWinsTheToss,
+      tossDetails,
+      matchStatus,
+      squad1,
+      squad2,
+      admin,
+      team1Batting,
+      team2Batting,
+      team1toss,
+      team2toss,
+      team1Score,
+      team2Score,
+      team1Overs,
+      team2Overs,
+      team1Balls,
+      team2Balls,
+      team1Outs,
+      team2Outs
+    } = req.body;
+
+    // Check if any of the required parameters are missing
+    if (
+      !team1 ||
+      !team2 ||
+      !matchType ||
+      !ballType ||
+      !pitchType ||
+      !numberOfOvers ||
+      !oversPerBowler ||
+      !cityOrTown ||
+      !ground ||
+      !matchDateTime ||
+
+      !tossDetails ||
+      !matchStatus ||
+      !squad1 ||
+      !squad2
+    ) {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: "Missing one or more required parameters",
+        data: null,
+      });
+    }
+
+    const squad1IDs = Array.isArray(squad1)
+      ? squad1.map((id) => mongoose.Types.ObjectId(id))
+      : [];
+
+    const squad2IDs = Array.isArray(squad2)
+      ? squad2.map((id) => mongoose.Types.ObjectId(id))
+      : [];
+
+    const MenuEmp = new MatchDetails({
+      team1: team1,
+      team2: team2,
+      matchType: matchType,
+      ballType: ballType,
+      pitchType: pitchType,
+      numberOfOvers: numberOfOvers,
+      oversPerBowler: oversPerBowler,
+      cityOrTown: cityOrTown,
+      ground: ground,
+      matchDateTime: matchDateTime,
+      whoWinsTheToss: whoWinsTheToss,
+      tossDetails: tossDetails,
+      matchStatus: matchStatus,
+      squad1: squad1IDs,
+      squad2: squad2IDs,
+      admin: admin,
+      team1Batting: team1Batting,
+      team2Batting: team2Batting,
+      team1toss: team1toss,
+      team2toss: team2toss,
+      team1Score: team1Score,
+      team2Score: team2Score,
+      team1Overs: team1Overs,
+      team2Overs: team2Overs,
+      team1Balls: team1Balls,
+      team2Balls: team2Balls,
+      team1Outs: team1Outs,
+      team2Outs: team2Outs,
+    });
+
+    const savedPlayer = await MenuEmp.save();
+    await firebase_matchDetails.add(req.body); // Save to Firebase
+    res.status(201).json({
+      status: 201,
+      success: true,
+      message: "MatchDetails has been added successfully",
+      data: savedPlayer,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+});
+router.get("/get-MatchDetails-by-MatchDetailsId/:MatchDetailID", async (req, res) =>
+{
+  try {
+    const teamID = req.params.MatchDetailID;
+    const data = await MatchDetails.find({ _id: teamID });
+
+    if (!data) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "MatchDetails not found for this MatchDetails ID",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "MatchDetails details",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+});
+router.get("/get-allMatchDetails", async (req, res) =>
+{
+  try {
+   
+    const data = await MatchDetails.find();
+
+    if (!data) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "MatchDetails not found",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "MatchDetails details",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Internal server error",
+      data: null,
+    });
+  }
 });
 module.exports = router;
 //

@@ -24,6 +24,6 @@ firebase.initializeApp({
     credential: firebase.credential.cert(serviceAccount)
 });
 const db = firebase.firestore();
-const matchDetails = db.collection("matchDetails");
+const firebase_matchDetails = db.collection("matchDetails");
 const teamDetails = db.collection("teamDetails");
-module.exports = { matchDetails, teamDetails };
+module.exports = { firebase_matchDetails, teamDetails };
