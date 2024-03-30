@@ -1069,7 +1069,7 @@ router.get("/get-players-by-teamId/:teamID", async (req, res) =>
 {
   try {
     const teamID = req.params.teamID;
-    const data = await Team.find({ _id: teamID }).populate("players");
+    const data = await Team.find({ _id: teamID }).populate("players", "name location role Image");
 
     if (!data) {
       return res.status(404).json({
