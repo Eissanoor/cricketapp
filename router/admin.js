@@ -1071,5 +1071,11 @@ router.post("/create", async (req, res) =>
   await matchDetails.add({ data });
   res.send({ msg: "User Added" });
 });
+router.get("/create", async (req, res) =>
+{
+  const snapshot = await matchDetails.get();
+  const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  res.send(list);
+});
 module.exports = router;
 //
