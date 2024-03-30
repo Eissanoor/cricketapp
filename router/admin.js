@@ -1084,7 +1084,7 @@ router.get("/get-players-by-teamId/:teamID", async (req, res) =>
       status: 200,
       success: true,
       message: "Team details",
-      data: data[0].players,
+      data: data ,
     });
   } catch (error) {
     console.log(error);
