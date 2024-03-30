@@ -1065,6 +1065,37 @@ router.put("/share-team", async (req, res) =>
     });
   }
 });
+router.get("/get-players-by-teamId/:teamID", async (req, res) =>
+{
+  try {
+    const teamID = req.params.teamID;
+    const data = await Team.find({ _id: teamID }).populate("players");
+
+    if (!data) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "Team not found for this Team ID",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Team details",
+      data: data[0].players,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+});
 router.post("/create", async (req, res) =>
 {
   const data = req.body;
