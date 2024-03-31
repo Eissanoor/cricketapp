@@ -14,7 +14,7 @@ const matchDetailsSchema = new mongoose.Schema({
   matchDateTime: { type: String, required: true },
   whoWinsTheToss: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: true },
   tossDetails: { type: String},
-  matchStatus: { type: String, required: true },
+  matchStatus: { type: Number, required: true },
   team1Batting: { type: Boolean, required: true },
   team2Batting: { type: Boolean, required: true },
   team1toss: { type: Boolean, required: true },
