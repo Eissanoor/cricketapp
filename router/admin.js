@@ -1143,31 +1143,7 @@ router.post("/add-match-details", async (req, res) =>
       team2Outs
     } = req.body;
 
-    // Check if any of the required parameters are missing
-    if (
-      !team1 ||
-      !team2 ||
-      !matchType ||
-      !ballType ||
-      !pitchType ||
-      !numberOfOvers ||
-      !oversPerBowler ||
-      !cityOrTown ||
-      !ground ||
-      !matchDateTime ||
-
-      !tossDetails ||
-      !matchStatus ||
-      !squad1 ||
-      !squad2
-    ) {
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message: "Missing one or more required parameters",
-        data: null,
-      });
-    }
+    
 
     const squad1IDs = Array.isArray(squad1)
       ? squad1.map((id) => mongoose.Types.ObjectId(id))
