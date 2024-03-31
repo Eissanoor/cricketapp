@@ -8,7 +8,7 @@ var storageBucket = process.env.storageBucket;
 var messagingSenderId = process.env.messagingSenderId;
 var appId = process.env.appId;
 var measurementId = process.env.measurementId;
-var serviceAccount = require("../cricketapp-a7e2f-firebase-adminsdk-wui7a-bd0b14f8f4.json");
+var serviceAccount = require("../cric-media-e667c-firebase-adminsdk-nazyl-2805710143.json");
 const firebaseConfig = {
     apiKey: apiKey,
     authDomain: authDomain,
