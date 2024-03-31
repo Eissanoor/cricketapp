@@ -1264,5 +1264,48 @@ router.get("/get-allMatchDetails", async (req, res) =>
     });
   }
 });
+router.get("/get-all-MatchDetails-byadmin/:adminIDs", async (req, res) =>
+{
+  try {
+    const adminIDs = req.params.adminIDs;
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 documents per page
+
+    const skip = (page - 1) * limit;
+
+    const data = await MatchDetails.find({ admin: adminIDs })
+      .skip(skip)
+      .limit(limit);
+
+    const totalCount = await MatchDetails.countDocuments({ admin: adminIDs });
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "MatchDetails not found",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "MatchDetails found",
+      data: data,
+      
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+});
+
+
 module.exports = router;
 //
