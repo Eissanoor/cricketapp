@@ -19,6 +19,7 @@ const matchDetailsSchema = new mongoose.Schema({
   team2Batting: { type: Boolean, required: true },
   team1toss: { type: Boolean, required: true },
   team2toss: { type: Boolean, required: true },
+  manOfTheMatch: { type: mongoose.Schema.Types.ObjectId, ref: 'Player' },
   team1Score: Number,
   team2Score: Number,
   team1Overs: Number,
