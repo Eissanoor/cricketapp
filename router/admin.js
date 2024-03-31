@@ -14,12 +14,12 @@ const auth = require("../middleware/auth");
 const { profile } = require("console");
 const cloudinary = require("cloudinary").v2;
 const mongoose = require("mongoose");
-const { firebase_matchDetails, teamDetails } = require("../database/firebase")
+const { firebase_matchDetails, teamDetails } = require("../database/firebase");
 const EmailVarify = require("../model/varifyemail");
 const providerRegister = require("../model/providerregister");
 const Player = require("../model/player");
 const Team = require("../model/team");
-const MatchDetails = require("../model/match_details")
+const MatchDetails = require("../model/match_details");
 const cors = require("cors");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
@@ -48,8 +48,7 @@ const upload = multer({ storage: storage });
 router.use("/ProfileImage", express.static("public/upload"));
 router.use("/Image", express.static("public/upload"));
 router.use("/categoryThumbnail", express.static("public/upload"));
-function generateOTP()
-{
+function generateOTP() {
   const digits = "0123456789";
   let OTP = "";
   for (let i = 0; i < 4; i++) {
@@ -57,8 +56,7 @@ function generateOTP()
   }
   return OTP;
 }
-router.get("/", (req, res) =>
-{
+router.get("/", (req, res) => {
   res.json({
     status: 200,
     success: true,
@@ -66,8 +64,7 @@ router.get("/", (req, res) =>
     data: null,
   });
 });
-router.post("/signup", async (req, res) =>
-{
+router.post("/signup", async (req, res) => {
   try {
     const email = req.body.email;
     const code = generateOTP();
@@ -99,8 +96,7 @@ router.post("/signup", async (req, res) =>
         subject: "Varify Email",
         text: `Varify Email OTP ${code}`,
       };
-      transpoter.sendMail(mailoption, function (error, info)
-      {
+      transpoter.sendMail(mailoption, function (error, info) {
         if (error) {
           console.log(error);
           res.status(500).json({
@@ -130,8 +126,7 @@ router.post("/signup", async (req, res) =>
     next(err);
   }
 });
-router.post("/emailVrifyOtp", async (req, res) =>
-{
+router.post("/emailVrifyOtp", async (req, res) => {
   try {
     const email = req.body.email;
     const code = req.body.code;
@@ -183,8 +178,7 @@ router.post("/emailVrifyOtp", async (req, res) =>
     });
   }
 });
-router.post("/Login", async (req, res) =>
-{
+router.post("/Login", async (req, res) => {
   try {
     const email = req.body.email;
     const password = req.body.password;
@@ -236,8 +230,7 @@ router.post("/Login", async (req, res) =>
     });
   }
 });
-router.get("/get-user-detail/:_id", async (req, res) =>
-{
+router.get("/get-user-detail/:_id", async (req, res) => {
   try {
     const _id = req.params._id;
     const data = await providerRegister.findOne({ _id: _id }).select({
@@ -265,8 +258,7 @@ router.get("/get-user-detail/:_id", async (req, res) =>
     });
   }
 });
-router.post("/send-otp-forpassword-change", async (req, res) =>
-{
+router.post("/send-otp-forpassword-change", async (req, res) => {
   try {
     let email = req.body.email;
     const mail = await providerRegister.findOne({ email: email });
@@ -298,8 +290,7 @@ router.post("/send-otp-forpassword-change", async (req, res) =>
         subject: "sending email using nodejs",
         text: `Varify Email OTP ${random}`,
       };
-      transpoter.sendMail(mailoption, function (error, info)
-      {
+      transpoter.sendMail(mailoption, function (error, info) {
         if (error) {
           console.log(error);
           res.status(500).json({
@@ -336,8 +327,7 @@ router.post("/send-otp-forpassword-change", async (req, res) =>
     });
   }
 });
-router.post("/password-otp-varify", async (req, res) =>
-{
+router.post("/password-otp-varify", async (req, res) => {
   try {
     const email = req.body.email;
     const code = req.body.code;
@@ -378,8 +368,7 @@ router.post("/password-otp-varify", async (req, res) =>
     });
   }
 });
-router.post("/changePassword", async (req, res) =>
-{
+router.post("/changePassword", async (req, res) => {
   try {
     const email = req.body.email;
     const mailVarify = await providerRegister.findOne({ email: email });
@@ -404,8 +393,7 @@ router.post("/changePassword", async (req, res) =>
     });
   }
 });
-const clearCollection = async () =>
-{
+const clearCollection = async () => {
   try {
     const result = await EmailVarify.deleteMany({});
     return result.deletedCount;
@@ -414,8 +402,7 @@ const clearCollection = async () =>
     throw error;
   }
 };
-cron.schedule("59 23 */1 * *", async () =>
-{
+cron.schedule("59 23 */1 * *", async () => {
   try {
     const deletedCount = await clearCollection();
     console.log(`Deleted ${deletedCount} documents.`);
@@ -423,8 +410,7 @@ cron.schedule("59 23 */1 * *", async () =>
     console.error("Error running cron job:", error);
   }
 });
-router.post("/add-players", upload.single("Image"), async (req, res) =>
-{
+router.post("/add-players", upload.single("Image"), async (req, res) => {
   try {
     const {
       name,
@@ -491,8 +477,7 @@ router.post("/add-players", upload.single("Image"), async (req, res) =>
     });
   }
 });
-router.get("/get-player-detail-by-adminid/:admin", async (req, res) =>
-{
+router.get("/get-player-detail-by-adminid/:admin", async (req, res) => {
   try {
     const adminId = req.params.admin;
     const data = await Player.find({ admins: adminId });
@@ -522,8 +507,7 @@ router.get("/get-player-detail-by-adminid/:admin", async (req, res) =>
     });
   }
 });
-router.post("/get-player-detail-by-playerid", async (req, res) =>
-{
+router.post("/get-player-detail-by-playerid", async (req, res) => {
   try {
     const playerId = req.body.playerId;
     const data = await Player.findOne({ _id: playerId });
@@ -553,8 +537,7 @@ router.post("/get-player-detail-by-playerid", async (req, res) =>
     });
   }
 });
-router.delete("/delete-player-byid", async (req, res) =>
-{
+router.delete("/delete-player-byid", async (req, res) => {
   try {
     const playerId = req.body.playerId;
     const deletedPlayer = await Player.findByIdAndDelete(playerId);
@@ -601,8 +584,7 @@ router.delete("/delete-player-byid", async (req, res) =>
     });
   }
 });
-router.put("/update-player", upload.single("Image"), async (req, res) =>
-{
+router.put("/update-player", upload.single("Image"), async (req, res) => {
   try {
     const productId = req.body.playerId;
     const { name, location, role, age, additionalInfo, admins } = req.body;
@@ -647,8 +629,7 @@ router.put("/update-player", upload.single("Image"), async (req, res) =>
     });
   }
 });
-router.post("/get-other-admin-by-adminid", async (req, res) =>
-{
+router.post("/get-other-admin-by-adminid", async (req, res) => {
   try {
     const adminID = req.body.adminID;
     const page = parseInt(req.body.page) || 1; // Current page number, default is 1
@@ -697,8 +678,7 @@ router.post("/get-other-admin-by-adminid", async (req, res) =>
     });
   }
 });
-router.put("/share-player", async (req, res) =>
-{
+router.put("/share-player", async (req, res) => {
   try {
     const playerId = req.body.playerId;
     const adminId = req.body.adminId;
@@ -721,7 +701,8 @@ router.put("/share-player", async (req, res) =>
       return res.status(404).json({
         status: 404,
         success: false,
-        message: "Player not found for this player ID or you are not an admin of this player",
+        message:
+          "Player not found for this player ID or you are not an admin of this player",
         data: null,
       });
     }
@@ -761,8 +742,7 @@ router.put("/share-player", async (req, res) =>
   }
 });
 
-router.post("/add-team", upload.single("image"), async (req, res) =>
-{
+router.post("/add-team", upload.single("image"), async (req, res) => {
   try {
     const { name, location, admin, players } = req.body;
     const playerID = Array.isArray(players)
@@ -817,8 +797,7 @@ router.post("/add-team", upload.single("image"), async (req, res) =>
     });
   }
 });
-router.post("/get-teams", async (req, res) =>
-{
+router.post("/get-teams", async (req, res) => {
   try {
     const { adminId } = req.body;
 
@@ -852,8 +831,7 @@ router.post("/get-teams", async (req, res) =>
     });
   }
 });
-router.put("/update-team", upload.single("image"), async (req, res) =>
-{
+router.put("/update-team", upload.single("image"), async (req, res) => {
   try {
     const teamID = req.body.teamID;
     const { name, location } = req.body;
@@ -894,8 +872,7 @@ router.put("/update-team", upload.single("image"), async (req, res) =>
     });
   }
 });
-router.delete("/delete-team-byid", async (req, res) =>
-{
+router.delete("/delete-team-byid", async (req, res) => {
   try {
     const teamID = req.body.teamID;
     const deletedPlayer = await Team.findByIdAndDelete({ _id: teamID });
@@ -942,8 +919,7 @@ router.delete("/delete-team-byid", async (req, res) =>
     });
   }
 });
-router.put("/in-team-add-player", async (req, res) =>
-{
+router.put("/in-team-add-player", async (req, res) => {
   try {
     const teamID = req.body.teamID;
     const adminId = req.body.adminId;
@@ -1003,8 +979,7 @@ router.put("/in-team-add-player", async (req, res) =>
     });
   }
 });
-router.put("/share-team", async (req, res) =>
-{
+router.put("/share-team", async (req, res) => {
   try {
     const teamID = req.body.teamID;
     const adminId = req.body.adminId;
@@ -1066,11 +1041,13 @@ router.put("/share-team", async (req, res) =>
     });
   }
 });
-router.get("/get-players-by-teamId/:teamID", async (req, res) =>
-{
+router.get("/get-players-by-teamId/:teamID", async (req, res) => {
   try {
     const teamID = req.params.teamID;
-    const data = await Team.find({ _id: teamID }).populate("players", "name location role Image");
+    const data = await Team.find({ _id: teamID }).populate(
+      "players",
+      "name location role Image"
+    );
 
     if (!data) {
       return res.status(404).json({
@@ -1097,20 +1074,17 @@ router.get("/get-players-by-teamId/:teamID", async (req, res) =>
     });
   }
 });
-router.post("/create", async (req, res) =>
-{
+router.post("/create", async (req, res) => {
   const data = req.body;
   await matchDetails.add({ data });
   res.send({ msg: "User Added" });
 });
-router.get("/create", async (req, res) =>
-{
+router.get("/create", async (req, res) => {
   const snapshot = await matchDetails.get();
   const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   res.send(list);
 });
-router.post("/add-match-details", async (req, res) =>
-{
+router.post("/add-match-details", async (req, res) => {
   try {
     const {
       team1,
@@ -1141,10 +1115,8 @@ router.post("/add-match-details", async (req, res) =>
       team1Balls,
       team2Balls,
       team1Outs,
-      team2Outs
+      team2Outs,
     } = req.body;
-
-    
 
     const squad1IDs = Array.isArray(squad1)
       ? squad1.map((id) => mongoose.Types.ObjectId(id))
@@ -1171,7 +1143,7 @@ router.post("/add-match-details", async (req, res) =>
       squad1: squad1IDs,
       squad2: squad2IDs,
       admin: admin,
-      manOfTheMatch:null,
+      manOfTheMatch: null,
       team1Batting: team1Batting,
       team2Batting: team2Batting,
       team1toss: team1toss,
@@ -1204,41 +1176,41 @@ router.post("/add-match-details", async (req, res) =>
     });
   }
 });
-router.get("/get-MatchDetails-by-MatchDetailsId/:MatchDetailID", async (req, res) =>
-{
-  try {
-    const teamID = req.params.MatchDetailID;
-    const data = await MatchDetails.find({ _id: teamID });
+router.get(
+  "/get-MatchDetails-by-MatchDetailsId/:MatchDetailID",
+  async (req, res) => {
+    try {
+      const teamID = req.params.MatchDetailID;
+      const data = await MatchDetails.find({ _id: teamID });
 
-    if (!data) {
-      return res.status(404).json({
-        status: 404,
+      if (!data) {
+        return res.status(404).json({
+          status: 404,
+          success: false,
+          message: "MatchDetails not found for this MatchDetails ID",
+          data: null,
+        });
+      }
+
+      res.status(200).json({
+        status: 200,
+        success: true,
+        message: "MatchDetails details",
+        data: data,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        status: 500,
         success: false,
-        message: "MatchDetails not found for this MatchDetails ID",
+        message: "Internal server error",
         data: null,
       });
     }
-
-    res.status(200).json({
-      status: 200,
-      success: true,
-      message: "MatchDetails details",
-      data: data,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Internal server error",
-      data: null,
-    });
   }
-});
-router.get("/get-allMatchDetails", async (req, res) =>
-{
+);
+router.get("/get-allMatchDetails", async (req, res) => {
   try {
-   
     const data = await MatchDetails.find();
 
     if (!data) {
@@ -1266,8 +1238,7 @@ router.get("/get-allMatchDetails", async (req, res) =>
     });
   }
 });
-router.get("/get-all-MatchDetails-byadmin/:adminIDs", async (req, res) =>
-{
+router.get("/get-all-MatchDetails-byadmin/:adminIDs", async (req, res) => {
   try {
     const adminIDs = req.params.adminIDs;
     const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
@@ -1295,7 +1266,6 @@ router.get("/get-all-MatchDetails-byadmin/:adminIDs", async (req, res) =>
       success: true,
       message: "MatchDetails found",
       data: data,
-      
     });
   } catch (error) {
     console.log(error);
@@ -1307,7 +1277,6 @@ router.get("/get-all-MatchDetails-byadmin/:adminIDs", async (req, res) =>
     });
   }
 });
-
 
 module.exports = router;
 //
