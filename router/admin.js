@@ -1159,7 +1159,7 @@ router.post("/add-match-details", async (req, res) => {
     });
 
     const savedPlayer = await MenuEmp.save();
-    await firebase_matchDetails.add(req.body); // Save to Firebase
+
     res.status(201).json({
       status: 201,
       success: true,
@@ -1173,6 +1173,51 @@ router.post("/add-match-details", async (req, res) => {
       success: false,
       message: "Internal Server Error",
       error: error.message,
+    });
+  }
+});
+router.post("/start-match", async (req, res, next) => {
+  try {
+    const { id } = req.body;
+    const matchDetails = await MatchDetails.findById(id);
+    if (!matchDetails) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "MatchDetails not found",
+        data: null,
+      });
+    }
+    matchDetails.matchStatus = 1;
+    await matchDetails.save();
+
+    const data = await matchDetails.populate(
+      "team1 team2",
+      "name location image -_id"
+    );
+    const firestoreData = data.toObject();
+
+    firestoreData._id = firestoreData._id.toString();
+    firestoreData.admin = firestoreData.admin.toString();
+    firestoreData.whoWinsTheToss = firestoreData.whoWinsTheToss.toString();
+    firestoreData.squad1 = firestoreData.squad1.map((id) => id.toString());
+    firestoreData.squad2 = firestoreData.squad2.map((id) => id.toString());
+
+    await firebase_matchDetails.add(firestoreData);
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "MatchDetails started successfully",
+      data: firestoreData,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Internal server error",
+      data: null,
     });
   }
 });
