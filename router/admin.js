@@ -1223,7 +1223,10 @@ router.post("/start-match", async (req, res, next) => {
 router.get("/get-upcoming-matches/:adminId", async (req, res) => {
   try {
     const adminId = req.params.adminId;
-    const matches = await MatchDetails.find({ admin: adminId, matchStatus: 0 });
+    const matches = await MatchDetails.find({
+      admin: adminId,
+      matchStatus: 0,
+    }).populate("team1 team2 squad1 squad2");
 
     if (!matches || matches.length === 0) {
       return res.status(404).json({
