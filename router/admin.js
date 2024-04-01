@@ -1220,6 +1220,36 @@ router.post("/start-match", async (req, res, next) => {
     });
   }
 });
+router.get("/get-upcoming-matches/:adminId", async (req, res) => {
+  try {
+    const adminId = req.params.adminId;
+    const matches = await MatchDetails.find({ admin: adminId, matchStatus: 0 });
+
+    if (!matches || matches.length === 0) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "No matches found for this admin ID with matchStatus 0",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Match details",
+      data: matches,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+});
 router.get(
   "/get-MatchDetails-by-MatchDetailsId/:MatchDetailID",
   async (req, res) => {
