@@ -741,7 +741,6 @@ router.put("/share-player", async (req, res) => {
     });
   }
 });
-
 router.post("/add-team", upload.single("image"), async (req, res) => {
   try {
     const { name, location, admin, players } = req.body;
@@ -1324,4 +1323,3 @@ router.get("/get-all-MatchDetails-byadmin/:adminIDs", async (req, res) => {
 });
 
 module.exports = router;
-//
