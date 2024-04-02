@@ -1498,7 +1498,7 @@ router.get("/get-live-matches/:adminId", async (req, res) => {
       return res.status(404).json({
         status: 404,
         success: false,
-        message: "No matches found for this admin ID with matchStatus 0",
+        message: "No matches found for the current admin.",
         data: null,
       });
     }
@@ -1530,7 +1530,7 @@ router.get("/get-live-matches-for-user", async (req, res) => {
       return res.status(404).json({
         status: 404,
         success: false,
-        message: "No matches found for this admin ID with matchStatus 0",
+        message: "No matches found.",
         data: null,
       });
     }
