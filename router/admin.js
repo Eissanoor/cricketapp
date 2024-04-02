@@ -1457,7 +1457,8 @@ router.get("/get-all-MatchDetails-byadmin/:adminIDs", async (req, res) => {
 router.get("/get-upcoming-matches-for-user", async (req, res) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 0 }).populate(
-      "team1 team2 squad1 squad2"
+      "team1 team2 squad1 squad2",
+      "name image Image"
     );
 
     if (!matches || matches.length === 0) {
