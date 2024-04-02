@@ -1262,8 +1262,8 @@ router.post("/add-match-details", async (req, res) => {
     res.status(201).json({
       status: 201,
       success: true,
-      message: "MatchDetails has been added successfully",
-      data: savedPlayer,
+      message: "Match Details has been added successfully",
+      data: null,
     });
   } catch (error) {
     console.log(error);
