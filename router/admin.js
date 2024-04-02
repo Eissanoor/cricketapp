@@ -1347,13 +1347,13 @@ router.post("/start-match", async (req, res, next) =>
     firestoreData.squad1 = firestoreData.squad1.map((id) => id.toString());
     firestoreData.squad2 = firestoreData.squad2.map((id) => id.toString());
 
-    await firebase_matchDetails.add(firestoreData);
+    // await firebase_matchDetails.add(firestoreData);
 
     res.status(200).json({
       status: 200,
       success: true,
       message: "MatchDetails started successfully",
-      data: firestoreData,
+      data: null,
     });
   } catch (err) {
     console.log(err);
