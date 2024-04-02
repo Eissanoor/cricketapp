@@ -1492,7 +1492,7 @@ router.get("/get-live-matches/:adminId", async (req, res) => {
     const matches = await MatchDetails.find({
       admin: adminId,
       matchStatus: 1,
-    }).populate("team1 team2 squad1 squad2");
+    }).populate("team1 team2 squad1 squad2", "name image Image");
 
     if (!matches || matches.length === 0) {
       return res.status(404).json({
@@ -1522,7 +1522,8 @@ router.get("/get-live-matches/:adminId", async (req, res) => {
 router.get("/get-live-matches-for-user", async (req, res) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 1 }).populate(
-      "team1 team2 squad1 squad2"
+      "team1 team2 squad1 squad2",
+      "name image Image"
     );
 
     if (!matches || matches.length === 0) {
