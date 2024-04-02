@@ -1226,7 +1226,7 @@ router.get("/get-upcoming-matches/:adminId", async (req, res) => {
     const matches = await MatchDetails.find({
       admin: adminId,
       matchStatus: 0,
-    }).populate("team1 team2 squad1 squad2");
+    }).populate("team1 team2 squad1 squad2", "name image Image");
 
     if (!matches || matches.length === 0) {
       return res.status(404).json({
