@@ -1374,8 +1374,8 @@ router.put("/start-match/:matchId", async (req, res) => {
       squad2,
       team1Batting,
       team2Batting,
-      team1Toss,
-      team2Toss,
+      team1toss,
+      team2toss,
     } = req.body;
 
     // Update match details
@@ -1389,8 +1389,8 @@ router.put("/start-match/:matchId", async (req, res) => {
         squad2,
         team1Batting,
         team2Batting,
-        team1Toss,
-        team2Toss,
+        team1toss,
+        team2toss,
       },
       { new: true }
     );
