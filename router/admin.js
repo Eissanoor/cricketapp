@@ -1183,9 +1183,102 @@ router.get("/create", async (req, res) => {
   const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   res.send(list);
 });
+// router.post("/add-match-details", async (req, res) => {
+//   try {
+//     const {
+//       team1,
+//       team2,
+//       matchType,
+//       ballType,
+//       pitchType,
+//       numberOfOvers,
+//       oversPerBowler,
+//       cityOrTown,
+//       ground,
+//       matchDateTime,
+//       whoWinsTheToss,
+//       tossDetails,
+//       matchStatus,
+//       squad1,
+//       squad2,
+//       admin,
+//       manOfTheMatch,
+//       team1Batting,
+//       team2Batting,
+//       team1toss,
+//       team2toss,
+//       team1Score,
+//       team2Score,
+//       team1Overs,
+//       team2Overs,
+//       team1Balls,
+//       team2Balls,
+//       team1Outs,
+//       team2Outs,
+//     } = req.body;
+
+//     const squad1IDs = Array.isArray(squad1)
+//       ? squad1.map((id) => mongoose.Types.ObjectId(id))
+//       : [];
+
+//     const squad2IDs = Array.isArray(squad2)
+//       ? squad2.map((id) => mongoose.Types.ObjectId(id))
+//       : [];
+
+//     const MenuEmp = new MatchDetails({
+//       team1: team1,
+//       team2: team2,
+//       matchType: matchType,
+//       ballType: ballType,
+//       pitchType: pitchType,
+//       numberOfOvers: numberOfOvers,
+//       oversPerBowler: oversPerBowler,
+//       cityOrTown: cityOrTown,
+//       ground: ground,
+//       matchDateTime: matchDateTime,
+//       whoWinsTheToss: whoWinsTheToss,
+//       tossDetails: tossDetails,
+//       matchStatus: matchStatus,
+//       squad1: squad1IDs,
+//       squad2: squad2IDs,
+//       admin: admin,
+//       manOfTheMatch: null,
+//       team1Batting: team1Batting,
+//       team2Batting: team2Batting,
+//       team1toss: team1toss,
+//       team2toss: team2toss,
+//       team1Score: team1Score,
+//       team2Score: team2Score,
+//       team1Overs: team1Overs,
+//       team2Overs: team2Overs,
+//       team1Balls: team1Balls,
+//       team2Balls: team2Balls,
+//       team1Outs: team1Outs,
+//       team2Outs: team2Outs,
+//     });
+
+//     const savedPlayer = await MenuEmp.save();
+
+//     res.status(201).json({
+//       status: 201,
+//       success: true,
+//       message: "Match Details has been added successfully",
+//       data: null,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({
+//       status: 500,
+//       success: false,
+//       message: "Internal Server Error",
+//       error: error.message,
+//     });
+//   }
+// });
 router.post("/add-match-details", async (req, res) => {
   try {
     const {
+      admin,
       team1,
       team2,
       matchType,
@@ -1196,68 +1289,64 @@ router.post("/add-match-details", async (req, res) => {
       cityOrTown,
       ground,
       matchDateTime,
-      whoWinsTheToss,
-      tossDetails,
-      matchStatus,
-      squad1,
-      squad2,
-      admin,
-      manOfTheMatch,
-      team1Batting,
-      team2Batting,
-      team1toss,
-      team2toss,
-      team1Score,
-      team2Score,
-      team1Overs,
-      team2Overs,
-      team1Balls,
-      team2Balls,
-      team1Outs,
-      team2Outs,
     } = req.body;
 
-    const squad1IDs = Array.isArray(squad1)
-      ? squad1.map((id) => mongoose.Types.ObjectId(id))
-      : [];
-
-    const squad2IDs = Array.isArray(squad2)
-      ? squad2.map((id) => mongoose.Types.ObjectId(id))
-      : [];
-
-    const MenuEmp = new MatchDetails({
-      team1: team1,
-      team2: team2,
-      matchType: matchType,
-      ballType: ballType,
-      pitchType: pitchType,
-      numberOfOvers: numberOfOvers,
-      oversPerBowler: oversPerBowler,
-      cityOrTown: cityOrTown,
-      ground: ground,
-      matchDateTime: matchDateTime,
-      whoWinsTheToss: whoWinsTheToss,
-      tossDetails: tossDetails,
-      matchStatus: matchStatus,
-      squad1: squad1IDs,
-      squad2: squad2IDs,
-      admin: admin,
+    // Validate required input
+    if (
+      !admin ||
+      !team1 ||
+      !team2 ||
+      !matchType ||
+      !ballType ||
+      !pitchType ||
+      !numberOfOvers ||
+      !oversPerBowler ||
+      !cityOrTown ||
+      !ground ||
+      !matchDateTime
+    ) {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: "All fields are required",
+        error: error.message,
+      });
+    }
+    const MatchDetailsObj = {
+      admin,
+      team1,
+      team2,
+      matchType,
+      ballType,
+      pitchType,
+      numberOfOvers,
+      oversPerBowler,
+      cityOrTown,
+      ground,
+      matchDateTime,
+      whoWinsTheToss: null,
+      tossDetails: null,
+      matchStatus: 0, // Default matchStatus
+      team1Batting: null,
+      team2Batting: null,
+      team1toss: null,
+      team2toss: null,
       manOfTheMatch: null,
-      team1Batting: team1Batting,
-      team2Batting: team2Batting,
-      team1toss: team1toss,
-      team2toss: team2toss,
-      team1Score: team1Score,
-      team2Score: team2Score,
-      team1Overs: team1Overs,
-      team2Overs: team2Overs,
-      team1Balls: team1Balls,
-      team2Balls: team2Balls,
-      team1Outs: team1Outs,
-      team2Outs: team2Outs,
-    });
+      team1Score: null,
+      team2Score: null,
+      team1Overs: null,
+      team2Overs: null,
+      team1Balls: null,
+      team2Balls: null,
+      team1Outs: null,
+      team2Outs: null,
+      squad1: null, // Default squad1
+      squad2: null, // Default squad2
+    };
 
-    const savedPlayer = await MenuEmp.save();
+    const newMatchDetails = new MatchDetails(MatchDetailsObj);
+
+    const savedMatchDetails = await newMatchDetails.save();
 
     res.status(201).json({
       status: 201,
@@ -1275,51 +1364,139 @@ router.post("/add-match-details", async (req, res) => {
     });
   }
 });
-router.post("/start-match", async (req, res, next) => {
+router.put("/start-match/:matchId", async (req, res) => {
   try {
-    const { id } = req.body;
-    const matchDetails = await MatchDetails.findById(id);
-    if (!matchDetails) {
-      return res.status(404).json({
-        status: 404,
+    const matchId = req.params.matchId;
+    const {
+      whoWinsTheToss,
+      tossDetails,
+      matchStatus,
+      squad1,
+      squad2,
+      team1Batting,
+      team2Batting,
+      team1toss,
+      team2toss,
+    } = req.body;
+
+    // Check if required fields are provided
+    if (
+      !whoWinsTheToss ||
+      !matchStatus ||
+      !squad1 ||
+      !squad2 ||
+      !team1Batting ||
+      !team2Batting ||
+      !team1toss ||
+      !team2toss
+    ) {
+      return res.status(400).json({
+        status: 400,
         success: false,
-        message: "Match details not found",
+        message: "All required fields must be provided",
         data: null,
       });
     }
-    matchDetails.matchStatus = 1;
-    await matchDetails.save();
 
-    // const data = await matchDetails.populate(
-    //   "team1 team2",
-    //   "name location image -_id"
-    // );
-    // const firestoreData = data.toObject();
+    // Check if squad1 and squad2 are arrays
+    if (!Array.isArray(squad1) || !Array.isArray(squad2)) {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: "Squads must be arrays",
+        data: null,
+      });
+    }
 
-    // firestoreData._id = firestoreData._id.toString();
-    // firestoreData.admin = firestoreData.admin.toString();
-    // firestoreData.whoWinsTheToss = firestoreData.whoWinsTheToss.toString();
-    // firestoreData.squad1 = firestoreData.squad1.map((id) => id.toString());
-    // firestoreData.squad2 = firestoreData.squad2.map((id) => id.toString());
+    // Validate other fields as needed...
 
-    // await firebase_matchDetails.add(firestoreData);
+    // Update match details
+    const updatedMatch = await MatchDetails.findByIdAndUpdate(
+      matchId,
+      {
+        whoWinsTheToss,
+        tossDetails,
+        matchStatus,
+        squad1,
+        squad2,
+        team1Batting,
+        team2Batting,
+        team1toss,
+        team2toss,
+      },
+      { new: true }
+    );
+
+    if (!updatedMatch) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "Match not found",
+        data: null,
+      });
+    }
 
     res.status(200).json({
       status: 200,
       success: true,
-      message: "Match is live now.",
-      data: null,
+      message: "Match started successfully",
+      data: updatedMatch,
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({
       status: 500,
       success: false,
-      message: "Internal server error",
-      data: null,
+      message: "Internal Server Error",
+      error: error.message,
     });
   }
 });
+// router.post("/start-match", async (req, res, next) => {
+//   try {
+//     const { id } = req.body;
+//     const matchDetails = await MatchDetails.findById(id);
+//     if (!matchDetails) {
+//       return res.status(404).json({
+//         status: 404,
+//         success: false,
+//         message: "Match details not found",
+//         data: null,
+//       });
+//     }
+//     matchDetails.matchStatus = 1;
+//     await matchDetails.save();
+
+//     // const data = await matchDetails.populate(
+//     //   "team1 team2",
+//     //   "name location image -_id"
+//     // );
+//     // const firestoreData = data.toObject();
+
+//     // firestoreData._id = firestoreData._id.toString();
+//     // firestoreData.admin = firestoreData.admin.toString();
+//     // firestoreData.whoWinsTheToss = firestoreData.whoWinsTheToss.toString();
+//     // firestoreData.squad1 = firestoreData.squad1.map((id) => id.toString());
+//     // firestoreData.squad2 = firestoreData.squad2.map((id) => id.toString());
+
+//     // await firebase_matchDetails.add(firestoreData);
+
+//     res.status(200).json({
+//       status: 200,
+//       success: true,
+//       message: "Match is live now.",
+//       data: null,
+//     });
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({
+//       status: 500,
+//       success: false,
+//       message: "Internal server error",
+//       data: null,
+//     });
+//   }
+// });
 router.get("/get-upcoming-matches/:adminId", async (req, res) => {
   try {
     const adminId = req.params.adminId;
