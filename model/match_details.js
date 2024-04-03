@@ -24,7 +24,7 @@ const matchDetailsSchema = new mongoose.Schema(
     oversPerBowler: { type: Number, required: true },
     cityOrTown: { type: String, required: true },
     ground: { type: String, required: true },
-    matchDateTime: { type: Date, required: true },
+    matchDateTime: { type: String, required: true },
     whoWinsTheToss: { type: mongoose.Schema.Types.ObjectId, ref: "Team" }, // Nullable
     tossDetails: { type: String },
     matchStatus: { type: Number, required: true },
