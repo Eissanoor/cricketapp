@@ -1374,38 +1374,9 @@ router.put("/start-match/:matchId", async (req, res) => {
       squad2,
       team1Batting,
       team2Batting,
-      team1toss,
-      team2toss,
+      team1Toss,
+      team2Toss,
     } = req.body;
-
-    // Check if required fields are provided
-    if (
-      !whoWinsTheToss ||
-      !matchStatus ||
-      !squad1 ||
-      !squad2 ||
-      !team1Batting ||
-      !team2Batting ||
-      !team1toss ||
-      !team2toss
-    ) {
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message: "All required fields must be provided",
-        data: null,
-      });
-    }
-
-    // Check if squad1 and squad2 are arrays
-    if (!Array.isArray(squad1) || !Array.isArray(squad2)) {
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message: "Squads must be arrays",
-        data: null,
-      });
-    }
 
     // Update match details
     const updatedMatch = await MatchDetails.findByIdAndUpdate(
@@ -1418,8 +1389,8 @@ router.put("/start-match/:matchId", async (req, res) => {
         squad2,
         team1Batting,
         team2Batting,
-        team1toss,
-        team2toss,
+        team1Toss,
+        team2Toss,
       },
       { new: true }
     );
