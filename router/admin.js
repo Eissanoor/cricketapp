@@ -1183,98 +1183,7 @@ router.get("/create", async (req, res) => {
   const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   res.send(list);
 });
-// router.post("/add-match-details", async (req, res) => {
-//   try {
-//     const {
-//       team1,
-//       team2,
-//       matchType,
-//       ballType,
-//       pitchType,
-//       numberOfOvers,
-//       oversPerBowler,
-//       cityOrTown,
-//       ground,
-//       matchDateTime,
-//       whoWinsTheToss,
-//       tossDetails,
-//       matchStatus,
-//       squad1,
-//       squad2,
-//       admin,
-//       manOfTheMatch,
-//       team1Batting,
-//       team2Batting,
-//       team1toss,
-//       team2toss,
-//       team1Score,
-//       team2Score,
-//       team1Overs,
-//       team2Overs,
-//       team1Balls,
-//       team2Balls,
-//       team1Outs,
-//       team2Outs,
-//     } = req.body;
 
-//     const squad1IDs = Array.isArray(squad1)
-//       ? squad1.map((id) => mongoose.Types.ObjectId(id))
-//       : [];
-
-//     const squad2IDs = Array.isArray(squad2)
-//       ? squad2.map((id) => mongoose.Types.ObjectId(id))
-//       : [];
-
-//     const MenuEmp = new MatchDetails({
-//       team1: team1,
-//       team2: team2,
-//       matchType: matchType,
-//       ballType: ballType,
-//       pitchType: pitchType,
-//       numberOfOvers: numberOfOvers,
-//       oversPerBowler: oversPerBowler,
-//       cityOrTown: cityOrTown,
-//       ground: ground,
-//       matchDateTime: matchDateTime,
-//       whoWinsTheToss: whoWinsTheToss,
-//       tossDetails: tossDetails,
-//       matchStatus: matchStatus,
-//       squad1: squad1IDs,
-//       squad2: squad2IDs,
-//       admin: admin,
-//       manOfTheMatch: null,
-//       team1Batting: team1Batting,
-//       team2Batting: team2Batting,
-//       team1toss: team1toss,
-//       team2toss: team2toss,
-//       team1Score: team1Score,
-//       team2Score: team2Score,
-//       team1Overs: team1Overs,
-//       team2Overs: team2Overs,
-//       team1Balls: team1Balls,
-//       team2Balls: team2Balls,
-//       team1Outs: team1Outs,
-//       team2Outs: team2Outs,
-//     });
-
-//     const savedPlayer = await MenuEmp.save();
-
-//     res.status(201).json({
-//       status: 201,
-//       success: true,
-//       message: "Match Details has been added successfully",
-//       data: null,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({
-//       status: 500,
-//       success: false,
-//       message: "Internal Server Error",
-//       error: error.message,
-//     });
-//   }
-// });
 router.post("/add-match-details", async (req, res) => {
   try {
     const {
@@ -1420,7 +1329,7 @@ router.put("/start-match/:matchId", async (req, res) => {
     });
   }
 });
-// router.post("/start-match", async (req, res, next) => {
+
 //   try {
 //     const { id } = req.body;
 //     const matchDetails = await MatchDetails.findById(id);
