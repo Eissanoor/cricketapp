@@ -1309,7 +1309,6 @@ router.post("/add-match-details", async (req, res) => {
         status: 400,
         success: false,
         message: "All fields are required",
-        error: error.message,
       });
     }
     const MatchDetailsObj = {
@@ -1332,14 +1331,14 @@ router.post("/add-match-details", async (req, res) => {
       team1toss: null,
       team2toss: null,
       manOfTheMatch: null,
-      team1Score: null,
-      team2Score: null,
-      team1Overs: null,
-      team2Overs: null,
-      team1Balls: null,
-      team2Balls: null,
-      team1Outs: null,
-      team2Outs: null,
+      team1Score: 0,
+      team2Score: 0,
+      team1Overs: 0,
+      team2Overs: 0,
+      team1Balls: 0,
+      team2Balls: 0,
+      team1Outs: 0,
+      team2Outs: 0,
       squad1: null, // Default squad1
       squad2: null, // Default squad2
     };
@@ -1407,8 +1406,6 @@ router.put("/start-match/:matchId", async (req, res) => {
         data: null,
       });
     }
-
-    // Validate other fields as needed...
 
     // Update match details
     const updatedMatch = await MatchDetails.findByIdAndUpdate(
