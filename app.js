@@ -11,6 +11,7 @@ var admin = require("./router/admin");
 const Player = require("./model/player");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+const MatchDetails = require("./model/match_details");
 // app.use(cors());
 // app.use(cors({
 //   origin: 'http://localhost:3000',
@@ -118,7 +119,44 @@ app.put("/update-player-socket", upload.single("Image"), async (req, res) =>
   }
 });
 
+// * Live Match Section
+app.post("/set-openings", async (req, res) =>
+{
+  try {
+    const { matchId, teamBatting, openingBatsmen, openingBowler } = req.body;
 
+    // Validate input parameters
+
+    // Update match details with opening batsmen and bowler for the specified inning
+    const match = await MatchDetails.findById(matchId);
+
+    // Update openings based on the team batting
+    if (teamBatting === match.team1) {
+      match.striker = openingBatsmen[0];
+      match.nonStriker = openingBatsmen[1];
+      match.openingBowler = openingBowler;
+    } else {
+      match.striker = openingBatsmen[0];
+      match.nonStriker = openingBatsmen[1];
+      match.openingBowler = openingBowler;
+    }
+
+   const matchstart= await match.save();
+
+    // Send real-time update using socket.io
+    socketIo.emit("match", matchstart);
+    res.status(200).json({
+      success: true,
+      message: "Opening batsmen and bowler set successfully.",
+      status: 200,
+      data: null,
+    });
+  } catch (error) {
+    // throw error for error handling middleware
+    error.message = "Error while setting opening batsmen and bowler.";
+    return next(error);
+  }
+});
 
 
 
