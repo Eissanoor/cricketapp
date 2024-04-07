@@ -1561,7 +1561,40 @@ router.get("/get-live-matches-for-user", async (req, res) => {
   }
 });
 
+router.get("/get-matchesdetails/:matchId", async (req, res) =>
+{
+  try {
+    const matchId = req.params.matchId;
+    const matches = await MatchDetails.find({
+      _id: matchId,
+      matchStatus: 1,
+    }).populate("team1 team2 squad1 squad2 openingBowler striker nonStriker", "name image Image");
 
+    if (!matches || matches.length === 0) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "No matches found for the current matchId.",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Match details",
+      data: matches,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+});
 //socket.io
 
 module.exports = router;
