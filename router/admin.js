@@ -1561,6 +1561,43 @@ router.get("/get-live-matches-for-user", async (req, res) => {
   }
 });
 
+// * Live Match Section
+router.post("/set-openings", async (req, res) => {
+  try {
+    const { matchId, teamBatting, openingBatsmen, openingBowler } = req.body;
+
+    // Validate input parameters
+
+    // Update match details with opening batsmen and bowler for the specified inning
+    const match = await MatchDetails.findById(matchId);
+
+    // Update openings based on the team batting
+    if (teamBatting === match.team1) {
+      match.striker = openingBatsmen[0];
+      match.nonStriker = openingBatsmen[1];
+      match.openingBowler = openingBowler;
+    } else {
+      match.striker = openingBatsmen[0];
+      match.nonStriker = openingBatsmen[1];
+      match.openingBowler = openingBowler;
+    }
+
+    await match.save();
+
+    // Send real-time update using socket.io
+
+    res.status(200).json({
+      success: true,
+      message: "Opening batsmen and bowler set successfully.",
+      status: 200,
+      data: null,
+    });
+  } catch (error) {
+    // throw error for error handling middleware
+    error.message = "Error while setting opening batsmen and bowler.";
+    return next(error);
+  }
+});
 //socket.io
 
 module.exports = router;
