@@ -39,9 +39,7 @@ app.use(cors());
 //   next();
 // });
 
-
-app.post("/get-player-detail-by-playerid-socket", async (req, res) =>
-{
+app.post("/get-player-detail-by-playerid-socket", async (req, res) => {
   try {
     const playerId = req.body.playerId;
     const data = await Player.findOne({ _id: playerId });
@@ -71,8 +69,7 @@ app.post("/get-player-detail-by-playerid-socket", async (req, res) =>
     });
   }
 });
-app.put("/update-player-socket", upload.single("Image"), async (req, res) =>
-{
+app.put("/update-player-socket", upload.single("Image"), async (req, res) => {
   try {
     const productId = req.body.playerId;
     const { name, location, role, age, additionalInfo, admins } = req.body;
@@ -120,8 +117,7 @@ app.put("/update-player-socket", upload.single("Image"), async (req, res) =>
 });
 
 // * Live Match Section
-app.post("/set-openings", async (req, res) =>
-{
+app.post("/set-openings", async (req, res) => {
   try {
     const { matchId, teamBatting, openingBatsmen, openingBowler } = req.body;
 
@@ -141,10 +137,10 @@ app.post("/set-openings", async (req, res) =>
       match.openingBowler = openingBowler;
     }
 
-   const matchstart= await match.save();
+    const matchstart = await match.save();
 
     // Send real-time update using socket.io
-    socketIo.emit("match", matchstart);
+    socketIo.emit("match-" + matchId, matchstart);
     res.status(200).json({
       success: true,
       message: "Opening batsmen and bowler set successfully.",
@@ -158,17 +154,8 @@ app.post("/set-openings", async (req, res) =>
   }
 });
 
-
-
-
-
-
-
-
-
 app.use(admin);
-app.use((error, req, res, next) =>
-{
+app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
@@ -182,22 +169,19 @@ var swaggerUi = require("swagger-ui-express"),
   swaggerDocument = require("./swagger.json");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const PORT = process.env.PORT || 3002;
-const serverssss = app.listen(PORT, () =>
-{
+const serverssss = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 const socketIo = require("socket.io")(serverssss, {
   pingTimeout: 2000,
   cors: {
-    origin: "*"
-  }
+    origin: "*",
+  },
 });
-socketIo.on("connection", (socket) =>
-{
+socketIo.on("connection", (socket) => {
   console.log("A user connected");
   socket.emit("message", "Hello from server");
-  socket.on("disconnect", () =>
-  {
+  socket.on("disconnect", () => {
     console.log("User disconnected");
   });
 });
