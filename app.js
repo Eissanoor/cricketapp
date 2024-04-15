@@ -256,6 +256,8 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
         innings: match.currentInning.number,
         battingTeam: match.currentInning.battingTeam,
         bowlingTeam: match.currentInning.bowlingTeam,
+        batsmen: [], // Required parameter
+        bowlers: [], // Required parameter
       });
     }
 
