@@ -222,7 +222,6 @@ app.post("/action", async (req, res) => {
     });
   }
 });
-
 const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
   try {
     // Find the match details

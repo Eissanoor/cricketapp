@@ -148,8 +148,7 @@ require("../database/db");
 //   }
 // });
 
-function generateOTP()
-{
+function generateOTP() {
   const digits = "0123456789";
   let OTP = "";
   for (let i = 0; i < 4; i++) {
@@ -157,8 +156,7 @@ function generateOTP()
   }
   return OTP;
 }
-router.get("/", (req, res) =>
-{
+router.get("/", (req, res) => {
   res.json({
     status: 200,
     success: true,
@@ -166,8 +164,7 @@ router.get("/", (req, res) =>
     data: null,
   });
 });
-router.post("/signup", async (req, res) =>
-{
+router.post("/signup", async (req, res) => {
   try {
     const email = req.body.email;
     const code = generateOTP();
@@ -199,8 +196,7 @@ router.post("/signup", async (req, res) =>
         subject: "Varify Email",
         text: `Varify Email OTP ${code}`,
       };
-      transpoter.sendMail(mailoption, function (error, info)
-      {
+      transpoter.sendMail(mailoption, function (error, info) {
         if (error) {
           console.log(error);
           res.status(500).json({
@@ -230,8 +226,7 @@ router.post("/signup", async (req, res) =>
     next(err);
   }
 });
-router.post("/emailVrifyOtp", async (req, res) =>
-{
+router.post("/emailVrifyOtp", async (req, res) => {
   try {
     const email = req.body.email;
     const code = req.body.code;
@@ -283,8 +278,7 @@ router.post("/emailVrifyOtp", async (req, res) =>
     });
   }
 });
-router.post("/Login", async (req, res) =>
-{
+router.post("/Login", async (req, res) => {
   try {
     const email = req.body.email;
     const password = req.body.password;
@@ -336,8 +330,7 @@ router.post("/Login", async (req, res) =>
     });
   }
 });
-router.get("/get-user-detail/:_id", async (req, res) =>
-{
+router.get("/get-user-detail/:_id", async (req, res) => {
   try {
     const _id = req.params._id;
     const data = await providerRegister.findOne({ _id: _id }).select({
@@ -365,8 +358,7 @@ router.get("/get-user-detail/:_id", async (req, res) =>
     });
   }
 });
-router.post("/send-otp-forpassword-change", async (req, res) =>
-{
+router.post("/send-otp-forpassword-change", async (req, res) => {
   try {
     let email = req.body.email;
     const mail = await providerRegister.findOne({ email: email });
@@ -398,8 +390,7 @@ router.post("/send-otp-forpassword-change", async (req, res) =>
         subject: "sending email using nodejs",
         text: `Varify Email OTP ${random}`,
       };
-      transpoter.sendMail(mailoption, function (error, info)
-      {
+      transpoter.sendMail(mailoption, function (error, info) {
         if (error) {
           console.log(error);
           res.status(500).json({
@@ -436,8 +427,7 @@ router.post("/send-otp-forpassword-change", async (req, res) =>
     });
   }
 });
-router.post("/password-otp-varify", async (req, res) =>
-{
+router.post("/password-otp-varify", async (req, res) => {
   try {
     const email = req.body.email;
     const code = req.body.code;
@@ -478,8 +468,7 @@ router.post("/password-otp-varify", async (req, res) =>
     });
   }
 });
-router.post("/changePassword", async (req, res) =>
-{
+router.post("/changePassword", async (req, res) => {
   try {
     const email = req.body.email;
     const mailVarify = await providerRegister.findOne({ email: email });
@@ -504,8 +493,7 @@ router.post("/changePassword", async (req, res) =>
     });
   }
 });
-const clearCollection = async () =>
-{
+const clearCollection = async () => {
   try {
     const result = await EmailVarify.deleteMany({});
     return result.deletedCount;
@@ -514,8 +502,7 @@ const clearCollection = async () =>
     throw error;
   }
 };
-cron.schedule("59 23 */1 * *", async () =>
-{
+cron.schedule("59 23 */1 * *", async () => {
   try {
     const deletedCount = await clearCollection();
     console.log(`Deleted ${deletedCount} documents.`);
@@ -523,8 +510,7 @@ cron.schedule("59 23 */1 * *", async () =>
     console.error("Error running cron job:", error);
   }
 });
-router.post("/add-players", upload.single("Image"), async (req, res) =>
-{
+router.post("/add-players", upload.single("Image"), async (req, res) => {
   try {
     const {
       name,
@@ -591,8 +577,7 @@ router.post("/add-players", upload.single("Image"), async (req, res) =>
     });
   }
 });
-router.get("/get-player-detail-by-adminid/:admin", async (req, res) =>
-{
+router.get("/get-player-detail-by-adminid/:admin", async (req, res) => {
   try {
     const adminId = req.params.admin;
     const data = await Player.find({ admins: adminId });
@@ -622,8 +607,7 @@ router.get("/get-player-detail-by-adminid/:admin", async (req, res) =>
     });
   }
 });
-router.post("/get-player-detail-by-playerid", async (req, res) =>
-{
+router.post("/get-player-detail-by-playerid", async (req, res) => {
   try {
     const playerId = req.body.playerId;
     const data = await Player.findOne({ _id: playerId });
@@ -653,8 +637,7 @@ router.post("/get-player-detail-by-playerid", async (req, res) =>
     });
   }
 });
-router.delete("/delete-player-byid", async (req, res) =>
-{
+router.delete("/delete-player-byid", async (req, res) => {
   try {
     const playerId = req.body.playerId;
     const deletedPlayer = await Player.findByIdAndDelete(playerId);
@@ -701,8 +684,7 @@ router.delete("/delete-player-byid", async (req, res) =>
     });
   }
 });
-router.put("/update-player", upload.single("Image"), async (req, res) =>
-{
+router.put("/update-player", upload.single("Image"), async (req, res) => {
   try {
     const productId = req.body.playerId;
     const { name, location, role, age, additionalInfo, admins } = req.body;
@@ -747,8 +729,7 @@ router.put("/update-player", upload.single("Image"), async (req, res) =>
     });
   }
 });
-router.post("/get-other-admin-by-adminid", async (req, res) =>
-{
+router.post("/get-other-admin-by-adminid", async (req, res) => {
   try {
     const adminID = req.body.adminID;
     const page = parseInt(req.body.page) || 1; // Current page number, default is 1
@@ -797,8 +778,7 @@ router.post("/get-other-admin-by-adminid", async (req, res) =>
     });
   }
 });
-router.put("/share-player", async (req, res) =>
-{
+router.put("/share-player", async (req, res) => {
   try {
     const playerId = req.body.playerId;
     const adminId = req.body.adminId;
@@ -861,8 +841,7 @@ router.put("/share-player", async (req, res) =>
     });
   }
 });
-router.post("/add-team", upload.single("image"), async (req, res) =>
-{
+router.post("/add-team", upload.single("image"), async (req, res) => {
   try {
     const { name, location, admin, players } = req.body;
     const playerID = Array.isArray(players)
@@ -917,8 +896,7 @@ router.post("/add-team", upload.single("image"), async (req, res) =>
     });
   }
 });
-router.post("/get-teams", async (req, res) =>
-{
+router.post("/get-teams", async (req, res) => {
   try {
     const { adminId } = req.body;
 
@@ -952,8 +930,7 @@ router.post("/get-teams", async (req, res) =>
     });
   }
 });
-router.put("/update-team", upload.single("image"), async (req, res) =>
-{
+router.put("/update-team", upload.single("image"), async (req, res) => {
   try {
     const teamID = req.body.teamID;
     const { name, location } = req.body;
@@ -994,8 +971,7 @@ router.put("/update-team", upload.single("image"), async (req, res) =>
     });
   }
 });
-router.delete("/delete-team-byid", async (req, res) =>
-{
+router.delete("/delete-team-byid", async (req, res) => {
   try {
     const teamID = req.body.teamID;
     const deletedPlayer = await Team.findByIdAndDelete({ _id: teamID });
@@ -1042,8 +1018,7 @@ router.delete("/delete-team-byid", async (req, res) =>
     });
   }
 });
-router.put("/in-team-add-player", async (req, res) =>
-{
+router.put("/in-team-add-player", async (req, res) => {
   try {
     const teamID = req.body.teamID;
     const adminId = req.body.adminId;
@@ -1103,8 +1078,7 @@ router.put("/in-team-add-player", async (req, res) =>
     });
   }
 });
-router.put("/share-team", async (req, res) =>
-{
+router.put("/share-team", async (req, res) => {
   try {
     const teamID = req.body.teamID;
     const adminId = req.body.adminId;
@@ -1166,8 +1140,7 @@ router.put("/share-team", async (req, res) =>
     });
   }
 });
-router.get("/get-players-by-teamId/:teamID", async (req, res) =>
-{
+router.get("/get-players-by-teamId/:teamID", async (req, res) => {
   try {
     const teamID = req.params.teamID;
     const data = await Team.find({ _id: teamID }).populate(
@@ -1200,21 +1173,18 @@ router.get("/get-players-by-teamId/:teamID", async (req, res) =>
     });
   }
 });
-router.post("/create", async (req, res) =>
-{
+router.post("/create", async (req, res) => {
   const data = req.body;
   await matchDetails.add({ data });
   res.send({ msg: "User Added" });
 });
-router.get("/create", async (req, res) =>
-{
+router.get("/create", async (req, res) => {
   const snapshot = await matchDetails.get();
   const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   res.send(list);
 });
 
-router.post("/add-match-details", async (req, res) =>
-{
+router.post("/add-match-details", async (req, res) => {
   try {
     const {
       admin,
@@ -1302,8 +1272,7 @@ router.post("/add-match-details", async (req, res) =>
     });
   }
 });
-router.put("/start-match/:matchId", async (req, res) =>
-{
+router.put("/start-match/:matchId", async (req, res) => {
   try {
     const matchId = req.params.matchId;
     const {
@@ -1360,8 +1329,7 @@ router.put("/start-match/:matchId", async (req, res) =>
     });
   }
 });
-router.get("/get-upcoming-matches/:adminId", async (req, res) =>
-{
+router.get("/get-upcoming-matches/:adminId", async (req, res) => {
   try {
     const adminId = req.params.adminId;
     const matches = await MatchDetails.find({
@@ -1396,8 +1364,7 @@ router.get("/get-upcoming-matches/:adminId", async (req, res) =>
 });
 router.get(
   "/get-MatchDetails-by-MatchDetailsId/:MatchDetailID",
-  async (req, res) =>
-  {
+  async (req, res) => {
     try {
       const teamID = req.params.MatchDetailID;
       const data = await MatchDetails.find({ _id: teamID });
@@ -1428,8 +1395,7 @@ router.get(
     }
   }
 );
-router.get("/get-allMatchDetails", async (req, res) =>
-{
+router.get("/get-allMatchDetails", async (req, res) => {
   try {
     const data = await MatchDetails.find();
 
@@ -1458,8 +1424,7 @@ router.get("/get-allMatchDetails", async (req, res) =>
     });
   }
 });
-router.get("/get-all-MatchDetails-byadmin/:adminIDs", async (req, res) =>
-{
+router.get("/get-all-MatchDetails-byadmin/:adminIDs", async (req, res) => {
   try {
     const adminIDs = req.params.adminIDs;
     const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
@@ -1498,8 +1463,7 @@ router.get("/get-all-MatchDetails-byadmin/:adminIDs", async (req, res) =>
     });
   }
 });
-router.get("/get-upcoming-matches-for-user", async (req, res) =>
-{
+router.get("/get-upcoming-matches-for-user", async (req, res) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 0 }).populate(
       "team1 team2 squad1 squad2",
@@ -1531,15 +1495,14 @@ router.get("/get-upcoming-matches-for-user", async (req, res) =>
     });
   }
 });
-router.get("/get-live-matches/:adminId", async (req, res) =>
-{
+router.get("/get-live-matches/:adminId", async (req, res) => {
   try {
     const adminId = req.params.adminId;
     const matches = await MatchDetails.find({
       admin: adminId,
       matchStatus: 1,
     }).populate(
-      "team1 team2 squad1 squad2 openingBowler striker nonStriker",
+      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls",
       "name image Image"
     );
 
@@ -1568,11 +1531,10 @@ router.get("/get-live-matches/:adminId", async (req, res) =>
     });
   }
 });
-router.get("/get-live-matches-for-user", async (req, res) =>
-{
+router.get("/get-live-matches-for-user", async (req, res) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 1 }).populate(
-      "team1 team2 squad1 squad2 openingBowler striker nonStriker",
+      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls",
       "name image Image"
     );
 
@@ -1609,7 +1571,7 @@ router.get("/get-matchesdetails/:matchId", async (req, res) => {
       _id: matchId,
       matchStatus: 1,
     }).populate(
-      "team1 team2 squad1 squad2 openingBowler striker nonStriker",
+      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls",
       "name image Image"
     );
 
