@@ -62,14 +62,21 @@ const matchDetailsSchema = new mongoose.Schema(
         ballsFaced: { type: Number, default: 0 },
         fours: { type: Number, default: 0 },
         sixes: { type: Number, default: 0 },
+        strikeRate: { type: Number, default: 0 },
         // Add other player statistics as needed
       },
     ],
     currentOver: {
       number: { type: Number, default: 0 },
       balls: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ball" }],
-      // Add other over-related fields as needed
     },
+    overs: [
+      {
+        number: { type: Number, required: true },
+        balls: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ball" }],
+      },
+    ],
+    scorecard: [{ type: mongoose.Schema.Types.ObjectId, ref: "Scorecard" }],
     // retiredPlayers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Player" }],
     // Other fields related to match statistics
   },

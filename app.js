@@ -153,6 +153,140 @@ app.post("/set-openings", async (req, res) => {
     return next(error);
   }
 });
+app.post("/action", async (req, res) => {
+  try {
+    const { matchId, actionType, data } = req.body;
+
+    // Perform action based on the action type
+    switch (actionType) {
+      case "score":
+        // Handle score action
+        const updatedMatchScore = await handleScoreAction(
+          matchId,
+          data.runsScored
+        );
+        // Send real-time update using socket.io
+        socketIo.emit("match-" + matchId, updatedMatchScore);
+        return res.status(200).json({
+          success: true,
+          message: "Match score updated successfully.",
+          status: 200,
+          data: updatedMatchScore,
+        });
+
+      //   case "out":
+      //     // Handle out action
+      //     const updatedMatchOut = await handleOutAction(matchId, data.playerOut);
+      //     // Send real-time update using socket.io
+      //     socketIo.emit("match-" + matchId, updatedMatchOut);
+      //     return res.status(200).json({
+      //       success: true,
+      //       message: "Player out updated successfully.",
+      //       status: 200,
+      //       data: updatedMatchOut,
+      //     });
+
+      //   case "extras":
+      //     // Handle extras action
+      //     const updatedMatchExtras = await handleExtrasAction(
+      //       matchId,
+      //       data.extraRuns
+      //     );
+      //     // Send real-time update using socket.io
+      //     socketIo.emit("match-" + matchId, updatedMatchExtras);
+      //     return res.status(200).json({
+      //       success: true,
+      //       message: "Extra runs added successfully.",
+      //       status: 200,
+      //       data: updatedMatchExtras,
+      //     });
+
+      // Add more cases for other action types as needed
+
+      default:
+        return res.status(400).json({
+          success: false,
+          message: "Invalid action type.",
+          status: 400,
+          data: null,
+        });
+    }
+  } catch (error) {
+    console.error("Error handling action:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error while processing the action.",
+      status: 500,
+      data: null,
+    });
+  }
+});
+
+const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
+  try {
+    // Find the match details
+    const match = await MatchDetails.findById(matchId);
+
+    // Check which team is batting
+    let battingTeamScore;
+    if (match.team1Batting) {
+      battingTeamScore = match.team1Score;
+    } else {
+      battingTeamScore = match.team2Score;
+    }
+
+    // Update the batting team's score
+    if (!isExtra && runsScored > 0) {
+      battingTeamScore += runsScored;
+    }
+
+    // Update the match details with the new score and extras
+    if (match.team1Batting) {
+      match.team1Score = battingTeamScore;
+      if (isExtra) {
+        match.team2Extras += runsScored; // Assuming team2 is fielding
+      }
+    } else {
+      match.team2Score = battingTeamScore;
+      if (isExtra) {
+        match.team1Extras += runsScored; // Assuming team1 is fielding
+      }
+    }
+
+    // Emit over event if the over is completed
+    if (match.currentOver.balls.length === match.oversPerBowler) {
+      // Emit over event via web sockets
+      socketIo.emit("overCompleted", {
+        matchId,
+        overNumber: match.currentOver.number,
+      });
+
+      // Reset balls array for the current over
+      match.currentOver.balls = [];
+
+      // Update current over number
+      match.currentOver.number += 1;
+
+      // Update striker and non-striker for the next over
+      const temp = match.striker;
+      match.striker = match.nonStriker;
+      match.nonStriker = temp;
+
+      // Update bowler for the next over
+      // Logic to select the next bowler can be added here
+
+      // Reset other over-related details if needed
+    }
+
+    // Save the updated match details
+    const updatedMatch = await match.save();
+
+    return updatedMatch;
+  } catch (error) {
+    console.error("Error handling score action:", error);
+    throw error;
+  }
+};
 
 app.use(admin);
 app.use((error, req, res, next) => {

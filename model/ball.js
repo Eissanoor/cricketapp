@@ -22,7 +22,6 @@ const ballSchema = new mongoose.Schema({
   isWicket: { type: Boolean, default: false },
   wicketType: { type: String }, // Type of wicket (e.g., caught, bowled)
   fielder: { type: mongoose.Schema.Types.ObjectId, ref: "Player" }, // Player who took the catch or performed the run-out
-  createdAt: { type: Date, default: Date.now },
 });
 
 const Ball = mongoose.model("Ball", ballSchema);
