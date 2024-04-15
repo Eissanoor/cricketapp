@@ -227,6 +227,19 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
     // Find the match details
     const match = await MatchDetails.findById(matchId);
 
+    // Create a new Ball object
+    const ball = new Ball({
+      match: matchId,
+      bowler: match.currentBowler,
+      batsman: match.striker,
+      runsScored,
+      isExtra,
+      extraType,
+    });
+
+    // Save the ball object
+    await ball.save();
+
     // Check which team is batting
     let battingTeamScore;
     if (match.team1Batting) {
@@ -253,8 +266,11 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
       }
     }
 
+    // Add the ball to the current over
+    match.currentOver.balls.push(ball._id);
+
     // Emit over event if the over is completed
-    if (match.currentOver.balls.length === match.oversPerBowler) {
+    if (match.currentOver.balls.length === 6) {
       // Emit over event via web sockets
       socketIo.emit("overCompleted", {
         matchId,
@@ -263,7 +279,6 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
 
       // Reset balls array for the current over
       match.currentOver.balls = [];
-
       // Update current over number
       match.currentOver.number += 1;
 
