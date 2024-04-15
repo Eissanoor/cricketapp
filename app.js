@@ -173,7 +173,8 @@ app.post("/action", async (req, res) => {
           success: true,
           message: "Match score updated successfully.",
           status: 200,
-          data: updatedMatchScore,
+          //   data: updatedMatchScore,
+          data: null,
         });
 
       //   case "out":
