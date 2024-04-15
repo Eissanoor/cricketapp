@@ -10,6 +10,7 @@ require("./database/db");
 var admin = require("./router/admin");
 const Player = require("./model/player");
 const Ball = require("./model/ball");
+const ScoreCard = require("./model/score_card");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const MatchDetails = require("./model/match_details");
@@ -234,69 +235,52 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
       batsman: match.striker,
       runsScored: runsScored,
       isExtra: isExtra,
-      extraType: match.extraType,
+      extraType: extraType,
     });
 
     // Save the ball object
     await ball.save();
 
-    // Check which team is batting
-    let battingTeamScore;
-    if (match.team1Batting) {
-      battingTeamScore = match.team1Score;
-    } else {
-      battingTeamScore = match.team2Score;
-    }
+    // Update scorecard
+    let scorecard = await ScoreCard.findOne({
+      match: matchId,
+      innings: match.currentInning.number,
+      battingTeam: match.currentInning.battingTeam,
+    });
 
-    // Update the batting team's score
-    if (!isExtra && runsScored > 0) {
-      battingTeamScore += runsScored;
-    }
-
-    // Update the match details with the new score and extras
-    if (match.team1Batting) {
-      match.team1Score = battingTeamScore;
-      if (isExtra) {
-        match.team2Extras += runsScored; // Assuming team2 is fielding
-      }
-    } else {
-      match.team2Score = battingTeamScore;
-      if (isExtra) {
-        match.team1Extras += runsScored; // Assuming team1 is fielding
-      }
-    }
-
-    // Add the ball to the current over
-    match.currentOver.balls.push(ball._id);
-
-    // Emit over event if the over is completed
-    if (match.currentOver.balls.length === 6) {
-      // Emit over event via web sockets
-      socketIo.emit("overCompleted", {
-        matchId,
-        overNumber: match.currentOver.number,
+    // If scorecard doesn't exist, create a new one
+    if (!scorecard) {
+      scorecard = new ScoreCard({
+        match: matchId,
+        innings: match.currentInning.number,
+        battingTeam: match.currentInning.battingTeam,
+        bowlingTeam: match.currentInning.bowlingTeam,
       });
-
-      // Reset balls array for the current over
-      match.currentOver.balls = [];
-      // Update current over number
-      match.currentOver.number += 1;
-
-      // Update striker and non-striker for the next over
-      const temp = match.striker;
-      match.striker = match.nonStriker;
-      match.nonStriker = temp;
-
-      // Update bowler for the next over
-      // Logic to select the next bowler can be added here
-
-      // Reset other over-related details if needed
     }
 
-    // Save the updated match details
-    const updatedMatch = await match.save();
+    // Update batsman's statistics
+    const strikerIndex = scorecard.batsmen.findIndex(
+      (batsman) => batsman.player.toString() === match.striker.toString()
+    );
+    if (strikerIndex !== -1) {
+      scorecard.batsmen[strikerIndex].runs += runsScored;
+      // Update other batting statistics as needed
+    }
 
-    return updatedMatch;
+    // Update bowler's statistics
+    const bowlerIndex = scorecard.bowlers.findIndex(
+      (bowler) => bowler.player.toString() === match.openingBowler.toString()
+    );
+    if (bowlerIndex !== -1) {
+      scorecard.bowlers[bowlerIndex].overs += 0.1; // Assuming 1 ball per over
+      scorecard.bowlers[bowlerIndex].runsGiven += runsScored;
+      // Update other bowling statistics as needed
+    }
+
+    // Save the updated scorecard
+    await scorecard.save();
+
+    // Remaining logic for updating match details and emitting events...
   } catch (error) {
     console.error("Error handling score action:", error);
     throw error;
