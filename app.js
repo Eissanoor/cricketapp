@@ -9,6 +9,7 @@ app.use(express.json());
 require("./database/db");
 var admin = require("./router/admin");
 const Player = require("./model/player");
+const Ball = require("./model/ball");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const MatchDetails = require("./model/match_details");
@@ -230,11 +231,11 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
     // Create a new Ball object
     const ball = new Ball({
       match: matchId,
-      bowler: match.currentBowler,
+      bowler: match.openingBowler,
       batsman: match.striker,
-      runsScored,
-      isExtra,
-      extraType,
+      runsScored: runsScored,
+      isExtra: isExtra,
+      extraType: match.extraType,
     });
 
     // Save the ball object
