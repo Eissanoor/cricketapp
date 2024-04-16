@@ -1502,7 +1502,7 @@ router.get("/get-live-matches/:adminId", async (req, res) => {
       admin: adminId,
       matchStatus: 1,
     }).populate(
-      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls",
+      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player",
       "name image Image runsScored"
     );
 
@@ -1534,7 +1534,7 @@ router.get("/get-live-matches/:adminId", async (req, res) => {
 router.get("/get-live-matches-for-user", async (req, res) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 1 }).populate(
-      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls",
+      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player",
       "name image Image runsScored"
     );
 
@@ -1563,7 +1563,6 @@ router.get("/get-live-matches-for-user", async (req, res) => {
     });
   }
 });
-
 router.get("/get-matchesdetails/:matchId", async (req, res) => {
   try {
     const matchId = req.params.matchId;
@@ -1571,7 +1570,7 @@ router.get("/get-matchesdetails/:matchId", async (req, res) => {
       _id: matchId,
       matchStatus: 1,
     }).populate(
-      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls",
+      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player",
       "name image Image runsScored"
     );
 
