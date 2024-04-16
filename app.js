@@ -303,6 +303,21 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
     const batsmanStatsIndex = match.playerStats.findIndex(
       (playerStat) => playerStat.player.toString() === match.striker.toString()
     );
+    if (batsmanStatsIndex === -1) {
+      // Create a new player stats
+      const newPlayerStats = {
+        player: match.striker,
+        ballsFaced: 1,
+        runs: runsScored,
+        sixes: runsScored === 6 ? 1 : 0,
+        fours: runsScored === 4 ? 1 : 0,
+        strikeRate: runsScored * 100, // Since ballsFaced is 1, strikeRate is same as runsScored * 100
+        // Initialize other stats as needed
+      };
+
+      // Add the new player stats to the playerStats array
+      match.playerStats.push(newPlayerStats);
+    }
     if (batsmanStatsIndex !== -1) {
       match.playerStats[batsmanStatsIndex].ballsFaced++;
       match.playerStats[batsmanStatsIndex].runs += runsScored;
