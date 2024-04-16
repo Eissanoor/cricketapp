@@ -246,7 +246,8 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
     let scorecard = await ScoreCard.findOne({
       match: matchId,
       innings: match.currentInning.number,
-      battingTeam: match.currentInning.battingTeam,
+      battingTeam: match.team1Batting ? match.team1 : match.team2,
+      bowlingTeam: match.team1Batting ? match.team2 : match.team1,
     });
 
     // If scorecard doesn't exist, create a new one
