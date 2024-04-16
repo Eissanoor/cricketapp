@@ -299,6 +299,29 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
       match.nonStriker = temp;
     }
 
+    // Update player stats
+    const batsmanStatsIndex = match.playerStats.findIndex(
+      (playerStat) => playerStat.player.toString() === match.striker.toString()
+    );
+    if (batsmanStatsIndex !== -1) {
+      match.playerStats[batsmanStatsIndex].ballsFaced++;
+      match.playerStats[batsmanStatsIndex].runs += runsScored;
+      if (runsScored === 6) {
+        match.playerStats[batsmanStatsIndex].sixes++;
+      } else if (runsScored === 4) {
+        match.playerStats[batsmanStatsIndex].fours++;
+      }
+      // update the strike rate
+      if (match.playerStats[batsmanStatsIndex].ballsFaced > 0) {
+        match.playerStats[batsmanStatsIndex].strikeRate =
+          (match.playerStats[batsmanStatsIndex].runs /
+            match.playerStats[batsmanStatsIndex].ballsFaced) *
+          100;
+      }
+
+      // Update other batting statistics as needed
+    }
+
     // Save the updated match details
     const updatedMatch = await match.save();
 
