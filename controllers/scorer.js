@@ -74,14 +74,20 @@ exports.action = async (req, res, next, socketIo) => {
     });
   }
 };
-exports.handleOverCompletion = (match, socketIo) => {
-  // Count the valid balls in the current over
-  const validBallsInCurrentOver = match.currentOver.balls.filter(
-    (ballId) => ballId.isExtra === false
-  );
+exports.handleOverCompletion = async (match, socketIo) => {
+  // Populate the balls array in currentOver
+  const matchWithPopulatedBalls = await MatchDetails.findById(
+    match._id
+  ).populate("currentOver.balls");
+
+  // Filter the balls where isExtra is false
+  const validBallsInCurrentOver =
+    matchWithPopulatedBalls.currentOver.balls.filter(
+      (ball) => ball.isExtra === false
+    );
 
   // Check if the over is completed
-  if (validBallsInCurrentOver.length === 6) {
+  if (validBallsInCurrentOver.length >= 6) {
     // Emit over event via web sockets
     socketIo.emit("overCompleted", {
       matchId: match._id,
@@ -186,7 +192,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     }
 
     // Call function to handle over completion
-    exports.handleOverCompletion(match, socketIo);
+    await exports.handleOverCompletion(match, socketIo);
 
     // Save the updated match details
     const updatedMatch = await match.save();
@@ -274,7 +280,7 @@ exports.handleExtrasAction = async (
     }
 
     // Call function to handle over completion
-    exports.handleOverCompletion(match, socketIo);
+    await exports.handleOverCompletion(match, socketIo);
 
     // Save the updated match details
     const updatedMatch = await match.save();
