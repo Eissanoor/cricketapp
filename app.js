@@ -283,11 +283,6 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
       // Update current over number
       match.currentOver.number += 1;
 
-      // Update striker and non-striker for the next over
-      const temp = match.striker;
-      match.striker = match.nonStriker;
-      match.nonStriker = temp;
-
       // Update bowler for the next over
       // Logic to select the next bowler can be added here
 
@@ -298,6 +293,11 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
       match.striker = match.nonStriker;
       match.nonStriker = temp;
     }
+
+    // Update striker and non-striker for the next over
+    const temp = match.striker;
+    match.striker = match.nonStriker;
+    match.nonStriker = temp;
 
     // Update player stats
     const batsmanStatsIndex = match.playerStats.findIndex(
