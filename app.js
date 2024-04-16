@@ -283,6 +283,11 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
       // Update current over number
       match.currentOver.number += 1;
 
+      // Update striker and non-striker for the next over
+      const temp = match.striker;
+      match.striker = match.nonStriker;
+      match.nonStriker = temp;
+
       // Update bowler for the next over
       // Logic to select the next bowler can be added here
 
@@ -294,18 +299,19 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
       match.nonStriker = temp;
     }
 
-    // Update striker and non-striker for the next over
-    const temp = match.striker;
-    match.striker = match.nonStriker;
-    match.nonStriker = temp;
-
     // Update player stats
-    const batsmanStatsIndex = match.playerStats.findIndex(
+    const strikerStatsIndex = match.playerStats.findIndex(
       (playerStat) => playerStat.player.toString() === match.striker.toString()
     );
-    if (batsmanStatsIndex === -1) {
+    const nonStrikerStatsIndex = match.playerStats.findIndex(
+      (playerStat) =>
+        playerStat.player.toString() === match.nonStriker.toString()
+    );
+
+    // Update striker's stats
+    if (strikerStatsIndex === -1) {
       // Create a new player stats
-      const newPlayerStats = {
+      const newStrikerStats = {
         player: match.striker,
         ballsFaced: 1,
         runs: runsScored,
@@ -316,25 +322,37 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
       };
 
       // Add the new player stats to the playerStats array
-      match.playerStats.push(newPlayerStats);
-    }
-    if (batsmanStatsIndex !== -1) {
-      match.playerStats[batsmanStatsIndex].ballsFaced++;
-      match.playerStats[batsmanStatsIndex].runs += runsScored;
+      match.playerStats.push(newStrikerStats);
+    } else {
+      match.playerStats[strikerStatsIndex].ballsFaced++;
+      match.playerStats[strikerStatsIndex].runs += runsScored;
       if (runsScored === 6) {
-        match.playerStats[batsmanStatsIndex].sixes++;
+        match.playerStats[strikerStatsIndex].sixes++;
       } else if (runsScored === 4) {
-        match.playerStats[batsmanStatsIndex].fours++;
+        match.playerStats[strikerStatsIndex].fours++;
       }
-      // update the strike rate
-      if (match.playerStats[batsmanStatsIndex].ballsFaced > 0) {
-        match.playerStats[batsmanStatsIndex].strikeRate =
-          (match.playerStats[batsmanStatsIndex].runs /
-            match.playerStats[batsmanStatsIndex].ballsFaced) *
-          100;
-      }
+      // Update the strike rate
+      match.playerStats[strikerStatsIndex].strikeRate =
+        (match.playerStats[strikerStatsIndex].runs /
+          match.playerStats[strikerStatsIndex].ballsFaced) *
+        100;
+    }
 
-      // Update other batting statistics as needed
+    // Update non-striker's stats
+    if (nonStrikerStatsIndex === -1) {
+      // Create a new player stats
+      const newNonStrikerStats = {
+        player: match.nonStriker,
+        ballsFaced: 0, // Non-striker doesn't face the ball in this scenario
+        runs: 0, // Non-striker doesn't score runs in this scenario
+        sixes: 0,
+        fours: 0,
+        strikeRate: 0,
+        // Initialize other stats as needed
+      };
+
+      // Add the new player stats to the playerStats array
+      match.playerStats.push(newNonStrikerStats);
     }
 
     // Save the updated match details
