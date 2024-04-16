@@ -270,30 +270,6 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
     // Add the ball to the current over
     match.currentOver.balls.push(ball._id);
 
-    // Emit over event if the over is completed
-    if (match.currentOver.balls.length === 6) {
-      // Emit over event via web sockets
-      socketIo.emit("overCompleted", {
-        matchId,
-        overNumber: match.currentOver.number,
-      });
-
-      // Reset balls array for the current over
-      match.currentOver.balls = [];
-      // Update current over number
-      match.currentOver.number += 1;
-
-      // Update striker and non-striker for the next over
-      const temp = match.striker;
-      match.striker = match.nonStriker;
-      match.nonStriker = temp;
-
-      // Update bowler for the next over
-      // Logic to select the next bowler can be added here
-
-      // Reset other over-related details if needed
-    }
-
     // Update player stats
     const strikerStatsIndex = match.playerStats.findIndex(
       (playerStat) => playerStat.player.toString() === match.striker.toString()
@@ -354,6 +330,29 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
       const temp = match.striker;
       match.striker = match.nonStriker;
       match.nonStriker = temp;
+    }
+    // Emit over event if the over is completed
+    if (match.currentOver.balls.length === 6) {
+      // Emit over event via web sockets
+      socketIo.emit("overCompleted", {
+        matchId,
+        overNumber: match.currentOver.number,
+      });
+
+      // Reset balls array for the current over
+      match.currentOver.balls = [];
+      // Update current over number
+      match.currentOver.number += 1;
+
+      // Update striker and non-striker for the next over
+      const temp = match.striker;
+      match.striker = match.nonStriker;
+      match.nonStriker = temp;
+
+      // Update bowler for the next over
+      // Logic to select the next bowler can be added here
+
+      // Reset other over-related details if needed
     }
     // Save the updated match details
     const updatedMatch = await match.save();
