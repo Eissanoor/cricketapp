@@ -292,11 +292,6 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
       // Logic to select the next bowler can be added here
 
       // Reset other over-related details if needed
-    } else if (runsScored % 2 === 1) {
-      // If runs scored are odd (1 or 3), swap striker and non-striker
-      const temp = match.striker;
-      match.striker = match.nonStriker;
-      match.nonStriker = temp;
     }
 
     // Update player stats
@@ -354,7 +349,12 @@ const handleScoreAction = async (matchId, runsScored, isExtra, extraType) => {
       // Add the new player stats to the playerStats array
       match.playerStats.push(newNonStrikerStats);
     }
-
+    // swap players also
+    if (runsScored % 2 === 1) {
+      const temp = match.striker;
+      match.striker = match.nonStriker;
+      match.nonStriker = temp;
+    }
     // Save the updated match details
     const updatedMatch = await match.save();
 
