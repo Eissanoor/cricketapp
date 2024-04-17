@@ -1,5 +1,6 @@
 const Ball = require("../model/ball");
 const MatchDetails = require("../model/match_details");
+const ScoreCard = require("../model/score_card");
 
 exports.action = async (req, res, next, socketIo) => {
   try {
@@ -50,8 +51,8 @@ exports.action = async (req, res, next, socketIo) => {
           success: true,
           message: "Extra runs added successfully.",
           status: 200,
-          //   data: updatedMatchExtras,
-          data: null,
+          data: updatedMatchExtras,
+          //   data: null,
         });
 
       // Add more cases for other action types as needed
@@ -74,7 +75,7 @@ exports.action = async (req, res, next, socketIo) => {
     });
   }
 };
-exports.handleOverCompletion = async (match, socketIo) => {
+const handleOverCompletion = async (match, socketIo) => {
   // Populate the balls array in currentOver
   const matchWithPopulatedBalls = await MatchDetails.findById(
     match._id
@@ -110,10 +111,34 @@ exports.handleOverCompletion = async (match, socketIo) => {
     // Reset other over-related details if needed
   }
 };
+const addBallToOver = function (match, ball) {
+  // Add the ball to the current over
+  match.currentOver.balls.push(ball._id);
+
+  // Find the current over
+  let currentOver = match.overs.find(
+    (over) => over.number === match.currentOver.number
+  );
+
+  if (currentOver) {
+    // If the current over exists, add the ball to it
+    currentOver.balls.push(ball._id);
+  } else {
+    // If the current over doesn't exist, create a new over and add the ball to it
+    currentOver = {
+      number: match.currentOver.number,
+      balls: [ball._id],
+    };
+    match.overs.push(currentOver);
+  }
+
+  return match;
+};
+
 exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
   try {
     // Find the match details
-    const match = await MatchDetails.findById(matchId);
+    let match = await MatchDetails.findById(matchId);
 
     // Create a new Ball object
     const ball = new Ball({
@@ -147,7 +172,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     }
 
     // Add the ball to the current over
-    match.currentOver.balls.push(ball._id);
+    match = addBallToOver(match, ball);
 
     // Update player stats
     const strikerStatsIndex = match.playerStats.findIndex(
@@ -192,7 +217,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     }
 
     // Call function to handle over completion
-    await exports.handleOverCompletion(match, socketIo);
+    await handleOverCompletion(match, socketIo);
 
     // Save the updated match details
     const updatedMatch = await match.save();
@@ -212,7 +237,7 @@ exports.handleExtrasAction = async (
 ) => {
   try {
     // Find the match details
-    const match = await MatchDetails.findById(matchId);
+    let match = await MatchDetails.findById(matchId);
 
     // Check which team is batting
     let battingTeamScore;
@@ -262,25 +287,10 @@ exports.handleExtrasAction = async (
     await extraBall.save();
 
     // Add the extra ball to the current over
-    match.currentOver.balls.push(extraBall._id);
-
-    // Update striker's stats for wides and no balls
-    if (extraType === "wides" || extraType === "noballs") {
-      const strikerStatsIndex = match.playerStats.findIndex(
-        (playerStat) =>
-          playerStat.player.toString() === match.striker.toString()
-      );
-      if (strikerStatsIndex !== -1) {
-        match.playerStats[strikerStatsIndex].runs += extraRuns;
-        if (extraRuns === 4 || extraRuns === 6) {
-          match.playerStats[strikerStatsIndex].fours += extraRuns === 4 ? 1 : 0;
-          match.playerStats[strikerStatsIndex].sixes += extraRuns === 6 ? 1 : 0;
-        }
-      }
-    }
+    match = addBallToOver(match, extraBall);
 
     // Call function to handle over completion
-    await exports.handleOverCompletion(match, socketIo);
+    await handleOverCompletion(match, socketIo);
 
     // Save the updated match details
     const updatedMatch = await match.save();
