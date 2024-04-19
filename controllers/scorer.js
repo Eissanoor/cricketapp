@@ -290,7 +290,7 @@ exports.handleExtrasAction = async (
     match = addBallToOver(match, extraBall);
 
     // Call function to handle over completion
-    await handleOverCompletion(match, socketIo);
+    // await handleOverCompletion(match, socketIo);
 
     // Save the updated match details
     const updatedMatch = await match.save();
