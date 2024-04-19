@@ -37,12 +37,11 @@ exports.action = async (req, res, next, socketIo) => {
       //       data: updatedMatchOut,
       //     });
 
-      case "extras":
+      case "wide":
         // Handle extras action
-        const updatedMatchExtras = await exports.handleExtrasAction(
+        const updatedMatchExtras = await exports.handleWideAction(
           matchId,
           data.extraRuns,
-          data.extraType,
           socketIo
         );
         // Send real-time update using socket.io
@@ -229,12 +228,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
   }
 };
 
-exports.handleExtrasAction = async (
-  matchId,
-  extraRuns,
-  extraType,
-  socketIo
-) => {
+exports.handleWideAction = async (matchId, extraRuns, socketIo) => {
   try {
     // Find the match details
     let match = await MatchDetails.findById(matchId);
@@ -248,29 +242,15 @@ exports.handleExtrasAction = async (
     }
 
     // Update the batting team's score with extra runs
-    battingTeamScore += extraRuns;
+    battingTeamScore += extraRuns + 1; // 1 for wide, extra runs for 4 lets say
 
     // Update the match details with the new score and extras
     if (match.team1Batting) {
       match.team1Score = battingTeamScore;
-      if (
-        extraType === "byes" ||
-        extraType === "legbyes" ||
-        extraType === "wides" ||
-        extraType === "noballs"
-      ) {
-        match.team2Extras += extraRuns; // Assuming team2 is fielding
-      }
+      match.team2Extras += 1;
     } else {
       match.team2Score = battingTeamScore;
-      if (
-        extraType === "byes" ||
-        extraType === "legbyes" ||
-        extraType === "wides" ||
-        extraType === "noballs"
-      ) {
-        match.team1Extras += extraRuns; // Assuming team1 is fielding
-      }
+      match.team1Extras += 1;
     }
 
     // Create a new Ball object
@@ -278,7 +258,7 @@ exports.handleExtrasAction = async (
       match: matchId,
       bowler: match.openingBowler,
       batsman: match.striker,
-      runsScored: extraRuns,
+      runsScored: extraRuns + 1, // 1 for wide, extra runs as well
       isExtra: true,
       extraType: extraType,
     });
