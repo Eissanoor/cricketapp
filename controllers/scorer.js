@@ -48,7 +48,17 @@ exports.action = async (req, res, next, socketIo) => {
         socketIo.emit("match-" + matchId);
         return res.status(200).json({
           success: true,
-          message: "Extra runs added successfully.",
+          message: "Successfully swapped players",
+          status: 200,
+          data: null,
+        });
+
+      case "changeBowler":
+        await exports.changeBowler(matchId, data.newBowler);
+        socketIo.emit("match-" + matchId);
+        return res.status(200).json({
+          success: true,
+          message: "Successfully changed bowler",
           status: 200,
           data: null,
         });
@@ -297,5 +307,22 @@ exports.handlePlayerSwap = async (matchId) => {
   } catch (error) {
     console.error("Error handling extras action:", error);
     throw error;
+  }
+};
+
+exports.changeBowler = async (matchId, newBowler) => {
+  try {
+    const match = await MatchDetails.findById(matchId);
+    if (!match) {
+      throw new Error("No match found");
+    }
+
+    // change the bowler
+    match.openingBowler = newBowler;
+
+    const updatedMatch = await match.save();
+    return updatedMatch;
+  } catch (err) {
+    throw err;
   }
 };
