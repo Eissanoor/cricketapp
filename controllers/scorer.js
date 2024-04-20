@@ -86,7 +86,7 @@ const handleOverCompletion = async (match, socketIo) => {
     );
 
   // Check if the over is completed
-  if (validBallsInCurrentOver.length >= 6) {
+  if (validBallsInCurrentOver.length >= 5) {
     // Emit over event via web sockets
     socketIo.emit("overCompleted", {
       matchId: match._id,
