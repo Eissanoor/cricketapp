@@ -25,33 +25,31 @@ exports.action = async (req, res, next, socketIo) => {
           data: null,
         });
 
-      //   case "out":
-      //     // Handle out action
-      //     const updatedMatchOut = await handleOutAction(matchId, data.playerOut);
-      //     // Send real-time update using socket.io
-      //     socketIo.emit("match-" + matchId, updatedMatchOut);
-      //     return res.status(200).json({
-      //       success: true,
-      //       message: "Player out updated successfully.",
-      //       status: 200,
-      //       data: updatedMatchOut,
-      //     });
-
       case "wide":
         // Handle extras action
-        const updatedMatchExtras = await exports.handleWideAction(
+        const updatedMatchWide = await exports.handleWideAction(
           matchId,
           data.extraRuns,
           socketIo
         );
         // Send real-time update using socket.io
-        socketIo.emit("match-" + matchId, updatedMatchExtras);
+        socketIo.emit("match-" + matchId, updatedMatchWide);
+        return res.status(200).json({
+          success: true,
+          message: "Wide runs added successfully.",
+          status: 200,
+          //   data: updatedMatchWide,
+          data: null,
+        });
+
+      case "swap":
+        await exports.handlePlayerSwap(matchId);
+        socketIo.emit("match-" + matchId, updatedMatchWide);
         return res.status(200).json({
           success: true,
           message: "Extra runs added successfully.",
           status: 200,
-          data: updatedMatchExtras,
-          //   data: null,
+          data: null,
         });
 
       // Add more cases for other action types as needed
@@ -273,6 +271,25 @@ exports.handleWideAction = async (matchId, extraRuns, socketIo) => {
     // await handleOverCompletion(match, socketIo);
 
     // Save the updated match details
+    const updatedMatch = await match.save();
+
+    return updatedMatch;
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.handlePlayerSwap = async (matchId) => {
+  try {
+    // Find the match details
+    let match = await MatchDetails.findById(matchId);
+
+    // Swap players
+    const temp = match.striker;
+    match.striker = match.nonStriker;
+    match.nonStriker = temp;
+
+    // Update the schema
     const updatedMatch = await match.save();
 
     return updatedMatch;
