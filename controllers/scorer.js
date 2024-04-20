@@ -39,13 +39,13 @@ exports.action = async (req, res, next, socketIo) => {
           success: true,
           message: "Wide runs added successfully.",
           status: 200,
-          //   data: updatedMatchWide,
-          data: null,
+          data: updatedMatchWide,
+          //   data: null,
         });
 
       case "swap":
         await exports.handlePlayerSwap(matchId);
-        socketIo.emit("match-" + matchId, updatedMatchWide);
+        socketIo.emit("match-" + matchId);
         return res.status(200).json({
           success: true,
           message: "Extra runs added successfully.",
