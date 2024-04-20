@@ -30,6 +30,7 @@ exports.action = async (req, res, next, socketIo) => {
         const updatedMatchWide = await exports.handleWideAction(
           matchId,
           data.extraRuns,
+          data.extraType,
           socketIo
         );
         // Send real-time update using socket.io
@@ -226,7 +227,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
   }
 };
 
-exports.handleWideAction = async (matchId, extraRuns, socketIo) => {
+exports.handleWideAction = async (matchId, extraRuns, extraType, socketIo) => {
   try {
     // Find the match details
     let match = await MatchDetails.findById(matchId);
