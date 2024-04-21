@@ -77,7 +77,6 @@ const matchDetailsSchema = new mongoose.Schema(
       },
     ],
     scorecard: [{ type: mongoose.Schema.Types.ObjectId, ref: "Scorecard" }],
-    // retiredPlayers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Player" }],
     // Other fields related to match statistics
   },
   {
