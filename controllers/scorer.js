@@ -216,14 +216,16 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     const striker = await Player.findById(match.striker);
     const bowler = await Player.findById(match.openingBowler);
 
+    const ballDesc = describeBall(striker.name, bowler.name, runsScored);
+
     // Create a new Ball object
     const ball = new Ball({
       match: matchId,
       bowler: match.openingBowler,
       batsman: match.striker,
       runsScored: runsScored,
-      ballTo: striker.name + "to " + bowler.name,
-      description: describeBall(striker, bowler, runsScored),
+      ballTo: striker.name + " to " + bowler.name,
+      description: ballDesc,
     });
 
     // Save the ball object
