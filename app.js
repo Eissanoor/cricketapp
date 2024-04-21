@@ -124,8 +124,6 @@ app.post("/set-openings", async (req, res) => {
   try {
     const { matchId, teamBatting, openingBatsmen, openingBowler } = req.body;
 
-    // Validate input parameters
-
     // Update match details with opening batsmen and bowler for the specified inning
     const match = await MatchDetails.findById(matchId);
 
@@ -139,6 +137,19 @@ app.post("/set-openings", async (req, res) => {
       match.nonStriker = openingBatsmen[1];
       match.openingBowler = openingBowler;
     }
+
+    const newScoreCard = new ScoreCard({
+      match: match._id,
+      battingTeam: teamBatting === match.team1 ? match.team1 : match.team2,
+      bowlingTeam: teamBatting === match.team1 ? match.team2 : match.team1,
+      batsmen: [{ player: openingBatsmen }],
+      bowlers: [{ player: openingBowler }],
+      innings: match.currentInning,
+    });
+
+    await newScoreCard.save();
+
+    match.scorecard.push(newScoreCard);
 
     const matchstart = await match.save();
 
@@ -173,6 +184,7 @@ app.use((error, req, res, next) => {
 });
 var swaggerUi = require("swagger-ui-express"),
   swaggerDocument = require("./swagger.json");
+const ScoreCard = require("./model/score_card");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const PORT = process.env.PORT || 3002;
 const serverssss = app.listen(PORT, () => {

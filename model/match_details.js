@@ -76,7 +76,7 @@ const matchDetailsSchema = new mongoose.Schema(
         balls: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ball" }],
       },
     ],
-    scorecard: [{ type: mongoose.Schema.Types.ObjectId, ref: "Scorecard" }],
+    scorecard: [{ type: mongoose.Schema.Types.ObjectId, ref: "ScoreCard" }],
     // Other fields related to match statistics
   },
   {
