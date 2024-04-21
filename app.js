@@ -138,18 +138,21 @@ app.post("/set-openings", async (req, res) => {
       match.openingBowler = openingBowler;
     }
 
-    const newScoreCard = new ScoreCard({
-      match: match._id,
-      battingTeam: teamBatting === match.team1 ? match.team1 : match.team2,
-      bowlingTeam: teamBatting === match.team1 ? match.team2 : match.team1,
-      batsmen: [{ player: openingBatsmen[0] }],
-      bowlers: [{ player: openingBowler }],
-      innings: match.currentInning,
-    });
+    let scorecard = await ScoreCard.findOne({ match: match._id });
 
-    await newScoreCard.save();
+    if (!scorecard) {
+      scorecard = new ScoreCard({
+        match: match._id,
+        battingTeam: teamBatting === match.team1 ? match.team1 : match.team2,
+        bowlingTeam: teamBatting === match.team1 ? match.team2 : match.team1,
+        batsmen: [{ player: openingBatsmen[0] }],
+        bowlers: [{ player: openingBowler }],
+        innings: match.currentInning,
+      });
+      await scorecard.save();
 
-    match.scorecard.push(newScoreCard);
+      match.scorecard.push(scorecard);
+    }
 
     const matchstart = await match.save();
 

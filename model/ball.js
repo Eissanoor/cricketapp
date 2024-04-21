@@ -17,11 +17,11 @@ const ballSchema = new mongoose.Schema({
     required: true,
   },
   runsScored: { type: Number, required: true },
-  isExtra: { type: Boolean, default: false }, // Whether the run was an extra (e.g., wide, no-ball)
-  extraType: { type: String }, // Type of extra (e.g., wide, no-ball)
+  isExtra: { type: Boolean, default: false },
+  extraType: { type: String },
   isWicket: { type: Boolean, default: false },
-  wicketType: { type: String }, // Type of wicket (e.g., caught, bowled)
-  fielder: { type: mongoose.Schema.Types.ObjectId, ref: "Player" }, // Player who took the catch or performed the run-out
+  wicketType: { type: String },
+  fielder: { type: mongoose.Schema.Types.ObjectId, ref: "Player" },
 });
 
 const Ball = mongoose.model("Ball", ballSchema);
