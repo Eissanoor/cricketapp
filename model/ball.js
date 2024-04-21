@@ -16,6 +16,8 @@ const ballSchema = new mongoose.Schema({
     ref: "Player",
     required: true,
   },
+  ballTo: { type: String, required: true },
+  description: { type: String, required: true },
   runsScored: { type: Number, required: true },
   isExtra: { type: Boolean, default: false },
   extraType: { type: String },

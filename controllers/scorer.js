@@ -1,6 +1,7 @@
 const Ball = require("../model/ball");
 const MatchDetails = require("../model/match_details");
 const ScoreCard = require("../model/score_card");
+const Player = require("../model/player");
 
 exports.action = async (req, res, next, socketIo) => {
   try {
@@ -176,11 +177,44 @@ const addBallToOver = function (match, ball) {
 
   return match;
 };
+const describeBall = function (batsman, bowler, runs) {
+  let runDescription = "";
+  switch (runs) {
+    case 0:
+      runDescription = "Dot ball";
+      break;
+    case 1:
+      runDescription = "Single run";
+      break;
+    case 2:
+      runDescription = "Two runs";
+      break;
+    case 3:
+      runDescription = "Three runs";
+      break;
+    case 4:
+      runDescription = "Four! A boundary";
+      break;
+    case 5:
+      runDescription = "Five runs";
+      break;
+    case 6:
+      runDescription = "Six! A maximum";
+      break;
+    default:
+      runDescription = "Invalid number of runs";
+  }
+
+  return `${batsman} hits a ${runDescription} on ${bowler}'s ball.`;
+};
 
 exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
   try {
     // Find the match details
     let match = await MatchDetails.findById(matchId).populate("scorecard");
+
+    const striker = await Player.findById(match.striker);
+    const bowler = await Player.findById(match.openingBowler);
 
     // Create a new Ball object
     const ball = new Ball({
@@ -188,6 +222,8 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
       bowler: match.openingBowler,
       batsman: match.striker,
       runsScored: runsScored,
+      ballTo: striker.name + "to " + bowler.name,
+      description: describeBall(striker, bowler, runsScored),
     });
 
     // Save the ball object
