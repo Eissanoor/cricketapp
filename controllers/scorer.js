@@ -83,6 +83,40 @@ exports.action = async (req, res, next, socketIo) => {
     });
   }
 };
+const handleStrikerScorecard = async (match, ball) => {
+  const scorecard = await ScoreCard.findById(match.scorecard);
+  const strikerScorecardIndex = scorecard.batsmen.findIndex(
+    (card) => card.player.toString() === match.striker.toString()
+  );
+
+  if (strikerScorecardIndex === -1) {
+    // Create a new scorecard for the striker
+    const newScorecard = {
+      player: match.striker,
+      runs: ball.runsScored,
+      ballsFaced: 1,
+      fours: ball.runsScored === 4 ? 1 : 0,
+      sixes: ball.runsScored === 6 ? 1 : 0,
+      strikeRate: ball.runsScored * 100, // Since ballsFaced is 1, strikeRate is same as ball.runsScored * 100
+    };
+    scorecard.batsmen.push(newScorecard);
+  } else {
+    // Update the existing scorecard for the striker
+    scorecard.batsmen[strikerScorecardIndex].runs += ball.runsScored;
+    scorecard.batsmen[strikerScorecardIndex].ballsFaced++;
+    if (ball.runsScored === 4) {
+      scorecard.batsmen[strikerScorecardIndex].fours++;
+    } else if (ball.runsScored === 6) {
+      scorecard.batsmen[strikerScorecardIndex].sixes++;
+    }
+    // Update the strike rate
+    scorecard.batsmen[strikerScorecardIndex].strikeRate =
+      (scorecard.batsmen[strikerScorecardIndex].runs /
+        scorecard.batsmen[strikerScorecardIndex].ballsFaced) *
+      100;
+  }
+  return scorecard;
+};
 const handleOverCompletion = async (match, socketIo) => {
   // Populate the balls array in currentOver
   const matchWithPopulatedBalls = await MatchDetails.findById(
@@ -182,37 +216,9 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     // Add the ball to the current over
     match = addBallToOver(match, ball);
 
-    // Update or add striker's scorecard details
-    const strikerScorecardIndex = match.scorecard.findIndex(
-      (card) => card.player.toString() === match.striker.toString()
-    );
+    let scorecard = await handleStrikerScorecard(match, ball);
 
-    if (strikerScorecardIndex === -1) {
-      // Create a new scorecard for the striker
-      const newScorecard = {
-        player: match.striker,
-        runs: runsScored,
-        ballsFaced: 1,
-        fours: runsScored === 4 ? 1 : 0,
-        sixes: runsScored === 6 ? 1 : 0,
-        strikeRate: runsScored * 100, // Since ballsFaced is 1, strikeRate is same as runsScored * 100
-      };
-      match.scorecard.push(newScorecard);
-    } else {
-      // Update the existing scorecard for the striker
-      match.scorecard[strikerScorecardIndex].runs += runsScored;
-      match.scorecard[strikerScorecardIndex].ballsFaced++;
-      if (runsScored === 4) {
-        match.scorecard[strikerScorecardIndex].fours++;
-      } else if (runsScored === 6) {
-        match.scorecard[strikerScorecardIndex].sixes++;
-      }
-      // Update the strike rate
-      match.scorecard[strikerScorecardIndex].strikeRate =
-        (match.scorecard[strikerScorecardIndex].runs /
-          match.scorecard[strikerScorecardIndex].ballsFaced) *
-        100;
-    }
+    await scorecard.save();
 
     // Swap players if odd runs scored
     if (runsScored % 2 === 1) {
