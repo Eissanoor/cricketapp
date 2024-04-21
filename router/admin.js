@@ -1501,7 +1501,7 @@ router.get("/get-live-matches/:adminId", async (req, res) => {
       matchStatus: 1,
     }).populate(
       "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player",
-      "name image Image runsScored isExtra bowler batsman ballTo ballTo description extraType isWicket wicketType fielder"
+      "name image Image runsScored isExtra bowler batsman ballTo description extraType isWicket wicketType fielder"
     );
 
     if (!matches || matches.length === 0) {
@@ -1533,7 +1533,7 @@ router.get("/get-live-matches-for-user", async (req, res) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 1 }).populate(
       "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player",
-      "name image Image runsScored isExtra bowler batsman ballTo ballTo description extraType isWicket wicketType fielder"
+      "name image Image runsScored isExtra bowler batsman ballTo description extraType isWicket wicketType fielder"
     );
 
     if (!matches || matches.length === 0) {
@@ -1569,7 +1569,7 @@ router.get("/get-matchesdetails/:matchId", async (req, res) => {
       matchStatus: 1,
     }).populate(
       "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player",
-      "name image Image runsScored isExtra bowler batsman ballTo ballTo description extraType isWicket wicketType fielder"
+      "name image Image runsScored isExtra bowler batsman ballTo description extraType isWicket wicketType fielder"
     );
 
     if (!matches || matches.length === 0) {
