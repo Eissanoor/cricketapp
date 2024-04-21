@@ -142,7 +142,7 @@ app.post("/set-openings", async (req, res) => {
       match: match._id,
       battingTeam: teamBatting === match.team1 ? match.team1 : match.team2,
       bowlingTeam: teamBatting === match.team1 ? match.team2 : match.team1,
-      batsmen: [{ player: openingBatsmen }],
+      batsmen: [{ player: openingBatsmen[0] }],
       bowlers: [{ player: openingBowler }],
       innings: match.currentInning,
     });
