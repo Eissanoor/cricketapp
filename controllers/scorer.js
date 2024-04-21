@@ -146,7 +146,7 @@ const addBallToOver = function (match, ball) {
 exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
   try {
     // Find the match details
-    let match = await MatchDetails.findById(matchId);
+    let match = await MatchDetails.findById(matchId).populate("scorecard");
 
     // Create a new Ball object
     const ball = new Ball({
@@ -182,38 +182,35 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     // Add the ball to the current over
     match = addBallToOver(match, ball);
 
-    // Update player stats
-    const strikerStatsIndex = match.playerStats.findIndex(
-      (playerStat) => playerStat.player.toString() === match.striker.toString()
+    // Update or add striker's scorecard details
+    const strikerScorecardIndex = match.scorecard.findIndex(
+      (card) => card.player.toString() === match.striker.toString()
     );
 
-    // Update striker's stats
-    if (strikerStatsIndex === -1) {
-      // Create a new player stats
-      const newStrikerStats = {
+    if (strikerScorecardIndex === -1) {
+      // Create a new scorecard for the striker
+      const newScorecard = {
         player: match.striker,
-        ballsFaced: 1,
         runs: runsScored,
-        sixes: runsScored === 6 ? 1 : 0,
+        ballsFaced: 1,
         fours: runsScored === 4 ? 1 : 0,
+        sixes: runsScored === 6 ? 1 : 0,
         strikeRate: runsScored * 100, // Since ballsFaced is 1, strikeRate is same as runsScored * 100
-        // Initialize other stats as needed
       };
-
-      // Add the new player stats to the playerStats array
-      match.playerStats.push(newStrikerStats);
+      match.scorecard.push(newScorecard);
     } else {
-      match.playerStats[strikerStatsIndex].ballsFaced++;
-      match.playerStats[strikerStatsIndex].runs += runsScored;
-      if (runsScored === 6) {
-        match.playerStats[strikerStatsIndex].sixes++;
-      } else if (runsScored === 4) {
-        match.playerStats[strikerStatsIndex].fours++;
+      // Update the existing scorecard for the striker
+      match.scorecard[strikerScorecardIndex].runs += runsScored;
+      match.scorecard[strikerScorecardIndex].ballsFaced++;
+      if (runsScored === 4) {
+        match.scorecard[strikerScorecardIndex].fours++;
+      } else if (runsScored === 6) {
+        match.scorecard[strikerScorecardIndex].sixes++;
       }
       // Update the strike rate
-      match.playerStats[strikerStatsIndex].strikeRate =
-        (match.playerStats[strikerStatsIndex].runs /
-          match.playerStats[strikerStatsIndex].ballsFaced) *
+      match.scorecard[strikerScorecardIndex].strikeRate =
+        (match.scorecard[strikerScorecardIndex].runs /
+          match.scorecard[strikerScorecardIndex].ballsFaced) *
         100;
     }
 
