@@ -327,7 +327,7 @@ exports.handleWideAction = async (matchId, extraRuns, extraType, socketIo) => {
     }
 
     // Update the batting team's score with extra runs
-    battingTeamScore += extraRuns + 1; // 1 for wide, extra runs for 4 lets say
+    battingTeamScore += extraRuns + 1;
 
     // Update the match details with the new score and extras
     if (match.team1Batting) {
@@ -343,9 +343,11 @@ exports.handleWideAction = async (matchId, extraRuns, extraType, socketIo) => {
       match: matchId,
       bowler: match.openingBowler,
       batsman: match.striker,
-      runsScored: extraRuns + 1, // 1 for wide, extra runs as well
+      runsScored: extraRuns + 1,
       isExtra: true,
       extraType: extraType,
+      ballTo: striker.name + " to " + bowler.name,
+      description: "A wide bowl with " + extraRuns + " extra runs",
     });
 
     // Save the ball object
