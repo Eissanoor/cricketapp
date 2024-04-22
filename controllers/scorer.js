@@ -337,7 +337,10 @@ exports.handleWideAction = async (matchId, extraRuns, extraType, socketIo) => {
       match.team2Score = battingTeamScore;
       match.team1Extras += 1;
     }
+    const striker = await Player.findById(match.striker);
+    const bowler = await Player.findById(match.openingBowler);
 
+    const ballDesc = describeBall(striker.name, bowler.name, runsScored);
     // Create a new Ball object
     const extraBall = new Ball({
       match: matchId,
