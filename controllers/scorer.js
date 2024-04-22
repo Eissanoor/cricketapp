@@ -142,6 +142,13 @@ const handleOverCompletion = async (match, socketIo) => {
     match.currentOver.balls = [];
     // Update current over number
     match.currentOver.number += 1;
+    if (match.team1Batting) {
+      match.team2Overs += 1;
+      match.team2Balls = 0;
+    } else {
+      match.team1Overs += 1;
+      match.team1Balls = 0;
+    }
 
     // Update striker and non-striker for the next over
     const temp = match.striker;
@@ -157,6 +164,12 @@ const handleOverCompletion = async (match, socketIo) => {
 const addBallToOver = function (match, ball) {
   // Add the ball to the current over
   match.currentOver.balls.push(ball._id);
+
+  if (match.team1Batting) {
+    match.team2Balls++;
+  } else {
+    match.team1Balls++;
+  }
 
   // Find the current over
   let currentOver = match.overs.find(
