@@ -66,6 +66,18 @@ const matchDetailsSchema = new mongoose.Schema(
         // Add other player statistics as needed
       },
     ],
+    bowlerStats: [
+      {
+        player: { type: mongoose.Schema.Types.ObjectId, ref: "Player" },
+        overs: { type: Number, default: 0 },
+        maidens: { type: Number, default: 0 },
+        runsGiven: { type: Number, default: 0 },
+        wickets: { type: Number, default: 0 },
+        economy: { type: Number, default: 0 },
+        fours: { type: Number, default: 0 },
+        sixes: { type: Number, default: 0 },
+      },
+    ],
     currentOver: {
       number: { type: Number, default: 0 },
       balls: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ball" }],

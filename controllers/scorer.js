@@ -221,6 +221,76 @@ const describeBall = function (batsman, bowler, runs) {
   return `${batsman} hits a ${runDescription} on ${bowler}'s ball.`;
 };
 
+const updateBatsmanStats = function (match, runsScored) {
+  // Update player stats
+  const strikerStatsIndex = match.playerStats.findIndex(
+    (playerStat) => playerStat.player.toString() === match.striker.toString()
+  );
+
+  // Update striker's stats
+  if (strikerStatsIndex === -1) {
+    // Create a new player stats
+    const newStrikerStats = {
+      player: match.striker,
+      ballsFaced: 1,
+      runs: runsScored,
+      sixes: runsScored === 6 ? 1 : 0,
+      fours: runsScored === 4 ? 1 : 0,
+      strikeRate: runsScored * 100, // Since ballsFaced is 1, strikeRate is same as runsScored * 100
+      // Initialize other stats as needed
+    };
+
+    // Add the new player stats to the playerStats array
+    match.playerStats.push(newStrikerStats);
+  } else {
+    match.playerStats[strikerStatsIndex].ballsFaced++;
+    match.playerStats[strikerStatsIndex].runs += runsScored;
+    if (runsScored === 6) {
+      match.playerStats[strikerStatsIndex].sixes++;
+    } else if (runsScored === 4) {
+      match.playerStats[strikerStatsIndex].fours++;
+    }
+    // Update the strike rate
+    match.playerStats[strikerStatsIndex].strikeRate =
+      (match.playerStats[strikerStatsIndex].runs /
+        match.playerStats[strikerStatsIndex].ballsFaced) *
+      100;
+  }
+
+  return match;
+};
+const updateBlowerStats = function (match, runsScored) {
+  // Update player stats
+  const bowlerStatsIndex = match.bowlerStats.findIndex(
+    (playerStat) =>
+      playerStat.player.toString() === match.openingBowler.toString()
+  );
+
+  // Update striker's stats
+  if (bowlerStatsIndex === -1) {
+    // Create a new player stats
+    const newBowlerStats = {
+      player: match.striker,
+      runsGiven: runsScored,
+      sixes: runsScored === 6 ? 1 : 0,
+      fours: runsScored === 4 ? 1 : 0,
+      // Initialize other stats as needed
+    };
+
+    // Add the new player stats to the bowlerStats array
+    match.bowlerStats.push(newBowlerStats);
+  } else {
+    match.bowlerStats[bowlerStatsIndex].runsGiven += runsScored;
+    if (runsScored === 6) {
+      match.bowlerStats[bowlerStatsIndex].sixes++;
+    } else if (runsScored === 4) {
+      match.bowlerStats[bowlerStatsIndex].fours++;
+    }
+  }
+
+  return match;
+};
+
 exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
   try {
     // Find the match details
@@ -268,42 +338,10 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     match = addBallToOver(match, ball);
 
     // Update player stats
-    const strikerStatsIndex = match.playerStats.findIndex(
-      (playerStat) => playerStat.player.toString() === match.striker.toString()
-    );
-
-    // Update striker's stats
-    if (strikerStatsIndex === -1) {
-      // Create a new player stats
-      const newStrikerStats = {
-        player: match.striker,
-        ballsFaced: 1,
-        runs: runsScored,
-        sixes: runsScored === 6 ? 1 : 0,
-        fours: runsScored === 4 ? 1 : 0,
-        strikeRate: runsScored * 100, // Since ballsFaced is 1, strikeRate is same as runsScored * 100
-        // Initialize other stats as needed
-      };
-
-      // Add the new player stats to the playerStats array
-      match.playerStats.push(newStrikerStats);
-    } else {
-      match.playerStats[strikerStatsIndex].ballsFaced++;
-      match.playerStats[strikerStatsIndex].runs += runsScored;
-      if (runsScored === 6) {
-        match.playerStats[strikerStatsIndex].sixes++;
-      } else if (runsScored === 4) {
-        match.playerStats[strikerStatsIndex].fours++;
-      }
-      // Update the strike rate
-      match.playerStats[strikerStatsIndex].strikeRate =
-        (match.playerStats[strikerStatsIndex].runs /
-          match.playerStats[strikerStatsIndex].ballsFaced) *
-        100;
-    }
+    match = updateBatsmanStats(match, runsScored);
+    match = updateBlowerStats(match, runsScored);
 
     let scorecard = await handleStrikerScorecard(match, ball);
-
     await scorecard.save();
 
     // Swap players if odd runs scored

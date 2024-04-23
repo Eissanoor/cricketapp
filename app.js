@@ -1,20 +1,27 @@
 var express = require("express");
-var app = express();
 const multer = require("multer");
 const cors = require("cors");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
 require("./database/db");
-var admin = require("./router/admin");
+
+// Controllers
+const admin = require("./router/admin");
+const scorerController = require("./controllers/scorer");
+
+// Routes
+const userRouter = require("./router/user");
+
+// Schemas
 const Player = require("./model/player");
 const Ball = require("./model/ball");
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
 const MatchDetails = require("./model/match_details");
 
-const scorerController = require("./controllers/scorer");
+var app = express();
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 // app.use(cors());
 // app.use(cors({
 //   origin: 'http://localhost:3000',
@@ -175,6 +182,8 @@ app.post("/action", (req, res, next) => {
 });
 
 app.use(admin);
+app.use(userRouter);
+
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
