@@ -76,12 +76,14 @@ exports.action = async (req, res, next, socketIo) => {
     }
   } catch (error) {
     console.error("Error handling action:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Error while processing the action.",
-      status: 500,
-      data: null,
-    });
+    error.message = "Invalid action type";
+    return next(error);
+    // return res.status(500).json({
+    //   success: false,
+    //   message: "Error while processing the action.",
+    //   status: 500,
+    //   data: null,
+    // });
   }
 };
 const handleStrikerScorecard = async (match, ball) => {
