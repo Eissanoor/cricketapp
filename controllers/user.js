@@ -3,7 +3,7 @@ const MatchDetails = require("../model/match_details");
 exports.getLiveMatches = async (req, res, next) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 1 }).populate(
-      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player bowlerStatus.player",
+      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player bowlerStats.player",
       "name image Image runsScored isExtra"
     );
 
