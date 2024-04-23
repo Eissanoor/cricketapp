@@ -266,15 +266,20 @@ const updateBlowerStats = function (match, runsScored) {
       playerStat.player.toString() === match.openingBowler.toString()
   );
 
+  console.log(bowlerStatsIndex);
+
   // Update striker's stats
   if (bowlerStatsIndex === -1) {
     // Create a new player stats
     const newBowlerStats = {
-      player: match.striker,
+      player: match.openingBowler,
+      overs: 0,
+      maidens: 0,
+      wickets: 0,
+      economy: 0,
       runsGiven: runsScored,
       sixes: runsScored === 6 ? 1 : 0,
       fours: runsScored === 4 ? 1 : 0,
-      // Initialize other stats as needed
     };
 
     // Add the new player stats to the bowlerStats array
