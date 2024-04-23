@@ -150,6 +150,13 @@ const handleOverCompletion = async (match, socketIo) => {
       match.team1Balls = 0;
     }
 
+    // Update bowler stats
+    const bowlerStatsIndex = match.bowlerStats.findIndex(
+      (playerStat) =>
+        playerStat.player.toString() === match.openingBowler.toString()
+    );
+    match.bowlerStats[bowlerStatsIndex].overs++;
+
     // Update striker and non-striker for the next over
     const temp = match.striker;
     match.striker = match.nonStriker;
@@ -265,8 +272,6 @@ const updateBlowerStats = function (match, runsScored) {
     (playerStat) =>
       playerStat.player.toString() === match.openingBowler.toString()
   );
-
-  console.log(bowlerStatsIndex);
 
   // Update striker's stats
   if (bowlerStatsIndex === -1) {
