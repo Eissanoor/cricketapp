@@ -1,4 +1,5 @@
 const MatchDetails = require("../model/match_details");
+const ScoreCard = require("../model/score_card");
 
 exports.getLiveMatches = async (req, res, next) => {
   try {
@@ -42,5 +43,26 @@ exports.getUpcomingMathces = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+
+exports.getScoreCardsByMatchId = async (req, res, next) => {
+  try {
+    const matchId = req.params.matchId;
+    const scorecards = await ScoreCard.find({ match: matchId })
+      .populate("battingTeam bowlingTeam", "name image -_id")
+      .populate("batsmen.player bowlers.player", "name Image");
+
+    if (scorecards.length <= 0) {
+      return next(new Error("No scorecards found for current match"));
+    }
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Scorecards retrieved",
+      data: scorecards,
+    });
+  } catch (err) {
+    next(err);
   }
 };
