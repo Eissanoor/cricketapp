@@ -69,7 +69,7 @@ require("../database/db");
 //     console.log("User disconnected");
 //   });
 // });
-// router.post("/get-player-detail-by-playerid-socket", async (req, res) =>
+// router.post("/get-player-detail-by-playerid-socket", async (req, res, next) =>
 // {
 //   try {
 //     const playerId = req.body.playerId;
@@ -100,7 +100,7 @@ require("../database/db");
 //     });
 //   }
 // });
-// router.put("/update-player-socket", upload.single("Image"), async (req, res) =>
+// router.put("/update-player-socket", upload.single("Image"), async (req, res, next) =>
 // {
 //   try {
 //     const productId = req.body.playerId;
@@ -156,7 +156,7 @@ function generateOTP() {
   }
   return OTP;
 }
-router.get("/", (req, res) => {
+router.get("/", (req, res, next) => {
   res.json({
     status: 200,
     success: true,
@@ -164,7 +164,7 @@ router.get("/", (req, res) => {
     data: null,
   });
 });
-router.post("/signup", async (req, res) => {
+router.post("/signup", async (req, res, next) => {
   try {
     const email = req.body.email;
     const code = generateOTP();
@@ -226,7 +226,7 @@ router.post("/signup", async (req, res) => {
     next(err);
   }
 });
-router.post("/emailVrifyOtp", async (req, res) => {
+router.post("/emailVrifyOtp", async (req, res, next) => {
   try {
     const email = req.body.email;
     const code = req.body.code;
@@ -278,7 +278,7 @@ router.post("/emailVrifyOtp", async (req, res) => {
     });
   }
 });
-router.post("/Login", async (req, res) => {
+router.post("/Login", async (req, res, next) => {
   try {
     const email = req.body.email;
     const password = req.body.password;
@@ -330,7 +330,7 @@ router.post("/Login", async (req, res) => {
     });
   }
 });
-router.get("/get-user-detail/:_id", async (req, res) => {
+router.get("/get-user-detail/:_id", async (req, res, next) => {
   try {
     const _id = req.params._id;
     const data = await providerRegister.findOne({ _id: _id }).select({
@@ -358,7 +358,7 @@ router.get("/get-user-detail/:_id", async (req, res) => {
     });
   }
 });
-router.post("/send-otp-forpassword-change", async (req, res) => {
+router.post("/send-otp-forpassword-change", async (req, res, next) => {
   try {
     let email = req.body.email;
     const mail = await providerRegister.findOne({ email: email });
@@ -427,7 +427,7 @@ router.post("/send-otp-forpassword-change", async (req, res) => {
     });
   }
 });
-router.post("/password-otp-varify", async (req, res) => {
+router.post("/password-otp-varify", async (req, res, next) => {
   try {
     const email = req.body.email;
     const code = req.body.code;
@@ -468,7 +468,7 @@ router.post("/password-otp-varify", async (req, res) => {
     });
   }
 });
-router.post("/changePassword", async (req, res) => {
+router.post("/changePassword", async (req, res, next) => {
   try {
     const email = req.body.email;
     const mailVarify = await providerRegister.findOne({ email: email });
@@ -510,7 +510,7 @@ cron.schedule("59 23 */1 * *", async () => {
     console.error("Error running cron job:", error);
   }
 });
-router.post("/add-players", upload.single("Image"), async (req, res) => {
+router.post("/add-players", upload.single("Image"), async (req, res, next) => {
   try {
     const {
       name,
@@ -577,7 +577,7 @@ router.post("/add-players", upload.single("Image"), async (req, res) => {
     });
   }
 });
-router.get("/get-player-detail-by-adminid/:admin", async (req, res) => {
+router.get("/get-player-detail-by-adminid/:admin", async (req, res, next) => {
   try {
     const adminId = req.params.admin;
     const data = await Player.find({ admins: adminId });
@@ -607,7 +607,7 @@ router.get("/get-player-detail-by-adminid/:admin", async (req, res) => {
     });
   }
 });
-router.post("/get-player-detail-by-playerid", async (req, res) => {
+router.post("/get-player-detail-by-playerid", async (req, res, next) => {
   try {
     const playerId = req.body.playerId;
     const data = await Player.findOne({ _id: playerId });
@@ -637,7 +637,7 @@ router.post("/get-player-detail-by-playerid", async (req, res) => {
     });
   }
 });
-router.delete("/delete-player-byid", async (req, res) => {
+router.delete("/delete-player-byid", async (req, res, next) => {
   try {
     const playerId = req.body.playerId;
     const deletedPlayer = await Player.findByIdAndDelete(playerId);
@@ -684,7 +684,7 @@ router.delete("/delete-player-byid", async (req, res) => {
     });
   }
 });
-router.put("/update-player", upload.single("Image"), async (req, res) => {
+router.put("/update-player", upload.single("Image"), async (req, res, next) => {
   try {
     const productId = req.body.playerId;
     const { name, location, role, age, additionalInfo, admins } = req.body;
@@ -729,7 +729,7 @@ router.put("/update-player", upload.single("Image"), async (req, res) => {
     });
   }
 });
-router.post("/get-other-admin-by-adminid", async (req, res) => {
+router.post("/get-other-admin-by-adminid", async (req, res, next) => {
   try {
     const adminID = req.body.adminID;
     const page = parseInt(req.body.page) || 1; // Current page number, default is 1
@@ -778,7 +778,7 @@ router.post("/get-other-admin-by-adminid", async (req, res) => {
     });
   }
 });
-router.put("/share-player", async (req, res) => {
+router.put("/share-player", async (req, res, next) => {
   try {
     const playerId = req.body.playerId;
     const adminId = req.body.adminId;
@@ -841,7 +841,7 @@ router.put("/share-player", async (req, res) => {
     });
   }
 });
-router.post("/add-team", upload.single("image"), async (req, res) => {
+router.post("/add-team", upload.single("image"), async (req, res, next) => {
   try {
     const { name, location, admin, players } = req.body;
     const playerID = Array.isArray(players)
@@ -896,7 +896,7 @@ router.post("/add-team", upload.single("image"), async (req, res) => {
     });
   }
 });
-router.post("/get-teams", async (req, res) => {
+router.post("/get-teams", async (req, res, next) => {
   try {
     const { adminId } = req.body;
 
@@ -930,7 +930,7 @@ router.post("/get-teams", async (req, res) => {
     });
   }
 });
-router.put("/update-team", upload.single("image"), async (req, res) => {
+router.put("/update-team", upload.single("image"), async (req, res, next) => {
   try {
     const teamID = req.body.teamID;
     const { name, location } = req.body;
@@ -971,7 +971,7 @@ router.put("/update-team", upload.single("image"), async (req, res) => {
     });
   }
 });
-router.delete("/delete-team-byid", async (req, res) => {
+router.delete("/delete-team-byid", async (req, res, next) => {
   try {
     const teamID = req.body.teamID;
     const deletedPlayer = await Team.findByIdAndDelete({ _id: teamID });
@@ -1018,7 +1018,7 @@ router.delete("/delete-team-byid", async (req, res) => {
     });
   }
 });
-router.put("/in-team-add-player", async (req, res) => {
+router.put("/in-team-add-player", async (req, res, next) => {
   try {
     const teamID = req.body.teamID;
     const adminId = req.body.adminId;
@@ -1078,7 +1078,7 @@ router.put("/in-team-add-player", async (req, res) => {
     });
   }
 });
-router.put("/share-team", async (req, res) => {
+router.put("/share-team", async (req, res, next) => {
   try {
     const teamID = req.body.teamID;
     const adminId = req.body.adminId;
@@ -1140,7 +1140,7 @@ router.put("/share-team", async (req, res) => {
     });
   }
 });
-router.get("/get-players-by-teamId/:teamID", async (req, res) => {
+router.get("/get-players-by-teamId/:teamID", async (req, res, next) => {
   try {
     const teamID = req.params.teamID;
     const data = await Team.find({ _id: teamID }).populate(
@@ -1173,16 +1173,16 @@ router.get("/get-players-by-teamId/:teamID", async (req, res) => {
     });
   }
 });
-router.post("/create", async (req, res) => {
+router.post("/create", async (req, res, next) => {
   const data = req.body;
   await matchDetails.add({ data });
   res.send({ msg: "User Added" });
 });
-router.get("/test", async (req, res) => {
+router.get("/test", async (req, res, next) => {
   res.json({ testing: "TESTING" });
 });
 
-router.post("/add-match-details", async (req, res) => {
+router.post("/add-match-details", async (req, res, next) => {
   try {
     const {
       admin,
@@ -1270,7 +1270,7 @@ router.post("/add-match-details", async (req, res) => {
     });
   }
 });
-router.put("/start-match/:matchId", async (req, res) => {
+router.put("/start-match/:matchId", async (req, res, next) => {
   try {
     const matchId = req.params.matchId;
     const {
@@ -1327,7 +1327,7 @@ router.put("/start-match/:matchId", async (req, res) => {
     });
   }
 });
-router.get("/get-upcoming-matches/:adminId", async (req, res) => {
+router.get("/get-upcoming-matches/:adminId", async (req, res, next) => {
   try {
     const adminId = req.params.adminId;
     const matches = await MatchDetails.find({
@@ -1362,7 +1362,7 @@ router.get("/get-upcoming-matches/:adminId", async (req, res) => {
 });
 router.get(
   "/get-MatchDetails-by-MatchDetailsId/:MatchDetailID",
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const teamID = req.params.MatchDetailID;
       const data = await MatchDetails.find({ _id: teamID });
@@ -1393,7 +1393,7 @@ router.get(
     }
   }
 );
-router.get("/get-allMatchDetails", async (req, res) => {
+router.get("/get-allMatchDetails", async (req, res, next) => {
   try {
     const data = await MatchDetails.find();
 
@@ -1422,46 +1422,49 @@ router.get("/get-allMatchDetails", async (req, res) => {
     });
   }
 });
-router.get("/get-all-MatchDetails-byadmin/:adminIDs", async (req, res) => {
-  try {
-    const adminIDs = req.params.adminIDs;
-    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
-    const limit = parseInt(req.query.limit) || 10; // Default to 10 documents per page
+router.get(
+  "/get-all-MatchDetails-byadmin/:adminIDs",
+  async (req, res, next) => {
+    try {
+      const adminIDs = req.params.adminIDs;
+      const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+      const limit = parseInt(req.query.limit) || 10; // Default to 10 documents per page
 
-    const skip = (page - 1) * limit;
+      const skip = (page - 1) * limit;
 
-    const data = await MatchDetails.find({ admin: adminIDs })
-      .skip(skip)
-      .limit(limit);
+      const data = await MatchDetails.find({ admin: adminIDs })
+        .skip(skip)
+        .limit(limit);
 
-    const totalCount = await MatchDetails.countDocuments({ admin: adminIDs });
+      const totalCount = await MatchDetails.countDocuments({ admin: adminIDs });
 
-    if (!data || data.length === 0) {
-      return res.status(404).json({
-        status: 404,
+      if (!data || data.length === 0) {
+        return res.status(404).json({
+          status: 404,
+          success: false,
+          message: "MatchDetails not found",
+          data: null,
+        });
+      }
+
+      res.status(200).json({
+        status: 200,
+        success: true,
+        message: "MatchDetails found",
+        data: data,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        status: 500,
         success: false,
-        message: "MatchDetails not found",
+        message: "Internal server error",
         data: null,
       });
     }
-
-    res.status(200).json({
-      status: 200,
-      success: true,
-      message: "MatchDetails found",
-      data: data,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Internal server error",
-      data: null,
-    });
   }
-});
-router.get("/get-live-matches/:adminId", async (req, res) => {
+);
+router.get("/get-live-matches/:adminId", async (req, res, next) => {
   try {
     const adminId = req.params.adminId;
     const matches = await MatchDetails.find({
@@ -1498,7 +1501,7 @@ router.get("/get-live-matches/:adminId", async (req, res) => {
   }
 });
 
-router.get("/get-matchesdetails/:matchId", async (req, res) => {
+router.get("/get-matchesdetails/:matchId", async (req, res, next) => {
   try {
     const matchId = req.params.matchId;
     const matches = await MatchDetails.findOne({
