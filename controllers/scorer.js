@@ -283,7 +283,7 @@ const updateBatsmanStats = function (match, runsScored) {
 
   return match;
 };
-const updateBlowerStats = function (match, runsScored) {
+const updateBlowerStats = function (match, ball) {
   // Update player stats
   const bowlerStatsIndex = match.bowlerStats.findIndex(
     (playerStat) =>
@@ -297,20 +297,20 @@ const updateBlowerStats = function (match, runsScored) {
       player: match.openingBowler,
       overs: 0,
       maidens: 0,
-      wickets: 0,
+      wickets: ball.isWicket ? 1 : 0,
       economy: 0,
-      runsGiven: runsScored,
-      sixes: runsScored === 6 ? 1 : 0,
-      fours: runsScored === 4 ? 1 : 0,
+      runsGiven: ball.runsScored,
+      sixes: ball.runsScored === 6 ? 1 : 0,
+      fours: ball.runsScored === 4 ? 1 : 0,
     };
 
     // Add the new player stats to the bowlerStats array
     match.bowlerStats.push(newBowlerStats);
   } else {
-    match.bowlerStats[bowlerStatsIndex].runsGiven += runsScored;
-    if (runsScored === 6) {
+    match.bowlerStats[bowlerStatsIndex].runsGiven += ball.runsScored;
+    if (ball.runsScored === 6) {
       match.bowlerStats[bowlerStatsIndex].sixes++;
-    } else if (runsScored === 4) {
+    } else if (ball.runsScored === 4) {
       match.bowlerStats[bowlerStatsIndex].fours++;
     }
   }
@@ -334,7 +334,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
       bowler: match.openingBowler,
       batsman: match.striker,
       runsScored: runsScored,
-      ballTo: striker.name + " to " + bowler.name,
+      ballTo: bowler.name + " to " + striker.name,
       description: ballDesc,
     });
 
@@ -366,7 +366,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
 
     // Update player stats
     match = updateBatsmanStats(match, runsScored);
-    match = updateBlowerStats(match, runsScored);
+    match = updateBlowerStats(match, ball.runsScored);
 
     let scorecard = await handleStrikerScorecard(match, ball);
     await scorecard.save();
@@ -496,6 +496,9 @@ exports.handleOutAction = async (
     // Find the match details
     let match = await MatchDetails.findById(matchId);
 
+    const striker = await Player.findById(match.striker);
+    const bowler = await Player.findById(match.openingBowler);
+
     // Mark the player as out
     if (match.striker.equals(playerIdOut)) {
       match.striker = newPlayerId; // Mark the striker as null
@@ -509,10 +512,33 @@ exports.handleOutAction = async (
       match.team2Outs++;
     }
 
-    // Fire a socket event to notify clients about the player getting out
-    // socketIo.emit("playerOut", { matchId, playerIdOut });
+    // Create a new Ball object
+    const ball = new Ball({
+      match: matchId,
+      bowler: match.openingBowler,
+      batsman: match.striker,
+      runsScored: 0,
+      ballTo: bowler.name + " to " + striker.name,
+      description: "What a big wicket",
+      isWicket: true,
+      wicketType: "Bold",
+    });
 
-    // Select a new player to replace the out player (You can implement your logic here)
+    // Save the ball object
+    await ball.save();
+
+    // Add the ball to the current over
+    match = addBallToOver(match, ball);
+
+    // Update player stats
+    match = updateBatsmanStats(match, 0);
+    match = updateBlowerStats(match, ball.runsScored);
+
+    // let scorecard = await handleStrikerScorecard(match, ball);
+    // await scorecard.save();
+
+    // Call function to handle over completion
+    await handleOverCompletion(match, socketIo);
 
     // Update the match details with the new player
     // For example, if you have a function to select a new player:
