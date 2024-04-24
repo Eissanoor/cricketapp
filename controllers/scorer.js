@@ -284,6 +284,8 @@ const updateBatsmanStats = function (match, runsScored) {
   return match;
 };
 const updateBlowerStats = function (match, ball) {
+  console.log(ball.runsScored);
+  var runsScored = ball.runsScored;
   // Update player stats
   const bowlerStatsIndex = match.bowlerStats.findIndex(
     (playerStat) =>
@@ -297,20 +299,20 @@ const updateBlowerStats = function (match, ball) {
       player: match.openingBowler,
       overs: 0,
       maidens: 0,
-      wickets: ball.isWicket ? 1 : 0,
+      wickets: 0,
       economy: 0,
-      runsGiven: ball.runsScored,
-      sixes: ball.runsScored === 6 ? 1 : 0,
-      fours: ball.runsScored === 4 ? 1 : 0,
+      runsGiven: runsScored,
+      sixes: runsScored === 6 ? 1 : 0,
+      fours: runsScored === 4 ? 1 : 0,
     };
 
     // Add the new player stats to the bowlerStats array
     match.bowlerStats.push(newBowlerStats);
   } else {
-    match.bowlerStats[bowlerStatsIndex].runsGiven += ball.runsScored;
-    if (ball.runsScored === 6) {
+    match.bowlerStats[bowlerStatsIndex].runsGiven += runsScored;
+    if (runsScored === 6) {
       match.bowlerStats[bowlerStatsIndex].sixes++;
-    } else if (ball.runsScored === 4) {
+    } else if (runsScored === 4) {
       match.bowlerStats[bowlerStatsIndex].fours++;
     }
   }
@@ -366,7 +368,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
 
     // Update player stats
     match = updateBatsmanStats(match, runsScored);
-    match = updateBlowerStats(match, ball.runsScored);
+    match = updateBlowerStats(match, ball);
 
     let scorecard = await handleStrikerScorecard(match, ball);
     await scorecard.save();
@@ -527,12 +529,16 @@ exports.handleOutAction = async (
     // Save the ball object
     await ball.save();
 
+    // Fire a socket event to notify clients about the player getting out
+    // socketIo.emit("playerOut", { matchId, playerIdOut });
+
+    // Select a new player to replace the out player (You can implement your logic here)
     // Add the ball to the current over
     match = addBallToOver(match, ball);
 
     // Update player stats
     match = updateBatsmanStats(match, 0);
-    match = updateBlowerStats(match, ball.runsScored);
+    match = updateBlowerStats(match, ball);
 
     // let scorecard = await handleStrikerScorecard(match, ball);
     // await scorecard.save();
