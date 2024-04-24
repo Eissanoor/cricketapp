@@ -284,7 +284,6 @@ const updateBatsmanStats = function (match, runsScored) {
   return match;
 };
 const updateBlowerStats = function (match, ball) {
-  console.log(ball.runsScored);
   var runsScored = ball.runsScored;
   // Update player stats
   const bowlerStatsIndex = match.bowlerStats.findIndex(
@@ -299,7 +298,7 @@ const updateBlowerStats = function (match, ball) {
       player: match.openingBowler,
       overs: 0,
       maidens: 0,
-      wickets: 0,
+      wickets: ball.isWicket == true ? 1 : 0,
       economy: 0,
       runsGiven: runsScored,
       sixes: runsScored === 6 ? 1 : 0,
@@ -314,6 +313,9 @@ const updateBlowerStats = function (match, ball) {
       match.bowlerStats[bowlerStatsIndex].sixes++;
     } else if (runsScored === 4) {
       match.bowlerStats[bowlerStatsIndex].fours++;
+    }
+    if (ball.isWicket == true) {
+      match.bowlerStats[bowlerStatsIndex].wickets++;
     }
   }
 
