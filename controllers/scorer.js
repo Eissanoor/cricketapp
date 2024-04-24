@@ -64,6 +64,21 @@ exports.action = async (req, res, next, socketIo) => {
           data: null,
         });
 
+      case "outPlayer":
+        await exports.handleOutAction(
+          matchId,
+          data.playerIdOut,
+          data.newPlayerId,
+          socketIo
+        );
+        socketIo.emit("match-" + matchId);
+        return res.status(200).json({
+          success: true,
+          message: "Player out successfully",
+          status: 200,
+          data: null,
+        });
+
       // Add more cases for other action types as needed
 
       default:
@@ -468,5 +483,48 @@ exports.changeBowler = async (matchId, newBowler) => {
     return updatedMatch;
   } catch (err) {
     throw err;
+  }
+};
+
+exports.handleOutAction = async (
+  matchId,
+  playerIdOut,
+  newPlayerId,
+  socketIo
+) => {
+  try {
+    // Find the match details
+    let match = await MatchDetails.findById(matchId);
+
+    // Mark the player as out
+    if (match.striker.equals(playerIdOut)) {
+      match.striker = newPlayerId; // Mark the striker as null
+    } else if (match.nonStriker.equals(playerIdOut)) {
+      match.nonStriker = newPlayerId; // Mark the non-striker as null
+    }
+
+    if (match.team1Batting) {
+      match.team1Outs++;
+    } else {
+      match.team2Outs++;
+    }
+
+    // Fire a socket event to notify clients about the player getting out
+    // socketIo.emit("playerOut", { matchId, playerIdOut });
+
+    // Select a new player to replace the out player (You can implement your logic here)
+
+    // Update the match details with the new player
+    // For example, if you have a function to select a new player:
+    // const newPlayer = await selectNewPlayer(matchId);
+    // match.striker = newPlayer;
+
+    // Save the updated match details
+    const updatedMatch = await match.save();
+
+    return updatedMatch;
+  } catch (error) {
+    console.error("Error handling out action:", error);
+    throw error;
   }
 };
