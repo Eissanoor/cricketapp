@@ -135,6 +135,33 @@ const handleStrikerScorecard = async (match, ball) => {
   }
   return scorecard;
 };
+const handleBowlerScorecard = async (match, ball) => {
+  const scorecard = await ScoreCard.findById(match.scorecard);
+  const bowlerScorecardIndex = scorecard.bowlers.findIndex(
+    (card) => card.player.toString() === match.openingBowler.toString()
+  );
+
+  if (bowlerScorecardIndex === -1) {
+    // Create a new scorecard for the striker
+    const newScorecard = {
+      player: match.openingBowler,
+      overs: 0,
+      maidens: 0,
+      runsGiven: ball.runsScored,
+      wickets: ball.isWicket === true ? 1 : 0,
+      economy: 0,
+    };
+    scorecard.batsmen.push(newScorecard);
+  } else {
+    // Update the existing scorecard for the bowler
+    scorecard.batsmen[bowlerScorecardIndex].runsGiven += ball.runsScored;
+    if (ball.isWicket) {
+      scorecard.batsmen[bowlerScorecardIndex].wickets++;
+    }
+    // Update the economy
+  }
+  return scorecard;
+};
 const handleOverCompletion = async (match, socketIo) => {
   // Populate the balls array in currentOver
   const matchWithPopulatedBalls = await MatchDetails.findById(
@@ -373,6 +400,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     match = updateBlowerStats(match, ball);
 
     let scorecard = await handleStrikerScorecard(match, ball);
+    scorecard = await handleBowlerScorecard(match, ball);
     await scorecard.save();
 
     // Swap players if odd runs scored
