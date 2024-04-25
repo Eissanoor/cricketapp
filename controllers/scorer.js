@@ -279,6 +279,50 @@ const describeBall = function (batsman, bowler, runs) {
 
   return `${batsman} hits a ${runDescription} on ${bowler}'s ball.`;
 };
+const generateWicketMessage = (wicketType, fielderName, bowlerName) => {
+  let message = "The batsman is out";
+
+  switch (wicketType) {
+    case "Bowled":
+      message += " bowled by ";
+      break;
+    case "Caught":
+      message += `, caught by ${fielderName} by `;
+      break;
+    case "LBW":
+      message += " leg before wicket (LBW) by ";
+      break;
+    case "Run Out":
+      message += " run out";
+      break;
+    case "Stumped":
+      message += ` stumped by ${fielderName} by `;
+      break;
+    case "Hit Wicket":
+      message += " hit wicket by ";
+      break;
+    case "Handled Ball":
+      message += ` out handled the ball by ${fielderName} by `;
+      break;
+    case "Obstructing Field":
+      message += ` out obstructing the field by ${fielderName} by `;
+      break;
+    case "Timed Out":
+      message += " timed out";
+      break;
+    case "Hit Twice":
+      message += " out hit twice";
+      break;
+    default:
+      message += ` out ${wicketType.toLowerCase()} by `;
+  }
+
+  if (wicketType !== "Run Out" && wicketType !== "Stumped") {
+    message += bowlerName;
+  }
+
+  return message;
+};
 
 const updateBatsmanStats = function (match, runsScored) {
   // Update player stats
@@ -531,7 +575,7 @@ exports.handleOutAction = async (
   playerIdOut,
   newPlayerId,
   wicketType,
-  fielder,
+  fielderId,
   socketIo
 ) => {
   try {
@@ -540,6 +584,7 @@ exports.handleOutAction = async (
 
     const striker = await Player.findById(match.striker);
     const bowler = await Player.findById(match.openingBowler);
+    const fielder = await Player.findById(fielderId);
 
     // Mark the player as out
     if (match.striker.equals(playerIdOut)) {
@@ -561,7 +606,7 @@ exports.handleOutAction = async (
       batsman: match.striker,
       runsScored: 0,
       ballTo: bowler.name + " to " + striker.name,
-      description: "What a big wicket",
+      description: generateWicketMessage(wicketType, fielder.name, bowler.name),
       isWicket: true,
       wicketType: wicketType,
     });
