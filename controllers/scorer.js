@@ -147,6 +147,7 @@ const handleBowlerScorecard = async (match, ball, overCompleted) => {
     if (overCompleted) {
       scorecard.bowlers[bowlerScorecardIndex].overs++;
     }
+    return scorecard;
   }
   if (bowlerScorecardIndex === -1) {
     // Create a new scorecard for the striker
