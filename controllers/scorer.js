@@ -606,7 +606,11 @@ exports.handleOutAction = async (
       batsman: match.striker,
       runsScored: 0,
       ballTo: bowler.name + " to " + striker.name,
-      description: generateWicketMessage(wicketType, fielder.name, bowler.name),
+      description: generateWicketMessage(
+        wicketType,
+        fielder === null ? null : fielder.name,
+        bowler.name
+      ),
       isWicket: true,
       wicketType: wicketType,
     });
