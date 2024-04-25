@@ -69,6 +69,8 @@ exports.action = async (req, res, next, socketIo) => {
           matchId,
           data.playerIdOut,
           data.newPlayerId,
+          data.wicketType,
+          data.fielder,
           socketIo
         );
         socketIo.emit("match-" + matchId);
@@ -135,7 +137,7 @@ const handleStrikerScorecard = async (match, ball) => {
   }
   return scorecard;
 };
-const handleBowlerScorecard = async (match, ball) => {
+const handleBowlerScorecard = async (match, ball, overCompleted) => {
   const scorecard = await ScoreCard.findById(match.scorecard);
   const bowlerScorecardIndex = scorecard.bowlers.findIndex(
     (card) => card.player.toString() === match.openingBowler.toString()
@@ -157,6 +159,9 @@ const handleBowlerScorecard = async (match, ball) => {
     scorecard.bowlers[bowlerScorecardIndex].runsGiven += ball.runsScored;
     if (ball.isWicket) {
       scorecard.bowlers[bowlerScorecardIndex].wickets++;
+    }
+    if (overCompleted) {
+      scorecard.bowlers[bowlerScorecardIndex].overs++;
     }
     // Update the economy
   }
@@ -201,15 +206,14 @@ const handleOverCompletion = async (match, socketIo) => {
     );
     match.bowlerStats[bowlerStatsIndex].overs++;
 
+    // Update bowler in scorecard
+    const scorecard = await handleBowlerScorecard(match, null, true);
+    await scorecard.save();
+
     // Update striker and non-striker for the next over
     const temp = match.striker;
     match.striker = match.nonStriker;
     match.nonStriker = temp;
-
-    // Update bowler for the next over
-    // Logic to select the next bowler can be added here
-
-    // Reset other over-related details if needed
   }
 };
 const addBallToOver = function (match, ball) {
@@ -400,7 +404,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     match = updateBlowerStats(match, ball);
 
     let scorecard = await handleStrikerScorecard(match, ball);
-    scorecard = await handleBowlerScorecard(match, ball);
+    scorecard = await handleBowlerScorecard(match, ball, false);
     await scorecard.save();
 
     // Swap players if odd runs scored
@@ -522,6 +526,8 @@ exports.handleOutAction = async (
   matchId,
   playerIdOut,
   newPlayerId,
+  wicketType,
+  fielder,
   socketIo
 ) => {
   try {
@@ -553,7 +559,7 @@ exports.handleOutAction = async (
       ballTo: bowler.name + " to " + striker.name,
       description: "What a big wicket",
       isWicket: true,
-      wicketType: "Bold",
+      wicketType: wicketType,
     });
 
     // Save the ball object
