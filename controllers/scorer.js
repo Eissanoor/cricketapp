@@ -278,8 +278,13 @@ const describeBall = function (batsman, bowler, runs) {
 
   return `${batsman} hits a ${runDescription} on ${bowler}'s ball.`;
 };
-const generateWicketMessage = (wicketType, fielderName, bowlerName) => {
-  let message = "The batsman is out";
+const generateWicketMessage = (
+  wicketType,
+  fielderName,
+  bowlerName,
+  batsman
+) => {
+  let message = "The " + batsman + " is out";
 
   switch (wicketType) {
     case "Bowled":
@@ -582,6 +587,7 @@ exports.handleOutAction = async (
     let match = await MatchDetails.findById(matchId);
 
     const striker = await Player.findById(match.striker);
+    const nonStriker = await Player.findById(match.nonStriker);
     const bowler = await Player.findById(match.openingBowler);
     const fielder = await Player.findById(fielderId);
 
@@ -608,7 +614,10 @@ exports.handleOutAction = async (
       description: generateWicketMessage(
         wicketType,
         fielder === null ? null : fielder.name,
-        bowler.name
+        bowler.name,
+        playerIdOut.toString() === striker._id.toString()
+          ? striker.name
+          : nonStriker.name
       ),
       isWicket: true,
       wicketType: wicketType,
