@@ -92,8 +92,7 @@ exports.action = async (req, res, next, socketIo) => {
         });
     }
   } catch (error) {
-    console.error("Error handling action:", error);
-    error.message = "Invalid action type";
+    error.message = "Something went wrong!";
     return next(error);
     // return res.status(500).json({
     //   success: false,
