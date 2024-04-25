@@ -655,6 +655,8 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     let scorecard = await handleStrikerScorecard(match, ball, data);
     scorecard = await handleBowlerScorecard(match, ball, false);
 
+    await scorecard.save();
+
     // Call function to handle over completion
     await handleOverCompletion(match, socketIo);
 
