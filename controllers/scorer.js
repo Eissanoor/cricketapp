@@ -151,12 +151,12 @@ const handleBowlerScorecard = async (match, ball) => {
       wickets: ball.isWicket === true ? 1 : 0,
       economy: 0,
     };
-    scorecard.batsmen.push(newScorecard);
+    scorecard.bowlers.push(newScorecard);
   } else {
     // Update the existing scorecard for the bowler
-    scorecard.batsmen[bowlerScorecardIndex].runsGiven += ball.runsScored;
+    scorecard.bowlers[bowlerScorecardIndex].runsGiven += ball.runsScored;
     if (ball.isWicket) {
-      scorecard.batsmen[bowlerScorecardIndex].wickets++;
+      scorecard.bowlers[bowlerScorecardIndex].wickets++;
     }
     // Update the economy
   }
