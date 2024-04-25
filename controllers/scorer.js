@@ -65,14 +65,7 @@ exports.action = async (req, res, next, socketIo) => {
         });
 
       case "outPlayer":
-        await exports.handleOutAction(
-          matchId,
-          data.playerIdOut,
-          data.newPlayerId,
-          data.wicketType,
-          data.fielder,
-          socketIo
-        );
+        await exports.handleOutAction(matchId, data, socketIo);
         socketIo.emit("match-" + matchId);
         return res.status(200).json({
           success: true,
@@ -102,11 +95,39 @@ exports.action = async (req, res, next, socketIo) => {
     // });
   }
 };
-const handleStrikerScorecard = async (match, ball) => {
+const handleStrikerScorecard = async (match, ball, data) => {
   const scorecard = await ScoreCard.findById(match.scorecard);
   const strikerScorecardIndex = scorecard.batsmen.findIndex(
     (card) => card.player.toString() === match.striker.toString()
   );
+
+  if (data != null || data != undefined) {
+    if (strikerScorecardIndex === -1) {
+      // Create a new scorecard for the striker
+      const newScorecard = {
+        player: data.playerIdOut,
+        runs: ball.runsScored,
+        ballsFaced: 1,
+        fours: ball.runsScored === 4 ? 1 : 0,
+        sixes: ball.runsScored === 6 ? 1 : 0,
+        strikeRate: ball.runsScored * 100,
+      };
+      scorecard.batsmen.push(newScorecard);
+    } else {
+      // update dismisser
+      scorecard.batsmen[strikerScorecardIndex].dismissal = data.wicketType;
+      scorecard.batsmen[strikerScorecardIndex].outBy = match.openingBowler;
+      scorecard.batsmen[strikerScorecardIndex].fielder = data.fielder;
+      // Update the existing scorecard for the striker
+      scorecard.batsmen[strikerScorecardIndex].ballsFaced++;
+      // Update the strike rate
+      scorecard.batsmen[strikerScorecardIndex].strikeRate =
+        (scorecard.batsmen[strikerScorecardIndex].runs /
+          scorecard.batsmen[strikerScorecardIndex].ballsFaced) *
+        100;
+    }
+    return scorecard;
+  }
 
   if (strikerScorecardIndex === -1) {
     // Create a new scorecard for the striker
@@ -455,7 +476,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     match = updateBatsmanStats(match, runsScored);
     match = updateBlowerStats(match, ball);
 
-    let scorecard = await handleStrikerScorecard(match, ball);
+    let scorecard = await handleStrikerScorecard(match, ball, null);
     scorecard = await handleBowlerScorecard(match, ball, false);
     await scorecard.save();
 
@@ -574,14 +595,7 @@ exports.changeBowler = async (matchId, newBowler) => {
   }
 };
 
-exports.handleOutAction = async (
-  matchId,
-  playerIdOut,
-  newPlayerId,
-  wicketType,
-  fielderId,
-  socketIo
-) => {
+exports.handleOutAction = async (matchId, data, socketIo) => {
   try {
     // Find the match details
     let match = await MatchDetails.findById(matchId);
@@ -589,13 +603,13 @@ exports.handleOutAction = async (
     const striker = await Player.findById(match.striker);
     const nonStriker = await Player.findById(match.nonStriker);
     const bowler = await Player.findById(match.openingBowler);
-    const fielder = await Player.findById(fielderId);
+    const fielder = await Player.findById(data.fielder);
 
     // Mark the player as out
-    if (match.striker.equals(playerIdOut)) {
-      match.striker = newPlayerId; // Mark the striker as null
-    } else if (match.nonStriker.equals(playerIdOut)) {
-      match.nonStriker = newPlayerId; // Mark the non-striker as null
+    if (match.striker.equals(data.playerIdOut)) {
+      match.striker = data.newPlayerId; // Mark the striker as null
+    } else if (match.nonStriker.equals(data.playerIdOut)) {
+      match.nonStriker = data.newPlayerId; // Mark the non-striker as null
     }
 
     if (match.team1Batting) {
@@ -612,22 +626,22 @@ exports.handleOutAction = async (
       runsScored: 0,
       ballTo: bowler.name + " to " + striker.name,
       description: generateWicketMessage(
-        wicketType,
+        data.wicketType,
         fielder === null ? null : fielder.name,
         bowler.name,
-        playerIdOut.toString() === striker._id.toString()
+        data.playerIdOut.toString() === striker._id.toString()
           ? striker.name
           : nonStriker.name
       ),
       isWicket: true,
-      wicketType: wicketType,
+      wicketType: data.wicketType,
     });
 
     // Save the ball object
     await ball.save();
 
     // Fire a socket event to notify clients about the player getting out
-    // socketIo.emit("playerOut", { matchId, playerIdOut });
+    // socketIo.emit("playerOut", { matchId, data.playerIdOut });
 
     // Select a new player to replace the out player (You can implement your logic here)
     // Add the ball to the current over
@@ -637,8 +651,9 @@ exports.handleOutAction = async (
     match = updateBatsmanStats(match, 0);
     match = updateBlowerStats(match, ball);
 
-    // let scorecard = await handleStrikerScorecard(match, ball);
-    // await scorecard.save();
+    //TODO update scorecard
+    let scorecard = await handleStrikerScorecard(match, ball, data);
+    scorecard = await handleBowlerScorecard(match, ball, false);
 
     // Call function to handle over completion
     await handleOverCompletion(match, socketIo);

@@ -47,6 +47,34 @@ const scoreCardSchema = new mongoose.Schema({
         type: Number,
         default: 0,
       },
+      // Add field for dismissal details
+      dismissal: {
+        type: {
+          type: String,
+          enum: [
+            "Bowled",
+            "Caught",
+            "LBW",
+            "Run Out",
+            "Stumped",
+            "Hit Wicket",
+            "Handled Ball",
+            "Obstructing Field",
+            "Timed Out",
+            "Hit Twice",
+            "Not Out",
+          ],
+          default: "Not Out",
+        },
+        outBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Player",
+        },
+        fielder: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Player",
+        },
+      },
     },
   ],
   bowlers: [
