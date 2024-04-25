@@ -142,7 +142,12 @@ const handleBowlerScorecard = async (match, ball, overCompleted) => {
   const bowlerScorecardIndex = scorecard.bowlers.findIndex(
     (card) => card.player.toString() === match.openingBowler.toString()
   );
-
+  // handle over completed
+  if (ball == null || ball == undefined) {
+    if (overCompleted) {
+      scorecard.bowlers[bowlerScorecardIndex].overs++;
+    }
+  }
   if (bowlerScorecardIndex === -1) {
     // Create a new scorecard for the striker
     const newScorecard = {
@@ -160,9 +165,7 @@ const handleBowlerScorecard = async (match, ball, overCompleted) => {
     if (ball.isWicket) {
       scorecard.bowlers[bowlerScorecardIndex].wickets++;
     }
-    if (overCompleted) {
-      scorecard.bowlers[bowlerScorecardIndex].overs++;
-    }
+
     // Update the economy
   }
   return scorecard;
