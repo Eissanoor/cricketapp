@@ -97,12 +97,11 @@ exports.action = async (req, res, next, socketIo) => {
 };
 const handleStrikerScorecard = async (match, ball, data) => {
   const scorecard = await ScoreCard.findById(match.scorecard);
-  const strikerScorecardIndex = scorecard.batsmen.findIndex(
-    (card) => card.player.toString() === match.striker.toString()
-  );
-
   if (data != null || data != undefined) {
-    if (strikerScorecardIndex === -1) {
+    const batsmanScorecardIndex = scorecard.batsmen.findIndex(
+      (card) => card.player.toString() === match.data.playerIdOut.toString()
+    );
+    if (batsmanScorecardIndex === -1) {
       // Create a new scorecard for the striker
       const newScorecard = {
         player: data.playerIdOut,
@@ -115,19 +114,22 @@ const handleStrikerScorecard = async (match, ball, data) => {
       scorecard.batsmen.push(newScorecard);
     } else {
       // update dismisser
-      scorecard.batsmen[strikerScorecardIndex].dismissal = data.wicketType;
-      scorecard.batsmen[strikerScorecardIndex].outBy = match.openingBowler;
-      scorecard.batsmen[strikerScorecardIndex].fielder = data.fielder;
+      scorecard.batsmen[batsmanScorecardIndex].dismissal = data.wicketType;
+      scorecard.batsmen[batsmanScorecardIndex].outBy = match.openingBowler;
+      scorecard.batsmen[batsmanScorecardIndex].fielder = data.fielder;
       // Update the existing scorecard for the striker
-      scorecard.batsmen[strikerScorecardIndex].ballsFaced++;
+      scorecard.batsmen[batsmanScorecardIndex].ballsFaced++;
       // Update the strike rate
-      scorecard.batsmen[strikerScorecardIndex].strikeRate =
-        (scorecard.batsmen[strikerScorecardIndex].runs /
-          scorecard.batsmen[strikerScorecardIndex].ballsFaced) *
+      scorecard.batsmen[batsmanScorecardIndex].strikeRate =
+        (scorecard.batsmen[batsmanScorecardIndex].runs /
+          scorecard.batsmen[batsmanScorecardIndex].ballsFaced) *
         100;
     }
     return scorecard;
   }
+  const strikerScorecardIndex = scorecard.batsmen.findIndex(
+    (card) => card.player.toString() === match.striker.toString()
+  );
 
   if (strikerScorecardIndex === -1) {
     // Create a new scorecard for the striker
