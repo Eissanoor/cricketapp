@@ -663,6 +663,7 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
 
     //TODO update scorecard
     let scorecard = await handleStrikerScorecard(match, ball, data);
+    await scorecard.save();
     scorecard = await handleBowlerScorecard(match, ball, false);
     await scorecard.save();
 
