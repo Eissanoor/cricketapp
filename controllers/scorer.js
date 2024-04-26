@@ -99,8 +99,10 @@ const handleStrikerScorecard = async (match, ball, data) => {
   const scorecard = await ScoreCard.findById(match.scorecard);
   if (data != null || data != undefined) {
     const batsmanScorecardIndex = scorecard.batsmen.findIndex(
-      (card) => card.player.toString() === match.data.playerIdOut.toString()
+      (card) => card.player.toString() === data.playerIdOut.toString()
     );
+
+    console.log(batsmanScorecardIndex);
     if (batsmanScorecardIndex === -1) {
       // Create a new scorecard for the striker
       const newScorecard = {
@@ -125,6 +127,7 @@ const handleStrikerScorecard = async (match, ball, data) => {
           scorecard.batsmen[batsmanScorecardIndex].ballsFaced) *
         100;
     }
+    console.log(scorecard);
     return scorecard;
   }
   const strikerScorecardIndex = scorecard.batsmen.findIndex(
