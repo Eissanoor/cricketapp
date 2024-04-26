@@ -89,6 +89,10 @@ const matchDetailsSchema = new mongoose.Schema(
       },
     ],
     scorecard: [{ type: mongoose.Schema.Types.ObjectId, ref: "ScoreCard" }],
+    outPlayers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Player" }],
+    oversCompletedPlayers: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Player" },
+    ],
     // Other fields related to match statistics
   },
   {

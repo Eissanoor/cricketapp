@@ -661,11 +661,13 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     match = updateBatsmanStats(match, 0);
     match = updateBlowerStats(match, ball);
 
-    //TODO update scorecard
     let scorecard = await handleStrikerScorecard(match, ball, data);
     await scorecard.save();
     scorecard = await handleBowlerScorecard(match, ball, false);
     await scorecard.save();
+
+    // add out player into the list of out players
+    match.outPlayers.push(data.playerIdOut);
 
     // Call function to handle over completion
     await handleOverCompletion(match, socketIo);
