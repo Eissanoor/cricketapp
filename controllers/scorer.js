@@ -115,7 +115,7 @@ const handleStrikerScorecard = async (match, ball, data) => {
       scorecard.batsmen.push(newScorecard);
     } else {
       // update dismisser
-      scorecard.batsmen[batsmanScorecardIndex].dismissal = data.wicketType;
+      scorecard.batsmen[batsmanScorecardIndex].dismissal.type = data.wicketType;
       scorecard.batsmen[batsmanScorecardIndex].outBy = match.openingBowler;
       scorecard.batsmen[batsmanScorecardIndex].fielder = data.fielder;
       // Update the existing scorecard for the striker
