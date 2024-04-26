@@ -51,8 +51,11 @@ exports.getScoreCardsByMatchId = async (req, res, next) => {
     const matchId = req.params.matchId;
     const scorecards = await ScoreCard.find({ match: matchId })
       .populate("battingTeam bowlingTeam", "name image -_id")
-      .populate("batsmen.player bowlers.player", "name Image");
-
+      .populate("batsmen.player bowlers.player", "name Image")
+      .populate(
+        "batsmen.dismissal.outBy batsmen.dismissal.fielder",
+        "name Image"
+      );
     if (scorecards.length <= 0) {
       return next(new Error("No scorecards found for current match"));
     }
