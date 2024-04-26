@@ -116,8 +116,9 @@ const handleStrikerScorecard = async (match, ball, data) => {
     } else {
       // update dismisser
       scorecard.batsmen[batsmanScorecardIndex].dismissal.type = data.wicketType;
-      scorecard.batsmen[batsmanScorecardIndex].outBy = match.openingBowler;
-      scorecard.batsmen[batsmanScorecardIndex].fielder = data.fielder;
+      scorecard.batsmen[batsmanScorecardIndex].dismissal.outBy =
+        match.openingBowler;
+      scorecard.batsmen[batsmanScorecardIndex].dismissal.fielder = data.fielder;
       // Update the existing scorecard for the striker
       scorecard.batsmen[batsmanScorecardIndex].ballsFaced++;
       // Update the strike rate
