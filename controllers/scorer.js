@@ -111,6 +111,11 @@ const handleStrikerScorecard = async (match, ball, data) => {
         fours: ball.runsScored === 4 ? 1 : 0,
         sixes: ball.runsScored === 6 ? 1 : 0,
         strikeRate: ball.runsScored * 100,
+        dismissal: {
+          type: data.wicketType,
+          outBy: match.openingBowler,
+          fielder: data.fielder,
+        },
       };
       scorecard.batsmen.push(newScorecard);
     } else {
