@@ -2,6 +2,7 @@ const Ball = require("../model/ball");
 const MatchDetails = require("../model/match_details");
 const ScoreCard = require("../model/score_card");
 const Player = require("../model/player");
+const Over = require("../model/over");
 
 exports.action = async (req, res, next, socketIo) => {
   try {
@@ -250,7 +251,7 @@ const handleOverCompletion = async (match, socketIo) => {
     match.nonStriker = temp;
   }
 };
-const addBallToOver = function (match, ball) {
+const addBallToOver = async function (match, ball) {
   // Add the ball to the current over
   match.currentOver.balls.push(ball._id);
 
@@ -261,21 +262,44 @@ const addBallToOver = function (match, ball) {
   }
 
   // Find the current over
-  let currentOver = match.overs.find(
-    (over) => over.number === match.currentOver.number
-  );
+  //   let currentOver = match.overs.find(
+  //     (over) => over.number === match.currentOver.number
+  //   );
+
+  //   if (currentOver) {
+  //     // If the current over exists, add the ball to it
+  //     currentOver.balls.push(ball._id);
+  //   } else {
+  //     // If the current over doesn't exist, create a new over and add the ball to it
+  //     currentOver = {
+  //       number: match.currentOver.number,
+  //       balls: [ball._id],
+  //     };
+  //     match.overs.push(currentOver);
+  //   }
+
+  // Find the current over
+  let currentOver = await Over.findOne({
+    match: match._id,
+    "over.number": match.currentOver.number,
+  });
 
   if (currentOver) {
     // If the current over exists, add the ball to it
-    currentOver.balls.push(ball._id);
+    currentOver.over.balls.push(ball._id);
   } else {
     // If the current over doesn't exist, create a new over and add the ball to it
-    currentOver = {
-      number: match.currentOver.number,
-      balls: [ball._id],
-    };
-    match.overs.push(currentOver);
+    currentOver = new Over({
+      match: match._id,
+      over: {
+        number: match.currentOver.number,
+        balls: [ball._id],
+      },
+    });
   }
+
+  // Save the current over
+  await currentOver.save();
 
   return match;
 };
@@ -480,7 +504,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     }
 
     // Add the ball to the current over
-    match = addBallToOver(match, ball);
+    match = await addBallToOver(match, ball);
 
     // Update player stats
     match = updateBatsmanStats(match, runsScored);
@@ -554,7 +578,7 @@ exports.handleWideAction = async (matchId, extraRuns, extraType, socketIo) => {
     await extraBall.save();
 
     // Add the extra ball to the current over
-    match = addBallToOver(match, extraBall);
+    match = await addBallToOver(match, extraBall);
 
     // Call function to handle over completion
     // await handleOverCompletion(match, socketIo);
@@ -648,7 +672,7 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
 
     // Select a new player to replace the out player (You can implement your logic here)
     // Add the ball to the current over
-    match = addBallToOver(match, ball);
+    match = await addBallToOver(match, ball);
 
     // Update player stats
     match = updateBatsmanStats(match, 0);
