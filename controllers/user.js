@@ -1,6 +1,7 @@
 const MatchDetails = require("../model/match_details");
 const ScoreCard = require("../model/score_card");
 const Ball = require("../model/ball");
+const Over = require("../model/over");
 
 exports.getLiveMatches = async (req, res, next) => {
   try {
@@ -72,13 +73,31 @@ exports.getScoreCardsByMatchId = async (req, res, next) => {
   }
 };
 
-exports.getMatchBalls = async (req, res, next) => {
-  const matchId = req.params.matchId;
-  const balls = await Ball.find({ match: matchId }).sort({ createdAt: -1 });
+exports.getMatchOvers = async (req, res, next) => {
+  const { matchId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
 
-  if (balls.length > 0) {
-    res.json(balls);
-  } else {
-    next(new Error("No balls found for the match"));
+  try {
+    const overs = await Over.find({ match: matchId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("over.balls");
+
+    if (overs.length > 0) {
+      return res.status(200).json({
+        status: 200,
+        success: true,
+        message: "Overs for specific match",
+        data: overs,
+      });
+    } else {
+      const error = new Error("No overs found for the match");
+      error.statusCode = 402;
+      return next(error);
+    }
+  } catch (error) {
+    return next(error);
   }
 };

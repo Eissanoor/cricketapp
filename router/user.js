@@ -13,6 +13,6 @@ router.get(
   userController.getScoreCardsByMatchId
 );
 
-router.get("/get-all-balls-for-match/:matchId", userController.getMatchBalls);
+router.get("/get-overs-for-match/:matchId", userController.getMatchOvers);
 
 module.exports = router;
