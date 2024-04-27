@@ -678,6 +678,8 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     );
     if (playerIndex !== -1) {
       match.lastWicket = data.playerStats[playerIndex];
+    } else {
+      match.lastWicket.player = data.playerIdOut;
     }
 
     // Save the updated match details
