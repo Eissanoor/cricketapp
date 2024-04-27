@@ -672,10 +672,13 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     // Call function to handle over completion
     await handleOverCompletion(match, socketIo);
 
-    // Update the match details with the new player
-    // For example, if you have a function to select a new player:
-    // const newPlayer = await selectNewPlayer(matchId);
-    // match.striker = newPlayer;
+    // Update the last wicket
+    const playerIndex = match.playerStats.findIndex(
+      (player) => player._id.toString() === data.playerIdOut.toString()
+    );
+    if (playerIndex !== -1) {
+      match.lastWicket = data.playerStats[playerIndex];
+    }
 
     // Save the updated match details
     const updatedMatch = await match.save();

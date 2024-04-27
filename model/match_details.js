@@ -93,6 +93,15 @@ const matchDetailsSchema = new mongoose.Schema(
     oversCompletedPlayers: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Player" },
     ],
+    lastWicket: {
+      player: { type: mongoose.Schema.Types.ObjectId, ref: "Player" },
+      runs: { type: Number, default: 0 },
+      ballsFaced: { type: Number, default: 0 },
+      fours: { type: Number, default: 0 },
+      sixes: { type: Number, default: 0 },
+      strikeRate: { type: Number, default: 0 },
+      // Add other player statistics as needed
+    },
     // Other fields related to match statistics
   },
   {
