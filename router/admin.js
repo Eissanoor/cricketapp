@@ -1507,10 +1507,12 @@ router.get("/get-matchesdetails/:matchId", async (req, res, next) => {
     const matches = await MatchDetails.findOne({
       _id: matchId,
       matchStatus: 1,
-    }).populate(
-      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player bowlerStats.player",
-      "name image Image runsScored isExtra ballTo description extraType wicketType isWicket"
-    );
+    })
+      .populate(
+        "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player bowlerStats.player",
+        "name image Image runsScored isExtra ballTo description extraType wicketType isWicket"
+      )
+      .populate("lastWicket.player", "name Image");
 
     if (!matches || matches.length === 0) {
       //   return res.status(404).json({
