@@ -80,7 +80,7 @@ exports.getMatchOvers = async (req, res, next) => {
 
   try {
     const overs = await Over.find({ match: matchId })
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate("balls", "ballTo description runsScored isExtra isWicket");
