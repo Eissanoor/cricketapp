@@ -1470,10 +1470,11 @@ router.get("/get-live-matches/:adminId", async (req, res, next) => {
     const matches = await MatchDetails.find({
       admin: adminId,
       matchStatus: 1,
-    }).populate(
-      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player bowlerStats.player",
-      "name image Image runsScored isExtra"
-    );
+    })
+      .select(
+        "cityOrTown team1 team2 team1Score team2Score team1Overs team2Overs team1Balls team2Balls team1Outs team2Outs"
+      )
+      .populate("team1 team2", "name image");
 
     if (!matches || matches.length === 0) {
       return res.status(404).json({
@@ -1491,13 +1492,7 @@ router.get("/get-live-matches/:adminId", async (req, res, next) => {
       data: matches,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Internal server error",
-      data: null,
-    });
+    next(error);
   }
 });
 
