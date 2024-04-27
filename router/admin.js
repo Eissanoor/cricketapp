@@ -1539,30 +1539,4 @@ router.get("/get-matchesdetails/:matchId", async (req, res, next) => {
   }
 });
 
-router.get("/get-matchdetails-for-admin/:matchId", async (req, res, next) => {
-  try {
-    const matchId = req.params.matchId;
-    const matches = await MatchDetails.findOne({
-      _id: matchId,
-      matchStatus: 1,
-    }).populate(
-      "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls playerStats.player bowlerStats.player",
-      "name image Image runsScored isExtra ballTo description extraType wicketType isWicket"
-    );
-
-    if (!matches || matches.length === 0) {
-      return next(new Error("No match found!"));
-    }
-
-    res.status(200).json({
-      status: 200,
-      success: true,
-      message: "Match details",
-      data: matches,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
 module.exports = router;
