@@ -1,5 +1,6 @@
 const MatchDetails = require("../model/match_details");
 const ScoreCard = require("../model/score_card");
+const Ball = require("../model/ball");
 
 exports.getLiveMatches = async (req, res, next) => {
   try {
@@ -67,5 +68,16 @@ exports.getScoreCardsByMatchId = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+};
+
+exports.getMatchBalls = async (req, res, next) => {
+  const matchId = req.params.matchId;
+  const balls = await Ball.find({ match: matchId }).sort({ createdAt: -1 });
+
+  if (balls.length > 0) {
+    res.json(balls);
+  } else {
+    next(new Error("No balls found for the match"));
   }
 };

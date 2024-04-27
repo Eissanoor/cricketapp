@@ -374,7 +374,7 @@ const updateBatsmanStats = function (match, runsScored) {
       runs: runsScored,
       sixes: runsScored === 6 ? 1 : 0,
       fours: runsScored === 4 ? 1 : 0,
-      strikeRate: runsScored * 100, // Since ballsFaced is 1, strikeRate is same as runsScored * 100
+      strikeRate: runsScored * 100,
       // Initialize other stats as needed
     };
 
@@ -615,13 +615,6 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     const bowler = await Player.findById(match.openingBowler);
     const fielder = await Player.findById(data.fielder);
 
-    // Mark the player as out
-    if (match.striker.equals(data.playerIdOut)) {
-      match.striker = data.newPlayerId; // Mark the striker as null
-    } else if (match.nonStriker.equals(data.playerIdOut)) {
-      match.nonStriker = data.newPlayerId; // Mark the non-striker as null
-    }
-
     if (match.team1Batting) {
       match.team1Outs++;
     } else {
@@ -668,6 +661,13 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
 
     // add out player into the list of out players
     match.outPlayers.push(data.playerIdOut);
+
+    // Mark the player as out
+    if (match.striker.equals(data.playerIdOut)) {
+      match.striker = data.newPlayerId; // Mark the striker as null
+    } else if (match.nonStriker.equals(data.playerIdOut)) {
+      match.nonStriker = data.newPlayerId; // Mark the non-striker as null
+    }
 
     // Call function to handle over completion
     await handleOverCompletion(match, socketIo);
