@@ -281,20 +281,18 @@ const addBallToOver = async function (match, ball) {
   // Find the current over
   let currentOver = await Over.findOne({
     match: match._id,
-    "over.number": match.currentOver.number,
+    number: match.currentOver.number,
   });
 
   if (currentOver) {
     // If the current over exists, add the ball to it
-    currentOver.over.balls.push(ball._id);
+    currentOver.balls.push(ball._id);
   } else {
     // If the current over doesn't exist, create a new over and add the ball to it
     currentOver = new Over({
       match: match._id,
-      over: {
-        number: match.currentOver.number,
-        balls: [ball._id],
-      },
+      number: match.currentOver.number,
+      balls: [ball._id],
     });
   }
 

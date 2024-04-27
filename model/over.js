@@ -7,10 +7,8 @@ const overSchema = new mongoose.Schema(
       ref: "MatchDetails",
       required: true,
     },
-    over: {
-      number: { type: Number, required: true },
-      balls: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ball" }],
-    },
+    number: { type: Number, required: true },
+    balls: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ball" }],
   },
   {
     timestamps: true,
