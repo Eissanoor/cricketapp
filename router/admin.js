@@ -1472,7 +1472,7 @@ router.get("/get-live-matches/:adminId", async (req, res, next) => {
       matchStatus: 1,
     })
       .select(
-        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats"
+        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
       )
       .populate("team1 team2", "name image")
       .populate("squad1 squad2", "name");
