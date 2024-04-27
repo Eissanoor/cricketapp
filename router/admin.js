@@ -1471,10 +1471,11 @@ router.get("/get-live-matches/:adminId", async (req, res, next) => {
       admin: adminId,
       matchStatus: 1,
     })
-      .select(
-        "cityOrTown team1 team2 team1Score team2Score team1Overs team2Overs team1Balls team2Balls team1Outs team2Outs"
-      )
-      .populate("team1 team2", "name image");
+      //   .select(
+      //     "cityOrTown team1 team2 team1Score team2Score team1Overs team2Overs team1Balls team2Balls team1Outs team2Outs"
+      //   )
+      .populate("team1 team2", "name image")
+      .populate("squad1 squad2", "name");
 
     if (!matches || matches.length === 0) {
       return res.status(404).json({
