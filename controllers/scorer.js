@@ -509,7 +509,6 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
         match.partnership = { runs: 0, balls: 0 };
       }
       match.partnership.runs += runsScored;
-      await match.save();
     }
 
     // Update the match details with the new score
@@ -521,6 +520,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
 
     // Add the ball to the current over
     match = await addBallToOver(match, ball);
+    await match.save();
 
     // Update player stats
     match = updateBatsmanStats(match, runsScored);
