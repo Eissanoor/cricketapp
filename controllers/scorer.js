@@ -76,7 +76,7 @@ exports.action = async (req, res, next, socketIo) => {
         });
 
       case "byes-LegByes":
-        await exports.handleByesAndLegByesAction(matchId, data, socketIo);
+        await exports.handleByesAndLegByesAction(matchId, data);
         socketIo.emit("match-" + matchId);
         return res.status(200).json({
           success: true,
@@ -792,9 +792,6 @@ exports.handleNoBall = async (matchId, extraRuns, extraType, socketIo) => {
     match = updateBatsmanStats(match, extraRuns + 1);
     match = updateBlowerStats(match, noBall);
 
-    // Handle over completion
-    await handleOverCompletion(match, socketIo);
-
     // Save the updated match details
     const updatedMatch = await match.save();
 
@@ -805,7 +802,7 @@ exports.handleNoBall = async (matchId, extraRuns, extraType, socketIo) => {
   }
 };
 
-exports.handleByesAndLegByesAction = async (matchId, data, socketIo) => {
+exports.handleByesAndLegByesAction = async (matchId, data) => {
   try {
     let { runsScored, extraType, noOrWide } = data;
     let ballDesc;
@@ -883,8 +880,6 @@ exports.handleByesAndLegByesAction = async (matchId, data, socketIo) => {
       match = await handleBowlerScorecard(match, extraBall);
       match = await match.save();
     }
-    // Call function to handle over completion
-    await handleOverCompletion(match, socketIo);
 
     // Save the updated match details
     const updatedMatch = await match.save();
