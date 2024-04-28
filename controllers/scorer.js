@@ -509,8 +509,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
         match.partnership = { runs: 0, balls: 0 };
       }
       match.partnership.runs += runsScored;
-
-      console.log(match.partnership);
+      await match.save();
     }
 
     // Update the match details with the new score
