@@ -505,7 +505,6 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
 
     // Update the batting team's score
     if (runsScored > 0) {
-      battingTeamScore += runsScored;
       if (!match.partnership) {
         match.partnership = { runs: 0, balls: 0 };
       }
