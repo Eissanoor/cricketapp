@@ -710,7 +710,7 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
       match.nonStriker = data.newPlayerId; // Mark the non-striker as null
     }
 
-    // reset partnership
+    // reset partnership for the batsmen
     if (!match.partnership) {
       match.partnership = { runs: 0, balls: 0 };
     } else {
