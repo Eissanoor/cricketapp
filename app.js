@@ -59,6 +59,13 @@ app.post("/set-openings", async (req, res) => {
       match.scorecard.push(scorecard);
     }
 
+    if (!match.partnership) {
+      match.partnership = {
+        runs: 0,
+        balls: 0,
+      };
+    }
+
     const matchstart = await match.save();
 
     // Send real-time update using socket.io
