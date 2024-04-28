@@ -308,7 +308,10 @@ const addBallToOver = async function (match, ball) {
   await currentOver.save();
 
   // update partnership
-  //   match.partnership.balls++;
+  if (!match.partnership) {
+    match.partnership = { runs: 0, balls: 0 };
+  }
+  match.partnership.balls++;
 
   return match;
 };
@@ -503,9 +506,10 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     // Update the batting team's score
     if (runsScored > 0) {
       battingTeamScore += runsScored;
-      //   if (match.partnership != undefined) {
-      //     match.partnership.runs += runsScored;
-      //   }
+      if (!match.partnership) {
+        match.partnership = { runs: 0, balls: 0 };
+      }
+      match.partnership.runs += runsScored;
     }
 
     // Update the match details with the new score
@@ -707,8 +711,12 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     }
 
     // reset partnership
-    // match.partnership.runs = 0;
-    // match.partnership.balls = 0;
+    if (!match.partnership) {
+      match.partnership = { runs: 0, balls: 0 };
+    } else {
+      match.partnership.runs = 0;
+      match.partnership.balls = 0;
+    }
 
     // Update the last wicket
     const playerIndex = match.playerStats.findIndex(
