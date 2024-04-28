@@ -75,6 +75,20 @@ exports.action = async (req, res, next, socketIo) => {
           data: null,
         });
 
+      case "byes-LegByes":
+        await exports.handleByesAndLegByesAction(
+          matchId,
+          data.runsScored,
+          data.extraType
+        );
+        socketIo.emit("match-" + matchId);
+        return res.status(200).json({
+          success: true,
+          message: "Extra runs added successfully",
+          status: 200,
+          data: null,
+        });
+
       // Add more cases for other action types as needed
 
       default:
@@ -312,6 +326,7 @@ const addBallToOver = async function (match, ball) {
     match.partnership = { runs: 0, balls: 0 };
   }
   match.partnership.balls++;
+  match = await match.save();
 
   return match;
 };
@@ -509,7 +524,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
         match.partnership = { runs: 0, balls: 0 };
       }
       match.partnership.runs += runsScored;
-      await match.save();
+      match = await match.save();
     }
 
     // Update the match details with the new score
@@ -521,7 +536,6 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
 
     // Add the ball to the current over
     match = await addBallToOver(match, ball);
-    await match.save();
 
     // Update player stats
     match = updateBatsmanStats(match, runsScored);
@@ -738,6 +752,131 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     return updatedMatch;
   } catch (error) {
     console.error("Error handling out action:", error);
+    throw error;
+  }
+};
+
+exports.handleNoBall = async (matchId, extraRuns, extraType, socketIo) => {
+  try {
+    // Find the match details
+    let match = await MatchDetails.findById(matchId);
+
+    // Update the team score with extra runs
+    let battingTeamScore;
+    if (match.team1Batting) {
+      battingTeamScore = match.team1Score + extraRuns;
+      match.team1Score = battingTeamScore;
+    } else {
+      battingTeamScore = match.team2Score + extraRuns;
+      match.team2Score = battingTeamScore;
+    }
+
+    // Create a new Ball object for the no ball
+    const bowler = await Player.findById(match.openingBowler);
+    const striker = await Player.findById(match.striker);
+    const nonStriker = await Player.findById(match.nonStriker);
+    const noBallDescription = `${bowler.name} bowls a no ball to ${striker.name}`;
+
+    const noBall = new Ball({
+      match: matchId,
+      bowler: match.openingBowler,
+      batsman: match.striker,
+      runsScored: extraRuns + 1,
+      isExtra: true,
+      extraType: extraType,
+      ballTo: `${bowler.name} to ${striker.name}`,
+      description: noBallDescription,
+    });
+
+    // Save the no ball object
+    await noBall.save();
+
+    // Add the no ball to the current over
+    match = await addBallToOver(match, noBall);
+
+    // Update player stats
+    match = updateBatsmanStats(match, extraRuns + 1);
+    match = updateBlowerStats(match, noBall);
+
+    // Handle over completion
+    await handleOverCompletion(match, socketIo);
+
+    // Save the updated match details
+    const updatedMatch = await match.save();
+
+    return updatedMatch;
+  } catch (error) {
+    console.error("Error handling no ball:", error);
+    throw error;
+  }
+};
+
+exports.handleByesAndLegByesAction = async (
+  matchId,
+  runsScored,
+  extraType,
+  socketIo
+) => {
+  try {
+    // Find the match details
+    let match = await MatchDetails.findById(matchId);
+
+    // Check which team is batting
+    let battingTeamScore;
+    if (match.team1Batting) {
+      battingTeamScore = match.team1Score;
+    } else {
+      battingTeamScore = match.team2Score;
+    }
+
+    // check if ball is no ball or not
+    if (extraType !== "byes" && extraType !== "leg-byes") {
+      // it means it is no ball with byes or leg byes
+      runsScored++;
+      extraType = extraType + " + no ball";
+    }
+
+    // Update the batting team's score with extra runs
+    battingTeamScore += runsScored;
+
+    // Update the match details with the new score and extras
+    if (match.team1Batting) {
+      match.team1Score = battingTeamScore;
+      match.team2Extras += runsScored;
+    } else {
+      match.team2Score = battingTeamScore;
+      match.team1Extras += runsScored;
+    }
+
+    const striker = await Player.findById(match.striker);
+    const bowler = await Player.findById(match.openingBowler);
+
+    // Create a new Ball object
+    const extraBall = new Ball({
+      match: matchId,
+      bowler: match.openingBowler,
+      batsman: match.striker,
+      runsScored: runsScored,
+      isExtra: true,
+      extraType: extraType,
+      ballTo: striker.name + " to " + bowler.name,
+      description: "Extra runs scored: " + runsScored + " (" + extraType + ")",
+    });
+
+    // Save the ball object
+    await extraBall.save();
+
+    // Add the extra ball to the current over
+    match = await addBallToOver(match, extraBall);
+
+    // Call function to handle over completion
+    await handleOverCompletion(match, socketIo);
+
+    // Save the updated match details
+    const updatedMatch = await match.save();
+
+    return updatedMatch;
+  } catch (error) {
     throw error;
   }
 };
