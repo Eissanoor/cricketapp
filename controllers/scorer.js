@@ -245,6 +245,11 @@ const handleOverCompletion = async (match, socketIo) => {
     const scorecard = await handleBowlerScorecard(match, null, true);
     await scorecard.save();
 
+    // check over limit
+    if (match.bowlerStats[bowlerStatsIndex].overs >= match.oversPerBowler) {
+      match.oversCompletedPlayers.push(match.openingBowler);
+    }
+
     // Update striker and non-striker for the next over
     const temp = match.striker;
     match.striker = match.nonStriker;
@@ -298,6 +303,9 @@ const addBallToOver = async function (match, ball) {
 
   // Save the current over
   await currentOver.save();
+
+  // update partnership
+  match.partnership.balls++;
 
   return match;
 };
@@ -492,6 +500,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     // Update the batting team's score
     if (runsScored > 0) {
       battingTeamScore += runsScored;
+      match.partnership.runs += runsScored;
     }
 
     // Update the match details with the new score
@@ -691,8 +700,9 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
       match.nonStriker = data.newPlayerId; // Mark the non-striker as null
     }
 
-    // Call function to handle over completion
-    await handleOverCompletion(match, socketIo);
+    // reset partnership
+    match.partnership.runs = 0;
+    match.partnership.balls = 0;
 
     // Update the last wicket
     const playerIndex = match.playerStats.findIndex(
@@ -703,6 +713,9 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     } else {
       match.lastWicket.player = data.playerIdOut;
     }
+
+    // Call function to handle over completion
+    await handleOverCompletion(match, socketIo);
 
     // Save the updated match details
     const updatedMatch = await match.save();
