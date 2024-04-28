@@ -76,11 +76,7 @@ exports.action = async (req, res, next, socketIo) => {
         });
 
       case "byes-LegByes":
-        await exports.handleByesAndLegByesAction(
-          matchId,
-          data.runsScored,
-          data.extraType
-        );
+        await exports.handleByesAndLegByesAction(matchId, data);
         socketIo.emit("match-" + matchId);
         return res.status(200).json({
           success: true,
@@ -184,7 +180,7 @@ const handleStrikerScorecard = async (match, ball, data) => {
   }
   return scorecard;
 };
-const handleBowlerScorecard = async (match, ball, overCompleted) => {
+const handleBowlerScorecard = async (match, ball) => {
   const scorecard = await ScoreCard.findOne({ match: match._id });
   if (!scorecard) return new Error("No scorecard found");
   const bowlerScorecardIndex = scorecard.bowlers.findIndex(
@@ -192,9 +188,7 @@ const handleBowlerScorecard = async (match, ball, overCompleted) => {
   );
   // handle over completed
   if (ball == null || ball == undefined) {
-    if (overCompleted) {
-      scorecard.bowlers[bowlerScorecardIndex].overs++;
-    }
+    scorecard.bowlers[bowlerScorecardIndex].overs++;
     return scorecard;
   }
   if (bowlerScorecardIndex === -1) {
@@ -259,7 +253,7 @@ const handleOverCompletion = async (match, socketIo) => {
     match.bowlerStats[bowlerStatsIndex].overs++;
 
     // Update bowler in scorecard
-    const scorecard = await handleBowlerScorecard(match, null, true);
+    const scorecard = await handleBowlerScorecard(match, null);
     await scorecard.save();
 
     // check over limit
@@ -543,7 +537,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
 
     let scorecard = await handleStrikerScorecard(match, ball, null);
     await scorecard.save();
-    scorecard = await handleBowlerScorecard(match, ball, false);
+    scorecard = await handleBowlerScorecard(match, ball);
     await scorecard.save();
 
     // Swap players if odd runs scored
@@ -712,7 +706,7 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
 
     let scorecard = await handleStrikerScorecard(match, ball, data);
     await scorecard.save();
-    scorecard = await handleBowlerScorecard(match, ball, false);
+    scorecard = await handleBowlerScorecard(match, ball);
     await scorecard.save();
 
     // add out player into the list of out players
@@ -811,18 +805,17 @@ exports.handleNoBall = async (matchId, extraRuns, extraType, socketIo) => {
   }
 };
 
-exports.handleByesAndLegByesAction = async (
-  matchId,
-  runsScored,
-  extraType,
-  socketIo
-) => {
+exports.handleByesAndLegByesAction = async (matchId, data) => {
   try {
+    let { runsScored, extraType, noOrWide } = data;
+    let ballDesc;
+
     // Find the match details
     let match = await MatchDetails.findById(matchId);
 
     // Check which team is batting
     let battingTeamScore;
+    let extraRuns;
     if (match.team1Batting) {
       battingTeamScore = match.team1Score;
     } else {
@@ -830,29 +823,43 @@ exports.handleByesAndLegByesAction = async (
     }
 
     // check if ball is no ball or not
-    if (extraType !== "byes" && extraType !== "leg-byes") {
-      // it means it is no ball with byes or leg byes
-      runsScored++;
-      extraType = extraType + " + no ball";
+    if (noOrWide !== undefined && noOrWide !== null) {
+      // Update the batting team's score with extra runs
+      battingTeamScore += runsScored + 1;
+      extraRuns = runsScored + 1;
+    } else {
+      battingTeamScore += runsScored;
+      extraRuns = runsScored;
     }
-
-    // Update the batting team's score with extra runs
-    battingTeamScore += runsScored;
 
     // Update the match details with the new score and extras
     if (match.team1Batting) {
       match.team1Score = battingTeamScore;
-      match.team2Extras += runsScored;
+      match.team2Extras += extraRuns;
     } else {
       match.team2Score = battingTeamScore;
-      match.team1Extras += runsScored;
+      match.team1Extras += extraRuns;
     }
 
     const striker = await Player.findById(match.striker);
     const bowler = await Player.findById(match.openingBowler);
 
+    // Set ball description
+    if (noOrWide !== null && noOrWide !== undefined) {
+      ballDesc =
+        "Extra runs scored: " +
+        runsScored +
+        " (" +
+        extraType +
+        ") & (" +
+        noOrWide +
+        ")";
+    } else {
+      ballDesc = "Extra runs scored: " + runsScored + " (" + extraType + ")";
+    }
+
     // Create a new Ball object
-    const extraBall = new Ball({
+    let extraBall = new Ball({
       match: matchId,
       bowler: match.openingBowler,
       batsman: match.striker,
@@ -860,15 +867,22 @@ exports.handleByesAndLegByesAction = async (
       isExtra: true,
       extraType: extraType,
       ballTo: striker.name + " to " + bowler.name,
-      description: "Extra runs scored: " + runsScored + " (" + extraType + ")",
+      description: ballDesc,
     });
 
     // Save the ball object
-    await extraBall.save();
+    extraBall = await extraBall.save();
 
     // Add the extra ball to the current over
     match = await addBallToOver(match, extraBall);
 
+    if (extraType === "lb") {
+      // update bowler scorecard and stats
+      match = await updateBlowerStats(match, extraBall);
+      match = await match.save();
+      match = await handleBowlerScorecard(match, extraBall);
+      match = await match.save();
+    }
     // Call function to handle over completion
     await handleOverCompletion(match, socketIo);
 
