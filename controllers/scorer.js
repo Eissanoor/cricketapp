@@ -98,6 +98,7 @@ exports.action = async (req, res, next, socketIo) => {
 };
 const handleStrikerScorecard = async (match, ball, data) => {
   let scorecard = await ScoreCard.findOne({ match: match._id });
+  // Out blayer scorecard
   if (data != null || data != undefined) {
     const batsmanScorecardIndex = scorecard.batsmen.findIndex(
       (card) => card.player.toString() === data.playerIdOut.toString()
@@ -135,6 +136,8 @@ const handleStrikerScorecard = async (match, ball, data) => {
     }
     return scorecard;
   }
+
+  // not out player scorecard
   const strikerScorecardIndex = scorecard.batsmen.findIndex(
     (card) => card.player.toString() === match.striker.toString()
   );
@@ -520,6 +523,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     match = updateBlowerStats(match, ball);
 
     let scorecard = await handleStrikerScorecard(match, ball, null);
+    await scorecard.save();
     scorecard = await handleBowlerScorecard(match, ball, false);
     await scorecard.save();
 
