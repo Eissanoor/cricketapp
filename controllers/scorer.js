@@ -413,7 +413,7 @@ const generateWicketMessage = (
   return message;
 };
 
-const updateBatsmanStats = function (match, runsScored) {
+const updateBatsmanStats = function (match, runsScored, isExtra) {
   // Update player stats
   const strikerStatsIndex = match.playerStats.findIndex(
     (playerStat) => playerStat.player.toString() === match.striker.toString()
@@ -424,7 +424,7 @@ const updateBatsmanStats = function (match, runsScored) {
     // Create a new player stats
     const newStrikerStats = {
       player: match.striker,
-      ballsFaced: 1,
+      ballsFaced: isExtra === true ? 0 : 1,
       runs: runsScored,
       sixes: runsScored === 6 ? 1 : 0,
       fours: runsScored === 4 ? 1 : 0,
@@ -435,7 +435,9 @@ const updateBatsmanStats = function (match, runsScored) {
     // Add the new player stats to the playerStats array
     match.playerStats.push(newStrikerStats);
   } else {
-    match.playerStats[strikerStatsIndex].ballsFaced++;
+    if (isExtra != true) {
+      match.playerStats[strikerStatsIndex].ballsFaced++;
+    }
     match.playerStats[strikerStatsIndex].runs += runsScored;
     if (runsScored === 6) {
       match.playerStats[strikerStatsIndex].sixes++;
@@ -541,7 +543,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     match = await addBallToOver(match, ball);
 
     // Update player stats
-    match = updateBatsmanStats(match, runsScored);
+    match = updateBatsmanStats(match, runsScored, ball.isExtra);
     match = updateBlowerStats(match, ball);
 
     let scorecard = await handleStrikerScorecard(match, ball, null);
@@ -710,7 +712,7 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     match = await addBallToOver(match, ball);
 
     // Update player stats
-    match = updateBatsmanStats(match, 0);
+    match = updateBatsmanStats(match, 0, false);
     match = updateBlowerStats(match, ball);
 
     let scorecard = await handleStrikerScorecard(match, ball, data);
@@ -807,7 +809,7 @@ exports.handleNoBallAction = async (matchId, data) => {
 
     if (runsScored > 0) {
       // Update player stats
-      match = updateBatsmanStats(match, runsScored);
+      match = updateBatsmanStats(match, runsScored, extraBall.isExtra);
       match = updateBlowerStats(match, extraBall);
 
       let scorecard = await handleStrikerScorecard(match, extraBall, null);
