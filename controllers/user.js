@@ -83,7 +83,10 @@ exports.getMatchOvers = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("balls", "ballTo description runsScored isExtra isWicket");
+      .populate(
+        "balls",
+        "ballTo description runsScored isExtra isWicket extraType"
+      );
 
     if (overs.length > 0) {
       return res.status(200).json({

@@ -856,7 +856,7 @@ exports.handleByesAndLegByesAction = async (matchId, data) => {
     }
 
     // Create a new Ball object
-    let extraBall = new Ball({
+    let ball = new Ball({
       match: matchId,
       bowler: match.openingBowler,
       batsman: match.striker,
@@ -868,16 +868,16 @@ exports.handleByesAndLegByesAction = async (matchId, data) => {
     });
 
     // Save the ball object
-    extraBall = await extraBall.save();
+    ball = await ball.save();
 
     // Add the extra ball to the current over
-    match = await addBallToOver(match, extraBall);
+    match = await addBallToOver(match, ball);
 
     if (extraType === "leg byes") {
       // update bowler scorecard and stats
-      match = await updateBlowerStats(match, extraBall);
+      match = await updateBlowerStats(match, ball);
       match = await match.save();
-      match = await handleBowlerScorecard(match, extraBall);
+      match = await handleBowlerScorecard(match, ball);
       match = await match.save();
     }
 
