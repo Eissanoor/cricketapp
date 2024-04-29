@@ -320,7 +320,7 @@ const addBallToOver = async function (match, ball) {
     match.partnership = { runs: 0, balls: 0 };
   }
   match.partnership.balls++;
-  match = await match.save();
+  //   match = await match.save();
 
   return match;
 };
@@ -518,11 +518,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
         match.partnership = { runs: 0, balls: 0 };
       }
       match.partnership.runs += runsScored;
-      console.log(match);
-      console.log(match.partnership);
-      match = await match.save();
-      console.log(match);
-      console.log(match.partnership);
+      //   match = await match.save();
     }
 
     // Update the match details with the new score

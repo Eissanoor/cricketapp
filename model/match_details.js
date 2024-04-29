@@ -100,11 +100,12 @@ const matchDetailsSchema = new mongoose.Schema(
       fours: { type: Number, default: 0 },
       sixes: { type: Number, default: 0 },
       strikeRate: { type: Number, default: 0 },
-      partnership: {
-        runs: { type: Number, default: 0 },
-        balls: { type: Number, default: 0 },
-      },
+
       // Add other player statistics as needed
+    },
+    partnership: {
+      runs: { type: Number, default: 0 },
+      balls: { type: Number, default: 0 },
     },
     // Other fields related to match statistics
   },
