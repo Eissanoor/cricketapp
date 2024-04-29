@@ -414,7 +414,6 @@ const generateWicketMessage = (
 
   return message;
 };
-
 const updateBatsmanStats = function (match, runsScored, isExtra) {
   // Update player stats
   const strikerStatsIndex = match.playerStats.findIndex(
@@ -494,6 +493,7 @@ const updateBlowerStats = function (match, ball) {
   return match;
 };
 
+// * Actions
 exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
   try {
     // Find the match details
