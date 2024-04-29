@@ -873,7 +873,7 @@ exports.handleByesAndLegByesAction = async (matchId, data) => {
     // Add the extra ball to the current over
     match = await addBallToOver(match, extraBall);
 
-    if (extraType === "lb") {
+    if (extraType === "leg byes") {
       // update bowler scorecard and stats
       match = await updateBlowerStats(match, extraBall);
       match = await match.save();
