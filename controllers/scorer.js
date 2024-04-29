@@ -845,14 +845,14 @@ exports.handleByesAndLegByesAction = async (matchId, data) => {
     if (noOrWide !== null && noOrWide !== undefined) {
       ballDesc =
         "Extra runs scored: " +
-        runsScored +
+        extraRuns +
         " (" +
         extraType +
         ") & (" +
         noOrWide +
         ")";
     } else {
-      ballDesc = "Extra runs scored: " + runsScored + " (" + extraType + ")";
+      ballDesc = "Extra runs scored: " + extraRuns + " (" + extraType + ")";
     }
 
     // Create a new Ball object
@@ -860,7 +860,7 @@ exports.handleByesAndLegByesAction = async (matchId, data) => {
       match: matchId,
       bowler: match.openingBowler,
       batsman: match.striker,
-      runsScored: runsScored,
+      runsScored: extraRuns,
       isExtra: noOrWide !== null && noOrWide !== undefined ? true : false,
       extraType: extraType,
       ballTo: striker.name + " to " + bowler.name,
