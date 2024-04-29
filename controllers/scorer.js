@@ -861,7 +861,7 @@ exports.handleByesAndLegByesAction = async (matchId, data) => {
       bowler: match.openingBowler,
       batsman: match.striker,
       runsScored: runsScored,
-      isExtra: true,
+      isExtra: noOrWide !== null && noOrWide !== undefined ? true : false,
       extraType: extraType,
       ballTo: striker.name + " to " + bowler.name,
       description: ballDesc,
