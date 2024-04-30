@@ -410,6 +410,50 @@ const updateBlowerStats = function (match, ball, extraType) {
 
   return match;
 };
+const updatePlayerStats = function (player, runsScored, isExtra, isWicket) {
+  // Update player stats
+  const playerStatsIndex = player.stats.findIndex(
+    (stat) => stat.match.toString() === match._id.toString()
+  );
+
+  // Update player's stats
+  if (playerStatsIndex === -1) {
+    // Create a new player stats
+    const newPlayerStats = {
+      match: match._id,
+      ballsFaced: isExtra === true ? 0 : 1,
+      runs: runsScored,
+      sixes: runsScored === 6 ? 1 : 0,
+      fours: runsScored === 4 ? 1 : 0,
+      wickets: isWicket === true ? 1 : 0,
+      strikeRate: runsScored * 100,
+      // Initialize other stats as needed
+    };
+
+    // Add the new player stats to the playerStats array
+    player.stats.push(newPlayerStats);
+  } else {
+    if (isExtra != true) {
+      player.stats[playerStatsIndex].ballsFaced++;
+    }
+    player.stats[playerStatsIndex].runs += runsScored;
+    if (runsScored === 6) {
+      player.stats[playerStatsIndex].sixes++;
+    } else if (runsScored === 4) {
+      player.stats[playerStatsIndex].fours++;
+    }
+    if (isWicket === true) {
+      player.stats[playerStatsIndex].wickets++;
+    }
+    // Update the strike rate
+    player.stats[playerStatsIndex].strikeRate =
+      (player.stats[playerStatsIndex].runs /
+        player.stats[playerStatsIndex].ballsFaced) *
+      100;
+  }
+
+  return player;
+};
 
 // * Actions handler
 exports.action = async (req, res, next, socketIo) => {
@@ -577,6 +621,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
 
     // Update player stats
     match = updateBatsmanStats(match, runsScored, ball.isExtra);
+    match = updatePlayerStats(match.striker, runsScored, ball.isExtra);
     match = updateBlowerStats(match, ball, ball.extraType);
 
     let scorecard = await handleStrikerScorecard(match, ball, null, undefined);
@@ -746,6 +791,7 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
 
     // Update player stats
     match = updateBatsmanStats(match, 0, false);
+    match = updatePlayerStats(match.striker, runsScored, ball.isExtra);
     match = updateBlowerStats(match, ball, ball.extraType);
 
     let scorecard = await handleStrikerScorecard(match, ball, data, undefined);
@@ -843,6 +889,7 @@ exports.handleNoBallAction = async (matchId, data) => {
     if (runsScored > 0) {
       // Update player stats
       match = updateBatsmanStats(match, runsScored, extraBall.isExtra);
+      match = updatePlayerStats(match.striker, runsScored, ball.isExtra);
       match = updateBlowerStats(match, extraBall, extraBall.extraType);
 
       let scorecard = await handleStrikerScorecard(
@@ -945,6 +992,7 @@ exports.handleByesAndLegByesAction = async (matchId, data, socketIo) => {
 
     // Update player stats
     match = updateBatsmanStats(match, 0, ball.isExtra);
+    match = updatePlayerStats(match.striker, runsScored, ball.isExtra);
     match = updateBlowerStats(match, ball, ball.extraType);
 
     let scorecard = await handleStrikerScorecard(
