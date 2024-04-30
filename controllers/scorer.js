@@ -964,6 +964,9 @@ exports.handleByesAndLegByesAction = async (matchId, data) => {
       match.nonStriker = temp;
     }
 
+    // Call function to handle over completion
+    await handleOverCompletion(match, socketIo);
+
     // Save the updated match details
     const updatedMatch = await match.save();
 
