@@ -484,7 +484,7 @@ exports.action = async (req, res, next, socketIo) => {
         });
 
       case "byes-LegByes":
-        await exports.handleByesAndLegByesAction(matchId, data);
+        await exports.handleByesAndLegByesAction(matchId, data, socketIo);
         socketIo.emit("match-" + matchId);
         return res.status(200).json({
           success: true,
@@ -872,7 +872,7 @@ exports.handleNoBallAction = async (matchId, data) => {
   }
 };
 
-exports.handleByesAndLegByesAction = async (matchId, data) => {
+exports.handleByesAndLegByesAction = async (matchId, data, socketIo) => {
   try {
     let { runsScored, extraType, noOrWide } = data;
     let ballDesc;
