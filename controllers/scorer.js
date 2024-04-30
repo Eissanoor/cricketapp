@@ -373,7 +373,7 @@ const updateBatsmanStats = function (match, runsScored, isExtra) {
   return match;
 };
 const updateBlowerStats = function (match, ball, extraType) {
-  var runsScored = extraType === "leg byes" ? 0 : ball.runsScored;
+  var runsScored = extraType === "byes" ? 0 : ball.runsScored;
   // Update player stats
   const bowlerStatsIndex = match.bowlerStats.findIndex(
     (playerStat) =>
