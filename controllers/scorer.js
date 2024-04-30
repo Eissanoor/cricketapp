@@ -4,117 +4,6 @@ const ScoreCard = require("../model/score_card");
 const Player = require("../model/player");
 const Over = require("../model/over");
 
-exports.action = async (req, res, next, socketIo) => {
-  try {
-    const { matchId, actionType, data } = req.body;
-
-    // Perform action based on the action type
-    switch (actionType) {
-      case "score":
-        // Handle score action
-        const updatedMatchScore = await exports.handleScoreAction(
-          matchId,
-          data.runsScored,
-          socketIo
-        );
-        // Send real-time update using socket.io
-        socketIo.emit("match-" + matchId, updatedMatchScore);
-        return res.status(200).json({
-          success: true,
-          message: "Match score updated successfully.",
-          status: 200,
-          //   data: updatedMatchScore,
-          data: null,
-        });
-
-      case "wide":
-        // Handle extras action
-        const updatedMatchWide = await exports.handleWideAction(
-          matchId,
-          data.extraRuns,
-          data.extraType,
-          socketIo
-        );
-        // Send real-time update using socket.io
-        socketIo.emit("match-" + matchId, updatedMatchWide);
-        return res.status(200).json({
-          success: true,
-          message: "Wide runs added successfully.",
-          status: 200,
-          data: updatedMatchWide,
-          //   data: null,
-        });
-
-      case "swap":
-        await exports.handlePlayerSwap(matchId);
-        socketIo.emit("match-" + matchId);
-        return res.status(200).json({
-          success: true,
-          message: "Successfully swapped players",
-          status: 200,
-          data: null,
-        });
-
-      case "changeBowler":
-        await exports.changeBowler(matchId, data.newBowler);
-        socketIo.emit("match-" + matchId);
-        return res.status(200).json({
-          success: true,
-          message: "Successfully changed bowler",
-          status: 200,
-          data: null,
-        });
-
-      case "outPlayer":
-        await exports.handleOutAction(matchId, data, socketIo);
-        socketIo.emit("match-" + matchId);
-        return res.status(200).json({
-          success: true,
-          message: "Player out successfully",
-          status: 200,
-          data: null,
-        });
-
-      case "byes-LegByes":
-        await exports.handleByesAndLegByesAction(matchId, data);
-        socketIo.emit("match-" + matchId);
-        return res.status(200).json({
-          success: true,
-          message: "Extra runs added successfully",
-          status: 200,
-          data: null,
-        });
-
-      case "no ball":
-        await exports.handleNoBallAction(matchId, data);
-        socketIo.emit("match-" + matchId);
-        return res.status(200).json({
-          success: true,
-          message: "Extra runs for no ball added successfully",
-          status: 200,
-          data: null,
-        });
-      // Add more cases for other action types as needed
-
-      default:
-        return res.status(400).json({
-          success: false,
-          message: "Invalid action type.",
-          status: 400,
-          data: null,
-        });
-    }
-  } catch (error) {
-    error.message = "Something went wrong!";
-    return next(error);
-    // return res.status(500).json({
-    //   success: false,
-    //   message: "Error while processing the action.",
-    //   status: 500,
-    //   data: null,
-    // });
-  }
-};
 const handleStrikerScorecard = async (match, ball, data, isExtra) => {
   let scorecard = await ScoreCard.findOne({ match: match._id });
   // Out blayer scorecard
@@ -128,7 +17,7 @@ const handleStrikerScorecard = async (match, ball, data, isExtra) => {
       const newScorecard = {
         player: data.playerIdOut,
         runs: ball.runsScored,
-        ballsFaced: isExtra ? 0 : 1,
+        ballsFaced: 1,
         fours: ball.runsScored === 4 ? 1 : 0,
         sixes: ball.runsScored === 6 ? 1 : 0,
         strikeRate: ball.runsScored * 100,
@@ -146,9 +35,8 @@ const handleStrikerScorecard = async (match, ball, data, isExtra) => {
         match.openingBowler;
       scorecard.batsmen[batsmanScorecardIndex].dismissal.fielder = data.fielder;
       // Update the existing scorecard for the striker
-      if (isExtra != true) {
-        scorecard.batsmen[batsmanScorecardIndex].ballsFaced++;
-      }
+      scorecard.batsmen[batsmanScorecardIndex].ballsFaced++;
+
       // Update the strike rate
       scorecard.batsmen[batsmanScorecardIndex].strikeRate =
         (scorecard.batsmen[batsmanScorecardIndex].runs /
@@ -158,30 +46,60 @@ const handleStrikerScorecard = async (match, ball, data, isExtra) => {
     return scorecard;
   }
 
-  // not out player scorecard
+  // * We have three situations, byes leg byes, no wide ball, score ball
   const strikerScorecardIndex = scorecard.batsmen.findIndex(
     (card) => card.player.toString() === match.striker.toString()
   );
 
   if (strikerScorecardIndex === -1) {
     // Create a new scorecard for the striker
-    const newScorecard = {
-      player: match.striker,
-      runs: ball.runsScored,
-      ballsFaced: 1,
-      fours: ball.runsScored === 4 ? 1 : 0,
-      sixes: ball.runsScored === 6 ? 1 : 0,
-      strikeRate: ball.runsScored * 100, // Since ballsFaced is 1, strikeRate is same as ball.runsScored * 100
-    };
+    let newScorecard;
+    if (extraType === undefined) {
+      newScorecard = {
+        player: match.striker,
+        runs: ball.runsScored,
+        ballsFaced: 1,
+        fours: ball.runsScored === 4 ? 1 : 0,
+        sixes: ball.runsScored === 6 ? 1 : 0,
+        strikeRate: ball.runsScored * 100,
+      };
+    } else if (extraType === "no ball" || extraType === "wide") {
+      newScorecard = {
+        player: match.striker,
+        runs: ball.runsScored,
+        ballsFaced: 0,
+        fours: ball.runsScored >= 4 ? 1 :  0,
+        sixes: ball.runsScored >= 5 ? 1 : 0,
+        strikeRate: ball.runsScored * 100,
+      };
+    } else if (extraType === "byes" || extraType === "leg byes") {
+      newScorecard = {
+        player: match.striker,
+        runs: 0,
+        ballsFaced: 1,
+        fours: 0,
+        sixes: 0,
+        strikeRate: ball.runsScored * 100,
+      };
+    }
+
     scorecard.batsmen.push(newScorecard);
   } else {
     // Update the existing scorecard for the striker
-    scorecard.batsmen[strikerScorecardIndex].runs += ball.runsScored;
-    scorecard.batsmen[strikerScorecardIndex].ballsFaced++;
-    if (ball.runsScored === 4) {
-      scorecard.batsmen[strikerScorecardIndex].fours++;
-    } else if (ball.runsScored === 6) {
-      scorecard.batsmen[strikerScorecardIndex].sixes++;
+    if (extraType === undefined) {
+      scorecard.batsmen[strikerScorecardIndex].runs += ball.runsScored;
+    }
+
+    if (extraType != "wide" || extraType != "no ball") {
+      scorecard.batsmen[strikerScorecardIndex].ballsFaced++;
+    }
+
+    if (extraType === undefined || extraType === "no ball") {
+      if (ball.runsScored >= 4) {
+        scorecard.batsmen[strikerScorecardIndex].fours++;
+      } else if (ball.runsScored >= 6) {
+        scorecard.batsmen[strikerScorecardIndex].sixes++;
+      }
     }
     // Update the strike rate
     scorecard.batsmen[strikerScorecardIndex].strikeRate =
@@ -454,8 +372,8 @@ const updateBatsmanStats = function (match, runsScored, isExtra) {
 
   return match;
 };
-const updateBlowerStats = function (match, ball) {
-  var runsScored = ball.runsScored;
+const updateBlowerStats = function (match, ball, extraType) {
+  var runsScored = extraType === "leg byes" ? 0 : ball.runsScored;
   // Update player stats
   const bowlerStatsIndex = match.bowlerStats.findIndex(
     (playerStat) =>
@@ -491,6 +409,119 @@ const updateBlowerStats = function (match, ball) {
   }
 
   return match;
+};
+
+// * Actions handler
+exports.action = async (req, res, next, socketIo) => {
+  try {
+    const { matchId, actionType, data } = req.body;
+
+    // Perform action based on the action type
+    switch (actionType) {
+      case "score":
+        // Handle score action
+        const updatedMatchScore = await exports.handleScoreAction(
+          matchId,
+          data.runsScored,
+          socketIo
+        );
+        // Send real-time update using socket.io
+        socketIo.emit("match-" + matchId, updatedMatchScore);
+        return res.status(200).json({
+          success: true,
+          message: "Match score updated successfully.",
+          status: 200,
+          //   data: updatedMatchScore,
+          data: null,
+        });
+
+      case "wide":
+        // Handle extras action
+        const updatedMatchWide = await exports.handleWideAction(
+          matchId,
+          data.extraRuns,
+          data.extraType,
+          socketIo
+        );
+        // Send real-time update using socket.io
+        socketIo.emit("match-" + matchId, updatedMatchWide);
+        return res.status(200).json({
+          success: true,
+          message: "Wide runs added successfully.",
+          status: 200,
+          data: updatedMatchWide,
+          //   data: null,
+        });
+
+      case "swap":
+        await exports.handlePlayerSwap(matchId);
+        socketIo.emit("match-" + matchId);
+        return res.status(200).json({
+          success: true,
+          message: "Successfully swapped players",
+          status: 200,
+          data: null,
+        });
+
+      case "changeBowler":
+        await exports.changeBowler(matchId, data.newBowler);
+        socketIo.emit("match-" + matchId);
+        return res.status(200).json({
+          success: true,
+          message: "Successfully changed bowler",
+          status: 200,
+          data: null,
+        });
+
+      case "outPlayer":
+        await exports.handleOutAction(matchId, data, socketIo);
+        socketIo.emit("match-" + matchId);
+        return res.status(200).json({
+          success: true,
+          message: "Player out successfully",
+          status: 200,
+          data: null,
+        });
+
+      case "byes-LegByes":
+        await exports.handleByesAndLegByesAction(matchId, data);
+        socketIo.emit("match-" + matchId);
+        return res.status(200).json({
+          success: true,
+          message: "Extra runs added successfully",
+          status: 200,
+          data: null,
+        });
+
+      case "no ball":
+        await exports.handleNoBallAction(matchId, data);
+        socketIo.emit("match-" + matchId);
+        return res.status(200).json({
+          success: true,
+          message: "Extra runs for no ball added successfully",
+          status: 200,
+          data: null,
+        });
+      // Add more cases for other action types as needed
+
+      default:
+        return res.status(400).json({
+          success: false,
+          message: "Invalid action type.",
+          status: 400,
+          data: null,
+        });
+    }
+  } catch (error) {
+    error.message = "Something went wrong!";
+    return next(error);
+    // return res.status(500).json({
+    //   success: false,
+    //   message: "Error while processing the action.",
+    //   status: 500,
+    //   data: null,
+    // });
+  }
 };
 
 // * Actions
@@ -546,7 +577,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
 
     // Update player stats
     match = updateBatsmanStats(match, runsScored, ball.isExtra);
-    match = updateBlowerStats(match, ball);
+    match = updateBlowerStats(match, ball, ball.extraType);
 
     let scorecard = await handleStrikerScorecard(
       match,
@@ -720,7 +751,7 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
 
     // Update player stats
     match = updateBatsmanStats(match, 0, false);
-    match = updateBlowerStats(match, ball);
+    match = updateBlowerStats(match, ball, ball.extraType);
 
     let scorecard = await handleStrikerScorecard(match, ball, data, false);
     await scorecard.save();
@@ -817,7 +848,7 @@ exports.handleNoBallAction = async (matchId, data) => {
     if (runsScored > 0) {
       // Update player stats
       match = updateBatsmanStats(match, runsScored, extraBall.isExtra);
-      match = updateBlowerStats(match, extraBall);
+      match = updateBlowerStats(match, extraBall, extraBall.extraType);
 
       let scorecard = await handleStrikerScorecard(
         match,
@@ -917,13 +948,19 @@ exports.handleByesAndLegByesAction = async (matchId, data) => {
     // Add the extra ball to the current over
     match = await addBallToOver(match, ball);
 
-    if (extraType === "leg byes") {
-      // update bowler scorecard and stats
-      match = await updateBlowerStats(match, ball);
-      match = await match.save();
-      match = await handleBowlerScorecard(match, ball);
-      match = await match.save();
-    }
+    // Update player stats
+    match = updateBatsmanStats(match, 0, ball.isExtra);
+    match = updateBlowerStats(match, ball, ball.extraType);
+
+    let scorecard = await handleStrikerScorecard(
+      match,
+      ball,
+      null,
+      ball.isExtra
+    );
+    await scorecard.save();
+    scorecard = await handleBowlerScorecard(match, ball);
+    await scorecard.save();
 
     // Save the updated match details
     const updatedMatch = await match.save();
