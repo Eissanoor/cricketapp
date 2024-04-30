@@ -4,7 +4,7 @@ const ScoreCard = require("../model/score_card");
 const Player = require("../model/player");
 const Over = require("../model/over");
 
-const handleStrikerScorecard = async (match, ball, data, isExtra) => {
+const handleStrikerScorecard = async (match, ball, data, extraType) => {
   let scorecard = await ScoreCard.findOne({ match: match._id });
   // Out blayer scorecard
   if (data != null || data != undefined) {
@@ -68,7 +68,7 @@ const handleStrikerScorecard = async (match, ball, data, isExtra) => {
         player: match.striker,
         runs: ball.runsScored,
         ballsFaced: 0,
-        fours: ball.runsScored >= 4 ? 1 :  0,
+        fours: ball.runsScored >= 4 ? 1 : 0,
         sixes: ball.runsScored >= 5 ? 1 : 0,
         strikeRate: ball.runsScored * 100,
       };
@@ -579,12 +579,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     match = updateBatsmanStats(match, runsScored, ball.isExtra);
     match = updateBlowerStats(match, ball, ball.extraType);
 
-    let scorecard = await handleStrikerScorecard(
-      match,
-      ball,
-      null,
-      ball.isExtra
-    );
+    let scorecard = await handleStrikerScorecard(match, ball, null, undefined);
     await scorecard.save();
     scorecard = await handleBowlerScorecard(match, ball);
     await scorecard.save();
@@ -753,7 +748,7 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     match = updateBatsmanStats(match, 0, false);
     match = updateBlowerStats(match, ball, ball.extraType);
 
-    let scorecard = await handleStrikerScorecard(match, ball, data, false);
+    let scorecard = await handleStrikerScorecard(match, ball, data, undefined);
     await scorecard.save();
     scorecard = await handleBowlerScorecard(match, ball);
     await scorecard.save();
@@ -854,7 +849,7 @@ exports.handleNoBallAction = async (matchId, data) => {
         match,
         extraBall,
         null,
-        extraBall.isExtra
+        extraBall.extraType
       );
       await scorecard.save();
       scorecard = await handleBowlerScorecard(match, extraBall);
@@ -956,7 +951,7 @@ exports.handleByesAndLegByesAction = async (matchId, data) => {
       match,
       ball,
       null,
-      ball.isExtra
+      ball.extraType
     );
     await scorecard.save();
     scorecard = await handleBowlerScorecard(match, ball);
