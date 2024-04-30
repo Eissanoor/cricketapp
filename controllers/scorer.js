@@ -957,6 +957,13 @@ exports.handleByesAndLegByesAction = async (matchId, data) => {
     scorecard = await handleBowlerScorecard(match, ball);
     await scorecard.save();
 
+    // Swap players if odd runs scored
+    if (runsScored % 2 === 1) {
+      const temp = match.striker;
+      match.striker = match.nonStriker;
+      match.nonStriker = temp;
+    }
+
     // Save the updated match details
     const updatedMatch = await match.save();
 
