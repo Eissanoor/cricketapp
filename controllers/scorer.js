@@ -432,12 +432,7 @@ const updateBlowerStats = function (match, ball, extraType) {
 
   return match;
 };
-const updatePlayerStats = async function (
-  playerId,
-  runsScored,
-  isExtra,
-  isWicket
-) {
+const updatePlayerStats = async function (playerId, runsScored, isExtra) {
   const player = await Player.findById(playerId);
 
   if (!player) {
@@ -663,6 +658,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     // Update player stats
     match = updateBatsmanStats(match, runsScored, ball.isExtra);
     match = updateBlowerStats(match, ball, ball.extraType);
+    await updatePlayerStats(match.striker, runsScored, ball.isExtra);
 
     let scorecard = await handleStrikerScorecard(match, ball, null, undefined);
     await scorecard.save();
