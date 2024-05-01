@@ -114,21 +114,21 @@ const handleStrikerScorecard = async (match, ball, data, extraType) => {
     scorecard.batsmen.push(newScorecard);
   } else {
     // Update the existing scorecard for the striker
-    if (extraType === undefined) {
-      scorecard.batsmen[strikerScorecardIndex].runs += ball.runsScored;
-    }
-
-    if (extraType != "wide" || extraType != "no ball") {
-      scorecard.batsmen[strikerScorecardIndex].ballsFaced++;
-    }
-
     if (extraType === undefined || extraType === "no ball") {
+      scorecard.batsmen[strikerScorecardIndex].runs += ball.runsScored;
+      if (extraType != "no ball")
+        scorecard.batsmen[strikerScorecardIndex].ballsFaced++;
       if (ball.runsScored >= 4 && ball.runsScored < 6) {
         scorecard.batsmen[strikerScorecardIndex].fours++;
       } else if (ball.runsScored >= 6) {
         scorecard.batsmen[strikerScorecardIndex].sixes++;
       }
+    } else {
+      if (ball.extraType == "byes" || ball.extraType == "leg byes") {
+        scorecard.batsmen[strikerScorecardIndex].ballsFaced++;
+      }
     }
+
     // Update the strike rate
     scorecard.batsmen[strikerScorecardIndex].strikeRate =
       (scorecard.batsmen[strikerScorecardIndex].runs /
@@ -1042,7 +1042,9 @@ exports.handleByesAndLegByesAction = async (matchId, data, socketIo) => {
       match,
       ball,
       null,
-      ball.extraType
+      noOrWide !== null && noOrWide !== undefined
+        ? ball.extraType + noOrWide
+        : ball.extraType
     );
     await scorecard.save();
     scorecard = await handleBowlerScorecard(match, ball);
