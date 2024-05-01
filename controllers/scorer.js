@@ -115,17 +115,15 @@ const handleStrikerScorecard = async (match, ball, data, extraType) => {
   } else {
     // Update the existing scorecard for the striker
     if (extraType === undefined) {
-      console.log("undefied");
       scorecard.batsmen[strikerScorecardIndex].runs += ball.runsScored;
     }
+
     if (extraType != "wide" || extraType != "no ball") {
-      console.log("wide or no ball");
       scorecard.batsmen[strikerScorecardIndex].ballsFaced++;
     }
-    if (extraType === undefined || extraType === "no ball") {
-      console.log("undefined or no ball");
 
-      if (ball.runsScored >= 4) {
+    if (extraType === undefined || extraType === "no ball") {
+      if (ball.runsScored >= 4 && ball.runsScored < 6) {
         scorecard.batsmen[strikerScorecardIndex].fours++;
       } else if (ball.runsScored >= 6) {
         scorecard.batsmen[strikerScorecardIndex].sixes++;
