@@ -4,6 +4,28 @@ const ScoreCard = require("../model/score_card");
 const Player = require("../model/player");
 const Over = require("../model/over");
 
+// Run rates
+
+// Function to calculate current run rate
+const calculateCurrentRunRate = (totalRuns, totalOvers) => {
+  return (totalRuns / totalOvers).toFixed(2);
+};
+// Function to calculate required run rate
+const calculateRequiredRunRate = (targetRuns, remainingOvers) => {
+  return (targetRuns / remainingOvers).toFixed(2);
+};
+// Function to calculate net run rate
+const calculateNetRunRate = (
+  teamRuns,
+  teamOvers,
+  opponentRuns,
+  opponentOvers
+) => {
+  const teamRunRate = teamOvers > 0 ? teamRuns / teamOvers : 0;
+  const opponentRunRate = opponentOvers > 0 ? opponentRuns / opponentOvers : 0;
+  return (teamRunRate - opponentRunRate).toFixed(2);
+};
+
 const handleStrikerScorecard = async (match, ball, data, extraType) => {
   let scorecard = await ScoreCard.findOne({ match: match._id });
   // Out blayer scorecard
@@ -410,49 +432,44 @@ const updateBlowerStats = function (match, ball, extraType) {
 
   return match;
 };
-const updatePlayerStats = function (player, runsScored, isExtra, isWicket) {
-  // Update player stats
-  const playerStatsIndex = player.stats.findIndex(
-    (stat) => stat.match.toString() === match._id.toString()
-  );
+const updatePlayerStats = async function (
+  playerId,
+  runsScored,
+  isExtra,
+  isWicket
+) {
+  const player = await Player.findById(playerId);
 
-  // Update player's stats
-  if (playerStatsIndex === -1) {
-    // Create a new player stats
-    const newPlayerStats = {
-      match: match._id,
+  if (!player) {
+    return next(new Error("Player not found"));
+  }
+
+  if (!player.stats) {
+    player.stats = {
+      player: match.striker,
       ballsFaced: isExtra === true ? 0 : 1,
       runs: runsScored,
       sixes: runsScored === 6 ? 1 : 0,
       fours: runsScored === 4 ? 1 : 0,
-      wickets: isWicket === true ? 1 : 0,
       strikeRate: runsScored * 100,
       // Initialize other stats as needed
     };
-
-    // Add the new player stats to the playerStats array
-    player.stats.push(newPlayerStats);
   } else {
     if (isExtra != true) {
-      player.stats[playerStatsIndex].ballsFaced++;
+      player.stats.ballsFaced++;
     }
-    player.stats[playerStatsIndex].runs += runsScored;
+    player.stats.runs += runsScored;
     if (runsScored === 6) {
-      player.stats[playerStatsIndex].sixes++;
+      player.stats.sixes++;
     } else if (runsScored === 4) {
-      player.stats[playerStatsIndex].fours++;
-    }
-    if (isWicket === true) {
-      player.stats[playerStatsIndex].wickets++;
+      player.stats.fours++;
     }
     // Update the strike rate
-    player.stats[playerStatsIndex].strikeRate =
-      (player.stats[playerStatsIndex].runs /
-        player.stats[playerStatsIndex].ballsFaced) *
-      100;
+    player.stats.strikeRate =
+      (player.stats.runs / player.stats.ballsFaced) * 100;
   }
 
-  return player;
+  await player.save();
 };
 
 // * Actions handler
@@ -460,6 +477,30 @@ exports.action = async (req, res, next, socketIo) => {
   try {
     const { matchId, actionType, data } = req.body;
 
+    const match = await MatchDetails.findById(matchId);
+    if (!match) {
+      return next(new Error("No match found"));
+    }
+
+    let crr, rrr;
+    if (match.team1Batting) {
+      crr = calculateCurrentRunRate(match.team1Score, match.team2Overs);
+      rrr = calculateRequiredRunRate(
+        match.team2Score,
+        match.numberOfOvers - match.team2Overs
+      );
+      match.team1CurrentRunRate = crr;
+      match.team1RequiredRunRate = rrr;
+    } else {
+      crr = calculateCurrentRunRate(match.team2Score, match.team1Overs);
+      rrr = calculateRequiredRunRate(
+        match.team1Score,
+        match.numberOfOvers - match.team1Overs
+      );
+      match.team2CurrentRunRate = crr;
+      match.team2RequiredRunRate = rrr;
+    }
+    await match.save();
     // Perform action based on the action type
     switch (actionType) {
       case "score":
@@ -621,7 +662,6 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
 
     // Update player stats
     match = updateBatsmanStats(match, runsScored, ball.isExtra);
-    match = updatePlayerStats(match.striker, runsScored, ball.isExtra);
     match = updateBlowerStats(match, ball, ball.extraType);
 
     let scorecard = await handleStrikerScorecard(match, ball, null, undefined);
@@ -791,7 +831,6 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
 
     // Update player stats
     match = updateBatsmanStats(match, 0, false);
-    match = updatePlayerStats(match.striker, runsScored, ball.isExtra);
     match = updateBlowerStats(match, ball, ball.extraType);
 
     let scorecard = await handleStrikerScorecard(match, ball, data, undefined);
@@ -889,7 +928,6 @@ exports.handleNoBallAction = async (matchId, data) => {
     if (runsScored > 0) {
       // Update player stats
       match = updateBatsmanStats(match, runsScored, extraBall.isExtra);
-      match = updatePlayerStats(match.striker, runsScored, ball.isExtra);
       match = updateBlowerStats(match, extraBall, extraBall.extraType);
 
       let scorecard = await handleStrikerScorecard(
@@ -992,7 +1030,6 @@ exports.handleByesAndLegByesAction = async (matchId, data, socketIo) => {
 
     // Update player stats
     match = updateBatsmanStats(match, 0, ball.isExtra);
-    match = updatePlayerStats(match.striker, runsScored, ball.isExtra);
     match = updateBlowerStats(match, ball, ball.extraType);
 
     let scorecard = await handleStrikerScorecard(

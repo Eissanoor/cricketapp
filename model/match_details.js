@@ -107,6 +107,10 @@ const matchDetailsSchema = new mongoose.Schema(
       runs: { type: Number, default: 0 },
       balls: { type: Number, default: 0 },
     },
+    team1CurrentRunRate: { type: Number, default: 0 },
+    team2CurrentRunRate: { type: Number, default: 0 },
+    team1RequiredRunRate: { type: Number, default: 0 },
+    team2RequiredRunRate: { type: Number, default: 0 },
     // Other fields related to match statistics
   },
   {
