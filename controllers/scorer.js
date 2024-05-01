@@ -1042,9 +1042,9 @@ exports.handleByesAndLegByesAction = async (matchId, data, socketIo) => {
       match,
       ball,
       null,
-      noOrWide == null || noOrWide == undefined
-        ? ball.extraType
-        : ball.extraType + " " + noOrWide
+      noOrWide !== null || noOrWide !== undefined
+        ? ball.extraType + " " + noOrWide
+        : ball.extraType
     );
     await scorecard.save();
     scorecard = await handleBowlerScorecard(match, ball);
