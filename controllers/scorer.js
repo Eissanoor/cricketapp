@@ -8,10 +8,16 @@ const Over = require("../model/over");
 
 // Function to calculate current run rate
 const calculateCurrentRunRate = (totalRuns, totalOvers) => {
+  if (totalRuns === 0 && totalOvers === 0) {
+    return 0;
+  }
   return (totalRuns / totalOvers).toFixed(2);
 };
 // Function to calculate required run rate
 const calculateRequiredRunRate = (targetRuns, remainingOvers) => {
+  if (targetRuns === 0 && remainingOvers === 0) {
+    return 0;
+  }
   return (targetRuns / remainingOvers).toFixed(2);
 };
 // Function to calculate net run rate
