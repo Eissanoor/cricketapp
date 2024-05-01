@@ -96,7 +96,7 @@ const handleStrikerScorecard = async (match, ball, data, extraType) => {
         player: match.striker,
         runs: ball.runsScored,
         ballsFaced: 0,
-        fours: ball.runsScored >= 4 ? 1 : 0,
+        fours: ball.runsScored >= 4 && ball.runsScored < 6 ? 1 : 0,
         sixes: ball.runsScored >= 5 ? 1 : 0,
         strikeRate: ball.runsScored * 100,
       };
