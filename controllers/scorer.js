@@ -484,6 +484,8 @@ exports.action = async (req, res, next, socketIo) => {
         match.team2Score,
         match.numberOfOvers - match.team2Overs
       );
+      console.log(crr);
+      console.log(match.team1CurrentRunRate);
       match.team1CurrentRunRate = crr;
       match.team1RequiredRunRate = rrr;
     } else {
