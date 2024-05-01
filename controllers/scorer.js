@@ -432,7 +432,7 @@ const updateBlowerStats = function (match, ball, extraType) {
 
   return match;
 };
-const updatePlayerStats = async function (playerId, runsScored, isExtra) {
+const updateRealPlayerStats = async function (playerId, runsScored, isExtra) {
   const player = await Player.findById(playerId);
 
   if (!player) {
@@ -593,7 +593,7 @@ exports.action = async (req, res, next, socketIo) => {
         });
     }
   } catch (error) {
-    error.message = "Something went wrong!";
+    // error.message = "Something went wrong!";
     return next(error);
     // return res.status(500).json({
     //   success: false,
@@ -658,7 +658,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     // Update player stats
     match = updateBatsmanStats(match, runsScored, ball.isExtra);
     match = updateBlowerStats(match, ball, ball.extraType);
-    await updatePlayerStats(match.striker, runsScored, ball.isExtra);
+    await updateRealPlayerStats(match.striker, runsScored, ball.isExtra);
 
     let scorecard = await handleStrikerScorecard(match, ball, null, undefined);
     await scorecard.save();
@@ -828,6 +828,7 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     // Update player stats
     match = updateBatsmanStats(match, 0, false);
     match = updateBlowerStats(match, ball, ball.extraType);
+    await updateRealPlayerStats(match.striker, runsScored, ball.isExtra);
 
     let scorecard = await handleStrikerScorecard(match, ball, data, undefined);
     await scorecard.save();
@@ -925,6 +926,7 @@ exports.handleNoBallAction = async (matchId, data) => {
       // Update player stats
       match = updateBatsmanStats(match, runsScored, extraBall.isExtra);
       match = updateBlowerStats(match, extraBall, extraBall.extraType);
+      await updateRealPlayerStats(match.striker, runsScored, extraBall.isExtra);
 
       let scorecard = await handleStrikerScorecard(
         match,
@@ -1027,6 +1029,7 @@ exports.handleByesAndLegByesAction = async (matchId, data, socketIo) => {
     // Update player stats
     match = updateBatsmanStats(match, 0, ball.isExtra);
     match = updateBlowerStats(match, ball, ball.extraType);
+    await updateRealPlayerStats(match.striker, runsScored, ball.isExtra);
 
     let scorecard = await handleStrikerScorecard(
       match,
