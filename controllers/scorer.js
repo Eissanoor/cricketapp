@@ -219,12 +219,13 @@ const handleOverCompletion = async (match, socketIo) => {
     match.nonStriker = temp;
 
     if (match.currentOver.number > match.numberOfOvers) {
-      // change batting and bowling.
-      if (match.team1Batting) {
-        match.team1Batting = !match.team1Batting;
-        match.team2Batting = !match.team2Batting;
-      } else {
-      }
+      match.team1Batting = !match.team1Batting;
+      match.team2Batting = !match.team2Batting;
+      match.currentOver.number = 0;
+      match.currentOver.balls = [];
+      match.currentInning = 2;
+
+      match = await match.save();
       return socketIo.emit("inningCompleted", match);
     }
     // Emit over event via web sockets
