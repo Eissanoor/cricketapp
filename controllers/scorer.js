@@ -185,12 +185,6 @@ const handleOverCompletion = async (match, socketIo) => {
 
   // Check if the over is completed
   if (validBallsInCurrentOver.length >= 5) {
-    // Emit over event via web sockets
-    socketIo.emit("overCompleted", {
-      matchId: match._id,
-      overNumber: match.currentOver.number,
-    });
-
     // Reset balls array for the current over
     match.currentOver.balls = [];
     // Update current over number
@@ -223,6 +217,21 @@ const handleOverCompletion = async (match, socketIo) => {
     const temp = match.striker;
     match.striker = match.nonStriker;
     match.nonStriker = temp;
+
+    if (match.currentOver.number >= match.numberOfOvers) {
+      // change batting and bowling.
+      if (match.team1Batting) {
+        match.team1Batting = !match.team1Batting;
+        match.team2Batting = !team2Batting;
+      } else {
+      }
+      return socketIo.emit("inningCompleted");
+    }
+    // Emit over event via web sockets
+    socketIo.emit("overCompleted", {
+      matchId: match._id,
+      overNumber: match.currentOver.number,
+    });
   }
 };
 const addBallToOver = async function (match, ball) {
