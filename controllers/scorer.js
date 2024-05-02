@@ -225,7 +225,7 @@ const handleOverCompletion = async (match, socketIo) => {
         match.team2Batting = !match.team2Batting;
       } else {
       }
-      return socketIo.emit("inningCompleted");
+      return socketIo.emit("inningCompleted", match);
     }
     // Emit over event via web sockets
     socketIo.emit("overCompleted", {
