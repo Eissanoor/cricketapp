@@ -31,7 +31,10 @@ const calculateNetRunRate = (
 };
 
 const handleStrikerScorecard = async (match, ball, data, extraType) => {
-  let scorecard = await ScoreCard.findOne({ match: match._id });
+  let scorecard = await ScoreCard.findOne({
+    match: match._id,
+    innings: match.currentInning,
+  });
   // Out blayer scorecard
   if (data != null || data != undefined) {
     const batsmanScorecardIndex = scorecard.batsmen.findIndex(
@@ -136,7 +139,10 @@ const handleStrikerScorecard = async (match, ball, data, extraType) => {
   return scorecard;
 };
 const handleBowlerScorecard = async (match, ball) => {
-  const scorecard = await ScoreCard.findOne({ match: match._id });
+  const scorecard = await ScoreCard.findOne({
+    match: match._id,
+    innings: match.currentInning,
+  });
   if (!scorecard) return new Error("No scorecard found");
   const bowlerScorecardIndex = scorecard.bowlers.findIndex(
     (card) => card.player.toString() === match.openingBowler.toString()
