@@ -4,8 +4,6 @@ const ScoreCard = require("../model/score_card");
 const Player = require("../model/player");
 const Over = require("../model/over");
 
-// Run rates
-
 // Function to calculate current run rate
 const calculateCurrentRunRate = (totalRuns, totalOvers) => {
   if (totalRuns === 0 && totalOvers === 0) {
@@ -143,11 +141,13 @@ const handleBowlerScorecard = async (match, ball) => {
   const bowlerScorecardIndex = scorecard.bowlers.findIndex(
     (card) => card.player.toString() === match.openingBowler.toString()
   );
+
   // handle over completed
   if (ball == null || ball == undefined) {
     scorecard.bowlers[bowlerScorecardIndex].overs++;
     return scorecard;
   }
+
   if (bowlerScorecardIndex === -1) {
     // Create a new scorecard for the striker
     const newScorecard = {
@@ -161,7 +161,8 @@ const handleBowlerScorecard = async (match, ball) => {
     scorecard.bowlers.push(newScorecard);
   } else {
     // Update the existing scorecard for the bowler
-    scorecard.bowlers[bowlerScorecardIndex].runsGiven += ball.runsScored;
+    if (ball.extraType !== "byes")
+      scorecard.bowlers[bowlerScorecardIndex].runsGiven += ball.runsScored;
     if (ball.isWicket) {
       scorecard.bowlers[bowlerScorecardIndex].wickets++;
     }
