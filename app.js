@@ -43,7 +43,10 @@ app.post("/set-openings", async (req, res) => {
       match.openingBowler = openingBowler;
     }
 
-    let scorecard = await ScoreCard.findOne({ match: match._id });
+    let scorecard = await ScoreCard.findOne({
+      match: match._id,
+      innings: match.currentInning,
+    });
 
     if (!scorecard) {
       scorecard = new ScoreCard({
