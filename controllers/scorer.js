@@ -224,7 +224,7 @@ const handleOverCompletion = async (match, socketIo) => {
     match.striker = match.nonStriker;
     match.nonStriker = temp;
 
-    if (match.currentOver.number > match.numberOfOvers) {
+    if (match.currentOver.number >= match.numberOfOvers) {
       match.team1Batting = !match.team1Batting;
       match.team2Batting = !match.team2Batting;
       match.currentOver.number = 0;
