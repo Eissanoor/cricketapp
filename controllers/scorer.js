@@ -222,7 +222,7 @@ const handleOverCompletion = async (match, socketIo) => {
       // change batting and bowling.
       if (match.team1Batting) {
         match.team1Batting = !match.team1Batting;
-        match.team2Batting = !team2Batting;
+        match.team2Batting = !match.team2Batting;
       } else {
       }
       return socketIo.emit("inningCompleted");
