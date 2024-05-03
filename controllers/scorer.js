@@ -862,7 +862,7 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     // Update player stats
     match = updateBatsmanStats(match, 0, false);
     match = updateBlowerStats(match, ball, ball.extraType);
-    await updateRealPlayerStats(match.striker, runsScored, ball.isExtra);
+    // await updateRealPlayerStats(match.striker, runsScored, ball.isExtra);
 
     let scorecard = await handleStrikerScorecard(match, ball, data, undefined);
     await scorecard.save();
