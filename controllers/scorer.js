@@ -31,10 +31,15 @@ const calculateNetRunRate = (
 };
 
 const handleStrikerScorecard = async (match, ball, data, extraType) => {
+  console.log(match.currentInning);
   let scorecard = await ScoreCard.findOne({
     match: match._id,
     innings: match.currentInning,
   });
+
+  if (!scorecard) {
+    throw new Error("Scorecard not found");
+  }
   // Out blayer scorecard
   if (data != null || data != undefined) {
     const batsmanScorecardIndex = scorecard.batsmen.findIndex(
@@ -662,6 +667,7 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
 
     // Update the batting team's score
     if (runsScored > 0) {
+      battingTeamScore += runsScored;
       if (!match.partnership) {
         match.partnership = { runs: 0, balls: 0 };
       }
@@ -675,6 +681,8 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     } else {
       match.team2Score = battingTeamScore;
     }
+
+    console.log(match);
 
     // Add the ball to the current over
     match = await addBallToOver(match, ball);
