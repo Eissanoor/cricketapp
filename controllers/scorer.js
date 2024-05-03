@@ -235,6 +235,8 @@ const handleOverCompletion = async (match, socketIo) => {
       match.currentOver.number = 0;
       match.currentOver.balls = [];
       match.currentInning = 2;
+      match.partnership.runs = 0;
+      match.partnership.balls = 0;
 
       match = await match.save();
       return socketIo.emit("inningCompleted", match);
