@@ -120,4 +120,28 @@ const matchDetailsSchema = new mongoose.Schema(
 
 const MatchDetails = mongoose.model("MatchDetails", matchDetailsSchema);
 
+matchDetailsSchema.methods.finishInning = async function () {
+  if (this.currentOver.number >= this.numberOfOvers) {
+    this.team1Batting = !this.team1Batting;
+    this.team2Batting = !this.team2Batting;
+    this.currentOver.number = 0;
+    this.currentOver.balls = [];
+    this.currentInning = 2;
+    this.partnership.runs = 0;
+    this.partnership.balls = 0;
+
+    await this.save();
+    return true;
+  }
+};
+
+matchDetailsSchema.methods.finishMatch = function () {
+  if (this.currentOver.numer >= this.numberOfOvers && this.currentInning > 1) {
+    // change the match status to 2 indicating the end of the match
+    this.matchStatus = 2;
+    return true;
+  }
+  return false;
+};
+
 module.exports = MatchDetails;

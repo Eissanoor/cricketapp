@@ -13,6 +13,13 @@ exports.action = async (req, res, next, socketIo) => {
     if (!match) {
       return next(new Error("No match found"));
     }
+    if (match.matchStatus > 1) {
+      return next(
+        new Error(
+          "This match has been finished, you cannot perform any action on this match"
+        )
+      );
+    }
 
     let crr, rrr;
     if (match.team1Batting) {
