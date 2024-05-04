@@ -1502,7 +1502,7 @@ router.get("/get-matchesdetails/:matchId", async (req, res, next) => {
     const matchId = req.params.matchId;
     const matches = await MatchDetails.findOne({
       _id: matchId,
-      matchStatus: 1,
+      //   matchStatus: 1,
     })
       .populate(
         "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player bowlerStats.player",
