@@ -227,9 +227,7 @@ const handleOverCompletion = async (match, socketIo) => {
     match.striker = match.nonStriker;
     match.nonStriker = temp;
 
-    if (match.finishMatch()) {
-      console.log("laka da maar");
-    }
+    console.log(match.finishMatch());
 
     if (
       match.currentOver.numer >= match.numberOfOvers &&
