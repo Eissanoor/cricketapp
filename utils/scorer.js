@@ -206,8 +206,6 @@ const handleOverCompletion = async (match, socketIo) => {
       match.team1Balls = 0;
     }
 
-    match = await match.save();
-
     // Update bowler stats
     const bowlerStatsIndex = match.bowlerStats.findIndex(
       (playerStat) =>
