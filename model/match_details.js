@@ -120,16 +120,6 @@ const matchDetailsSchema = new mongoose.Schema(
   }
 );
 
-matchDetailsSchema.methods.calculateWinner = function () {
-  if (this.team1Runs > this.team2Runs) {
-    return this.team1;
-  } else if (this.team2Runs > this.team1Runs) {
-    return this.team2;
-  } else {
-    return "Draw";
-  }
-};
-
 matchDetailsSchema.methods.finishInning = function () {
   if (this.currentOver.number >= this.numberOfOvers) {
     this.team1Batting = !this.team1Batting;
@@ -147,7 +137,7 @@ matchDetailsSchema.methods.finishInning = function () {
 matchDetailsSchema.methods.finishMatch = function () {
   if (this.currentOver.number >= this.numberOfOvers && this.currentInning > 1) {
     // change the Match status to 2 indicating the end of the this
-    this.thisStatus = 2;
+    this.matchStatus = 2;
     // update the winning team
     if (this.team1Score > this.team2Score) {
       this.winningTeam = this.team1;
