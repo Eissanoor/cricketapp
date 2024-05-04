@@ -228,12 +228,20 @@ const handleOverCompletion = async (match, socketIo) => {
     match.striker = match.nonStriker;
     match.nonStriker = temp;
 
-    if (match.finishMatch) {
+    const matchDetails = await MatchDetails.findById(match._id);
+    if (matchDetails.finishMatch) {
+      console.log("New event will be fired");
     }
+    if (match.currentOver.number >= match.numberOfOvers) {
+      match.team1Batting = !match.team1Batting;
+      match.team2Batting = !match.team2Batting;
+      match.currentOver.number = 0;
+      match.currentOver.balls = [];
+      match.currentInning = 2;
+      match.partnership.runs = 0;
+      match.partnership.balls = 0;
 
-    // check if the match is finished or not
-    const isFinished = await match.finishInning();
-    if (isFinished) {
+      match = await match.save();
       return socketIo.emit("inningCompleted", match);
     }
     // Emit over event via web sockets
