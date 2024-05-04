@@ -227,8 +227,6 @@ const handleOverCompletion = async (match, socketIo) => {
     match.striker = match.nonStriker;
     match.nonStriker = temp;
 
-    console.log(match.finishMatch());
-
     if (
       match.currentOver.numer >= match.numberOfOvers &&
       match.currentInning > 1
