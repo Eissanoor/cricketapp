@@ -136,6 +136,7 @@ matchDetailsSchema.methods.finishInning = async function () {
 };
 
 matchDetailsSchema.methods.finishMatch = function () {
+  console.log("matchDetailsSchema.finishMatch");
   if (this.currentOver.numer >= this.numberOfOvers && this.currentInning > 1) {
     // change the match status to 2 indicating the end of the match
     this.matchStatus = 2;

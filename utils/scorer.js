@@ -30,7 +30,6 @@ const calculateNetRunRate = (
   return (teamRunRate - opponentRunRate).toFixed(2);
 };
 const handleStrikerScorecard = async (match, ball, data, extraType) => {
-  console.log(match.currentInning);
   let scorecard = await ScoreCard.findOne({
     match: match._id,
     innings: match.currentInning,
@@ -228,9 +227,18 @@ const handleOverCompletion = async (match, socketIo) => {
     match.striker = match.nonStriker;
     match.nonStriker = temp;
 
-    const matchDetails = await MatchDetails.findById(match._id);
-    if (matchDetails.finishMatch) {
-      console.log("New event will be fired");
+    if (match.finishMatch()) {
+      console.log("laka da maar");
+    }
+
+    if (
+      match.currentOver.numer >= match.numberOfOvers &&
+      match.currentInning > 1
+    ) {
+      // change the match status to 2 indicating the end of the match
+      match.matchStatus = 2;
+      match = await match.save();
+      return socketIo.emit("matchCompleted", match);
     }
     if (match.currentOver.number >= match.numberOfOvers) {
       match.team1Batting = !match.team1Batting;

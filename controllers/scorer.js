@@ -208,8 +208,6 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
       match.team2Score = battingTeamScore;
     }
 
-    console.log(match);
-
     // Add the ball to the current over
     match = await scorerHelper.addBallToOver(match, ball);
 
