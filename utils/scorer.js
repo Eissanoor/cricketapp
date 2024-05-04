@@ -233,6 +233,7 @@ const handleOverCompletion = async (match, socketIo) => {
       match.currentOver.numer >= match.numberOfOvers &&
       match.currentInning > 1
     ) {
+      console.log("match asldkfjskladfjlskdfjlsdajfldk");
       // change the match status to 2 indicating the end of the match
       match.matchStatus = 2;
       match = await match.save();
