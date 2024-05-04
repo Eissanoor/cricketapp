@@ -230,7 +230,10 @@ const handleOverCompletion = async (match, socketIo) => {
 
     if (match.finishMatch) {
     }
-    if (match.finishInning()) {
+
+    // check if the match is finished or not
+    const isFinished = await match.finishInning();
+    if (isFinished) {
       return socketIo.emit("inningCompleted", match);
     }
     // Emit over event via web sockets
