@@ -120,9 +120,17 @@ const matchDetailsSchema = new mongoose.Schema(
   }
 );
 
-const MatchDetails = mongoose.model("MatchDetails", matchDetailsSchema);
+matchDetailsSchema.methods.calculateWinner = function () {
+  if (this.team1Runs > this.team2Runs) {
+    return this.team1;
+  } else if (this.team2Runs > this.team1Runs) {
+    return this.team2;
+  } else {
+    return "Draw";
+  }
+};
 
-matchDetailsSchema.methods.finishInning = async function () {
+matchDetailsSchema.methods.finishInning = function () {
   if (this.currentOver.number >= this.numberOfOvers) {
     this.team1Batting = !this.team1Batting;
     this.team2Batting = !this.team2Batting;
@@ -131,19 +139,28 @@ matchDetailsSchema.methods.finishInning = async function () {
     this.currentInning = 2;
     this.partnership.runs = 0;
     this.partnership.balls = 0;
-
-    await this.save();
-    return true;
-  }
-};
-
-matchDetailsSchema.methods.finishMatch = function () {
-  if (this.currentOver.number >= this.numberOfOvers && this.currentInning > 1) {
-    // change the match status to 2 indicating the end of the match
-    this.matchStatus = 2;
     return true;
   }
   return false;
 };
+
+matchDetailsSchema.methods.finishMatch = function () {
+  if (this.currentOver.number >= this.numberOfOvers && this.currentInning > 1) {
+    // change the Match status to 2 indicating the end of the this
+    this.thisStatus = 2;
+    // update the winning team
+    if (this.team1Score > this.team2Score) {
+      this.winningTeam = this.team1;
+    } else if (this.team2Score > this.team1Score) {
+      this.winningTeam = this.team2;
+    } else {
+      this.draw = true;
+    }
+    return true;
+  }
+  return false;
+};
+
+const MatchDetails = mongoose.model("MatchDetails", matchDetailsSchema);
 
 module.exports = MatchDetails;

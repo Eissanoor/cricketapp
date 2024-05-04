@@ -13,8 +13,6 @@ const scorerController = require("./controllers/scorer");
 const userRouter = require("./router/user");
 
 // Schemas
-const Player = require("./model/player");
-const Ball = require("./model/ball");
 const MatchDetails = require("./model/match_details");
 
 var app = express();

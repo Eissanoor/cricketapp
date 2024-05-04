@@ -227,31 +227,14 @@ const handleOverCompletion = async (match, socketIo) => {
     match.striker = match.nonStriker;
     match.nonStriker = temp;
 
-    if (
-      match.currentOver.number >= match.numberOfOvers &&
-      match.currentInning > 1
-    ) {
-      // change the match status to 2 indicating the end of the match
-      match.matchStatus = 2;
-      if (match.team1Score > match.team2Score) {
-        match.winningTeam = match.team1;
-      } else if (match.team2Score > match.team1Score) {
-        match.winningTeam = match.team2;
-      } else {
-        match.draw = true;
-      }
+    // check if match is finished or not
+    if (match.finishMatch()) {
       match = await match.save();
       return socketIo.emit("matchCompleted", match);
     }
-    if (match.currentOver.number >= match.numberOfOvers) {
-      match.team1Batting = !match.team1Batting;
-      match.team2Batting = !match.team2Batting;
-      match.currentOver.number = 0;
-      match.currentOver.balls = [];
-      match.currentInning = 2;
-      match.partnership.runs = 0;
-      match.partnership.balls = 0;
 
+    // check if inning is finished or not
+    if (match.finishInning()) {
       match = await match.save();
       return socketIo.emit("inningCompleted", match);
     }
