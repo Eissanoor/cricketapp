@@ -233,6 +233,13 @@ const handleOverCompletion = async (match, socketIo) => {
     ) {
       // change the match status to 2 indicating the end of the match
       match.matchStatus = 2;
+      if (match.team1Score > match.team2Score) {
+        match.winningTeam = match.team1;
+      } else if (match.team2Score > match.team1Score) {
+        match.winningTeam = match.team2;
+      } else {
+        match.draw = true;
+      }
       match = await match.save();
       return socketIo.emit("matchCompleted", match);
     }
