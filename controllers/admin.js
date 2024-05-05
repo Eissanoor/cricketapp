@@ -1,4 +1,4 @@
-const Match = require("../model/match_details");
+const MatchDetails = require("../model/match_details");
 
 exports.setManOfTheMatch = async (req, res, next) => {
   try {
