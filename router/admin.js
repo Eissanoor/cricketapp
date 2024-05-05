@@ -49,6 +49,8 @@ router.use("/Image", express.static("public/upload"));
 router.use("/categoryThumbnail", express.static("public/upload"));
 
 require("../database/db");
+
+const adminController = require("../controllers/admin");
 // const http = require("http");
 // const socketIo = require("socket.io");
 // const app = express();
@@ -1536,5 +1538,7 @@ router.get("/get-matchesdetails/:matchId", async (req, res, next) => {
     });
   }
 });
+
+router.put("/match/set-man-of-the-match", adminController.setManOfTheMatch);
 
 module.exports = router;
