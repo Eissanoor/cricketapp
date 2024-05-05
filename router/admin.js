@@ -1539,6 +1539,6 @@ router.get("/get-matchesdetails/:matchId", async (req, res, next) => {
   }
 });
 
-router.put("/match/set-man-of-the-match", adminController.setManOfTheMatch);
+router.put("/set-man-of-the-match", adminController.setManOfTheMatch);
 
 module.exports = router;
