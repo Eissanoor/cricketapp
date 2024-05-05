@@ -1507,7 +1507,7 @@ router.get("/get-matchesdetails/:matchId", async (req, res, next) => {
       //   matchStatus: 1,
     })
       .populate(
-        "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player bowlerStats.player",
+        "team1 team2 squad1 squad2 openingBowler striker nonStriker manOfTheMatch currentOver.balls overs.balls playerStats.player bowlerStats.player",
         "name image Image runsScored isExtra ballTo description extraType wicketType isWicket age role"
       )
       .populate("lastWicket.player", "name -_id");

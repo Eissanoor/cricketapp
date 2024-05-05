@@ -6,11 +6,11 @@ const Over = require("../model/over");
 exports.getLiveMatches = async (req, res, next) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 1 })
-      .populate(
-        "team1 team2 squad1 squad2 openingBowler striker nonStriker currentOver.balls overs.balls playerStats.player bowlerStats.player",
-        "name image Image runsScored isExtra"
+      .select(
+        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
       )
-      .populate("lastWicket.player", "name -_id");
+      .populate("team1 team2", "name image")
+      .populate("squad1 squad2", "name");
     if (!matches || matches.length === 0) {
       return next(new Error("No matches found"));
     }
