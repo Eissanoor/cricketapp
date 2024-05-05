@@ -146,12 +146,6 @@ exports.action = async (req, res, next, socketIo) => {
     console.log(error);
     // error.message = "Something went wrong!";
     return next(error);
-    // return res.status(500).json({
-    //   success: false,
-    //   message: "Error while processing the action.",
-    //   status: 500,
-    //   data: null,
-    // });
   }
 };
 
@@ -240,6 +234,12 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     // Call function to handle over completion
     await scorerHelper.handleOverCompletion(match, socketIo);
 
+    // Call function to handle match completion
+    if (match.finishMatch()) {
+      match = await match.save();
+      return socketIo.emit("matchCompleted", match);
+    }
+
     // Save the updated match details
     const updatedMatch = await match.save();
 
@@ -296,8 +296,11 @@ exports.handleWideAction = async (matchId, extraRuns, extraType, socketIo) => {
     // Add the extra ball to the current over
     match = await scorerHelper.addBallToOver(match, extraBall);
 
-    // Call function to handle over completion
-    // await scorerHelper.handleOverCompletion(match, socketIo);
+    // Call function to handle match completion
+    if (match.finishMatch()) {
+      match = await match.save();
+      return socketIo.emit("matchCompleted", match);
+    }
 
     // Save the updated match details
     const updatedMatch = await match.save();
@@ -528,6 +531,12 @@ exports.handleNoBallAction = async (matchId, data) => {
       }
     }
 
+    // Call function to handle match completion
+    if (match.finishMatch()) {
+      match = await match.save();
+      return socketIo.emit("matchCompleted", match);
+    }
+
     // Save the updated match details
     const updatedMatch = await match.save();
 
@@ -638,6 +647,12 @@ exports.handleByesAndLegByesAction = async (matchId, data, socketIo) => {
 
     // Call function to handle over completion
     await scorerHelper.handleOverCompletion(match, socketIo);
+
+    // Call function to handle match completion
+    if (match.finishMatch()) {
+      match = await match.save();
+      return socketIo.emit("matchCompleted", match);
+    }
 
     // Save the updated match details
     const updatedMatch = await match.save();

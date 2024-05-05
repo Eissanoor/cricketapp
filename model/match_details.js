@@ -135,18 +135,24 @@ matchDetailsSchema.methods.finishInning = function () {
 };
 
 matchDetailsSchema.methods.finishMatch = function () {
-  if (this.currentOver.number >= this.numberOfOvers && this.currentInning > 1) {
-    // change the Match status to 2 indicating the end of the this
-    this.matchStatus = 2;
-    // update the winning team
-    if (this.team1Score > this.team2Score) {
-      this.winningTeam = this.team1;
-    } else if (this.team2Score > this.team1Score) {
-      this.winningTeam = this.team2;
-    } else {
-      this.draw = true;
+  if (this.currentInning > 1) {
+    const condition = this.team1Batting
+      ? this.team1Score > this.team2Score
+      : this.team2Score > this.team1Score;
+
+    if (this.currentOver.number >= this.numberOfOvers || condition) {
+      // change the Match status to 2 indicating the end of the this
+      this.matchStatus = 2;
+      // update the winning team
+      if (this.team1Score > this.team2Score) {
+        this.winningTeam = this.team1;
+      } else if (this.team2Score > this.team1Score) {
+        this.winningTeam = this.team2;
+      } else {
+        this.draw = true;
+      }
+      return true;
     }
-    return true;
   }
   return false;
 };
