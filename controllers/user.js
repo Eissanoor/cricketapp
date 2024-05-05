@@ -104,3 +104,24 @@ exports.getMatchOvers = async (req, res, next) => {
     return next(error);
   }
 };
+
+exports.getCompletedMatches = async (req, res, next) => {
+  try {
+    const matches = await MatchDetails.find({ matchStatus: 2 }).populate(
+      "team1 team2 squad1 squad2 manOfTheMatch",
+      "name image Image"
+    );
+    if (!matches || matches.length === 0) {
+      return next(new Error("No matches found"));
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Completed matches found successfully",
+      data: matches,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
