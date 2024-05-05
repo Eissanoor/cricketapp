@@ -107,10 +107,11 @@ exports.getMatchOvers = async (req, res, next) => {
 
 exports.getCompletedMatches = async (req, res, next) => {
   try {
-    const matches = await MatchDetails.find({ matchStatus: 2 }).populate(
-      "team1 team2 squad1 squad2 manOfTheMatch",
-      "name image Image"
-    );
+    const matches = await MatchDetails.find({ matchStatus: 2 })
+      .select(
+        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
+      )
+      .populate("team1 team2 squad1 squad2 manOfTheMatch", "name image Image");
     if (!matches || matches.length === 0) {
       return next(new Error("No matches found"));
     }
