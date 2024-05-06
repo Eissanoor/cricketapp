@@ -445,6 +445,12 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
       return socketIo.emit("matchCompleted", match);
     }
 
+    // check if inning is finished or not
+    if (match.finishInning()) {
+      match = await match.save();
+      return socketIo.emit("inningCompleted", match);
+    }
+
     // Save the updated match details
     const updatedMatch = await match.save();
 

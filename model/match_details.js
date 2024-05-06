@@ -121,14 +121,20 @@ const matchDetailsSchema = new mongoose.Schema(
 );
 
 matchDetailsSchema.methods.finishInning = function () {
-  if (this.currentOver.number >= this.numberOfOvers) {
+  const wicketsFinished = this.team1Batting
+    ? this.team1Outs >= this.squad1
+    : this.team2Outs >= this.squad2;
+  if (this.currentOver.number >= this.numberOfOvers || wicketsFinished) {
+    // change batting and bowling
     this.team1Batting = !this.team1Batting;
     this.team2Batting = !this.team2Batting;
+    // reset some variables
     this.currentOver.number = 0;
     this.currentOver.balls = [];
-    this.currentInning = 2;
     this.partnership.runs = 0;
     this.partnership.balls = 0;
+    // update the number of inning to 2, indicating 2nd innings
+    this.currentInning = 2;
     return true;
   }
   return false;
