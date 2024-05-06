@@ -125,6 +125,7 @@ matchDetailsSchema.methods.isInningFinished = function () {
     ? this.team1Outs >= this.squad1 - 1
     : this.team2Outs >= this.squad2 - 1;
   if (this.currentOver.number >= this.numberOfOvers || wicketsFinished) {
+    console.log("true");
     // // change batting and bowling
     // this.team1Batting = !this.team1Batting;
     // this.team2Batting = !this.team2Batting;
