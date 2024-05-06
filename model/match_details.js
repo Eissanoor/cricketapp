@@ -124,8 +124,8 @@ matchDetailsSchema.methods.isInningFinished = function () {
   if (this.currentInning == 1) {
     console.log("Checking for inning completion");
     const wicketsFinished = this.team1Batting
-      ? this.team1Outs >= this.squad1 - 1
-      : this.team2Outs >= this.squad2 - 1;
+      ? this.team1Outs >= this.squad1.length - 1
+      : this.team2Outs >= this.squad2.length - 1;
     if (this.currentOver.number >= this.numberOfOvers || wicketsFinished) {
       console.log("true");
       // // change batting and bowling
