@@ -136,11 +136,15 @@ matchDetailsSchema.methods.finishInning = function () {
 
 matchDetailsSchema.methods.finishMatch = function () {
   if (this.currentInning > 1) {
-    const condition = this.team1Batting
+    const oversCompleted = this.currentOver.number >= this.numberOfOvers;
+    const runsChased = this.team1Batting
       ? this.team1Score > this.team2Score
       : this.team2Score > this.team1Score;
+    const wicketsFinished = this.team1Batting
+      ? this.team1Outs >= this.squad1
+      : this.team2Outs >= this.squad2;
 
-    if (this.currentOver.number >= this.numberOfOvers || condition) {
+    if (oversCompleted || runsChased || wicketsFinished) {
       // change the Match status to 2 indicating the end of the this
       this.matchStatus = 2;
       // update the winning team

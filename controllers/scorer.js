@@ -439,6 +439,12 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     // Call function to handle over completion
     await scorerHelper.handleOverCompletion(match, socketIo);
 
+    // Call function to handle match completion
+    if (match.finishMatch()) {
+      match = await match.save();
+      return socketIo.emit("matchCompleted", match);
+    }
+
     // Save the updated match details
     const updatedMatch = await match.save();
 
