@@ -445,20 +445,6 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     // Call function to handle over completion
     await scorerHelper.handleOverCompletion(match, socketIo);
 
-    // check if match is finished or not
-    if (match.isMatchFinished()) {
-      match = match.finishMatch();
-      match = await match.save();
-      return socketIo.emit("matchCompleted", match);
-    }
-
-    // check if inning is finished or not
-    if (match.isInningFinished()) {
-      match = match.finishInning();
-      match = await match.save();
-      return socketIo.emit("inningCompleted", match);
-    }
-
     // Save the updated match details
     const updatedMatch = await match.save();
 

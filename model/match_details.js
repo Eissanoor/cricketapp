@@ -121,22 +121,25 @@ const matchDetailsSchema = new mongoose.Schema(
 );
 
 matchDetailsSchema.methods.isInningFinished = function () {
-  const wicketsFinished = this.team1Batting
-    ? this.team1Outs >= this.squad1 - 1
-    : this.team2Outs >= this.squad2 - 1;
-  if (this.currentOver.number >= this.numberOfOvers || wicketsFinished) {
-    console.log("true");
-    // // change batting and bowling
-    // this.team1Batting = !this.team1Batting;
-    // this.team2Batting = !this.team2Batting;
-    // // reset some variables
-    // this.currentOver.number = 0;
-    // this.currentOver.balls = [];
-    // this.partnership.runs = 0;
-    // this.partnership.balls = 0;
-    // // update the number of inning to 2, indicating 2nd innings
-    // this.currentInning = 2;
-    return true;
+  console.log("Checking for inning completion");
+  if (this.matchStatus == 1) {
+    const wicketsFinished = this.team1Batting
+      ? this.team1Outs >= this.squad1 - 1
+      : this.team2Outs >= this.squad2 - 1;
+    if (this.currentOver.number >= this.numberOfOvers || wicketsFinished) {
+      console.log("true");
+      // // change batting and bowling
+      // this.team1Batting = !this.team1Batting;
+      // this.team2Batting = !this.team2Batting;
+      // // reset some variables
+      // this.currentOver.number = 0;
+      // this.currentOver.balls = [];
+      // this.partnership.runs = 0;
+      // this.partnership.balls = 0;
+      // // update the number of inning to 2, indicating 2nd innings
+      // this.currentInning = 2;
+      return true;
+    }
   }
   return false;
 };
