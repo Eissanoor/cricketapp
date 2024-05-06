@@ -122,8 +122,8 @@ const matchDetailsSchema = new mongoose.Schema(
 
 matchDetailsSchema.methods.isInningFinished = function () {
   const wicketsFinished = this.team1Batting
-    ? this.team1Outs >= this.squad1
-    : this.team2Outs >= this.squad2;
+    ? this.team1Outs >= this.squad1 - 1
+    : this.team2Outs >= this.squad2 - 1;
   if (this.currentOver.number >= this.numberOfOvers || wicketsFinished) {
     // // change batting and bowling
     // this.team1Batting = !this.team1Batting;
