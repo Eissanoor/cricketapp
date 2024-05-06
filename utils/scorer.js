@@ -241,7 +241,7 @@ const handleOverCompletion = async (match, socketIo) => {
       return socketIo.emit("inningCompleted", match);
     }
     // Emit over event via web sockets
-    socketIo.emit("overCompleted", {
+    return socketIo.emit("overCompleted", {
       matchId: match._id,
       overNumber: match.currentOver.number,
     });
