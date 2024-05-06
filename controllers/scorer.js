@@ -132,6 +132,17 @@ exports.action = async (req, res, next, socketIo) => {
           status: 200,
           data: null,
         });
+
+      case "finish inning":
+        await exports.handleFinishInning(matchId, data);
+        socketIo.emit("match-" + matchId);
+        return res.status(200).json({
+          success: true,
+          message: "Inning finished successfully",
+          status: 200,
+          data: null,
+        });
+
       // Add more cases for other action types as needed
 
       default:
@@ -234,12 +245,6 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     // Call function to handle over completion
     await scorerHelper.handleOverCompletion(match, socketIo);
 
-    // Call function to handle match completion
-    if (match.finishMatch()) {
-      match = await match.save();
-      return socketIo.emit("matchCompleted", match);
-    }
-
     // Save the updated match details
     const updatedMatch = await match.save();
 
@@ -296,8 +301,9 @@ exports.handleWideAction = async (matchId, extraRuns, extraType, socketIo) => {
     // Add the extra ball to the current over
     match = await scorerHelper.addBallToOver(match, extraBall);
 
-    // Call function to handle match completion
-    if (match.finishMatch()) {
+    // check if match is finished or not
+    if (match.isMatchFinished()) {
+      match = match.finishMatch();
       match = await match.save();
       return socketIo.emit("matchCompleted", match);
     }
@@ -439,14 +445,16 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     // Call function to handle over completion
     await scorerHelper.handleOverCompletion(match, socketIo);
 
-    // Call function to handle match completion
-    if (match.finishMatch()) {
+    // check if match is finished or not
+    if (match.isMatchFinished()) {
+      match = match.finishMatch();
       match = await match.save();
       return socketIo.emit("matchCompleted", match);
     }
 
     // check if inning is finished or not
-    if (match.finishInning()) {
+    if (match.isInningFinished()) {
+      match = match.finishInning();
       match = await match.save();
       return socketIo.emit("inningCompleted", match);
     }
@@ -543,8 +551,9 @@ exports.handleNoBallAction = async (matchId, data) => {
       }
     }
 
-    // Call function to handle match completion
-    if (match.finishMatch()) {
+    // check if match is finished or not
+    if (match.isMatchFinished()) {
+      match = match.finishMatch();
       match = await match.save();
       return socketIo.emit("matchCompleted", match);
     }
@@ -660,17 +669,29 @@ exports.handleByesAndLegByesAction = async (matchId, data, socketIo) => {
     // Call function to handle over completion
     await scorerHelper.handleOverCompletion(match, socketIo);
 
-    // Call function to handle match completion
-    if (match.finishMatch()) {
-      match = await match.save();
-      return socketIo.emit("matchCompleted", match);
-    }
-
     // Save the updated match details
     const updatedMatch = await match.save();
 
     return updatedMatch;
   } catch (error) {
     throw error;
+  }
+};
+
+exports.handleFinishInning = async (matchId, data) => {
+  try {
+    const match = await MatchDetails.findById(matchId);
+    if (!match) {
+      throw new Error(`Could not find match`);
+    }
+
+    // check if inning is finished or not
+    if (match.isInningFinished()) {
+      match = match.finishInning();
+      match = await match.save();
+      return socketIo.emit("inningCompleted", match);
+    }
+  } catch (err) {
+    throw new Error(err);
   }
 };
