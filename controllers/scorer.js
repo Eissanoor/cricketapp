@@ -8,7 +8,7 @@ exports.putStopStartMatch = async (req, res, next) => {
   try {
     const { matchId, reason } = req.body;
 
-    const match = await MatchDetails.findById(matchId);
+    let match = await MatchDetails.findById(matchId);
     if (!match) return next(new Error("Couldn't find match"));
 
     if (match.matchStopped.stop && reason == null) {
