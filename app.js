@@ -23,7 +23,7 @@ const upload = multer({ storage: storage });
 app.use(cors());
 
 // * Live Match Section
-app.post("/set-openings", async (req, res) => {
+app.post("/set-openings", async (req, res, next) => {
   try {
     const { matchId, teamBatting, openingBatsmen, openingBowler } = req.body;
 
@@ -77,7 +77,7 @@ app.post("/set-openings", async (req, res) => {
     });
   } catch (error) {
     // throw error for error handling middleware
-    error.message = "Error while setting opening batsmen and bowler.";
+    // error.message = "Error while setting opening batsmen and bowler.";
     return next(error);
   }
 });
