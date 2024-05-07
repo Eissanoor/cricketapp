@@ -4,8 +4,34 @@ const Player = require("../model/player");
 
 const scorerHelper = require("../utils/scorer");
 
+exports.putStopStartMatch = async (req, res, next, socketIo) => {
+  try {
+    const matchId = req.params.matchId;
+    const { reason } = req.body;
+
+    const match = await MatchDetails.findById(matchId);
+    if (!match) return next(new Error("Couldn't find match"));
+
+    if (match.matchStopped.stop) {
+      match = match.resumeMatch();
+    } else {
+      match = match.stopMatch(reason);
+    }
+
+    match = await match.save();
+    return res.status(200).json({
+      success: true,
+      message: "Match updated successfully",
+      status: 200,
+      data: null,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // * Actions handler
-exports.action = async (req, res, next, socketIo) => {
+exports.postAction = async (req, res, next, socketIo) => {
   try {
     const { matchId, actionType, data } = req.body;
 

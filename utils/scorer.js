@@ -254,9 +254,6 @@ const handleOverCompletion = async (match, socketIo) => {
   }
 
   // check if match is finished or not
-  console.log("match is finished");
-  console.log(match.isInningFinished());
-
   if (match.isMatchFinished()) {
     match = match.finishMatch();
     match = await match.save();

@@ -116,6 +116,10 @@ const matchDetailsSchema = new mongoose.Schema(
     team2CurrentRunRate: { type: Number, default: 0 },
     team1RequiredRunRate: { type: Number, default: 0 },
     team2RequiredRunRate: { type: Number, default: 0 },
+    matchStopped: {
+      stop: { type: Boolean, default: false },
+      stopReason: String,
+    },
     // Other fields related to match statistics
   },
   {
@@ -130,22 +134,11 @@ matchDetailsSchema.methods.isInningFinished = function () {
       ? this.team1Outs >= this.squad1.length - 1
       : this.team2Outs >= this.squad2.length - 1;
     if (this.currentOver.number >= this.numberOfOvers || wicketsFinished) {
-      // // change batting and bowling
-      // this.team1Batting = !this.team1Batting;
-      // this.team2Batting = !this.team2Batting;
-      // // reset some variables
-      // this.currentOver.number = 0;
-      // this.currentOver.balls = [];
-      // this.partnership.runs = 0;
-      // this.partnership.balls = 0;
-      // // update the number of inning to 2, indicating 2nd innings
-      // this.currentInning = 2;
       return true;
     }
   }
   return false;
 };
-
 matchDetailsSchema.methods.finishInning = function () {
   // change batting and bowling
   this.team1Batting = !this.team1Batting;
@@ -160,7 +153,6 @@ matchDetailsSchema.methods.finishInning = function () {
   this.currentInning.started = false;
   return this;
 };
-
 matchDetailsSchema.methods.isMatchFinished = function () {
   if (this.currentInning.number > 1) {
     const oversCompleted = this.currentOver.number >= this.numberOfOvers;
@@ -189,6 +181,14 @@ matchDetailsSchema.methods.finishMatch = function () {
     this.draw = true;
   }
   return this;
+};
+matchDetailsSchema.methods.stopMatch = function (reason) {
+  this.matchStopped.stop = true;
+  this.matchStopped.stopReason = reason;
+};
+matchDetailsSchema.methods.resumeMatch = function () {
+  this.matchStopped.stop = false;
+  this.matchStopped.stopReason = null;
 };
 
 const MatchDetails = mongoose.model("MatchDetails", matchDetailsSchema);

@@ -6,10 +6,10 @@ dotenv.config({ path: "./config.env" });
 require("./database/db");
 
 // Controllers
-const admin = require("./router/admin");
 const scorerController = require("./controllers/scorer");
 
 // Routes
+const adminRouter = require("./router/admin");
 const userRouter = require("./router/user");
 
 // Schemas
@@ -86,10 +86,14 @@ app.post("/set-openings", async (req, res, next) => {
   }
 });
 app.post("/action", (req, res, next) => {
-  scorerController.action(req, res, next, socketIo);
+  scorerController.postAction(req, res, next, socketIo);
 });
 
-app.use(admin);
+app.put("/stop-match", (req, res, next) => {
+  scorerController.putStopStartMatch(req, res, next, socketIo);
+});
+
+app.use(adminRouter);
 app.use(userRouter);
 
 app.use((error, req, res, next) => {
