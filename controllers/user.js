@@ -7,7 +7,7 @@ exports.getLiveMatches = async (req, res, next) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 1 })
       .select(
-        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
+        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs -currentInning"
       )
       .populate("team1 team2", "name image")
       .populate("squad1 squad2", "name");
