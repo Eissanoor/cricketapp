@@ -13,9 +13,9 @@ exports.putStopStartMatch = async (req, res, next) => {
   console.log(match.stopMatch);
 
   if (match.matchStopped.stop && reason == null) {
-    match = match.resumeMatch();
+    match.resumeMatch();
   } else {
-    match = match.stopMatch(reason);
+    match.stopMatch(reason);
   }
 
   const updatedMatch = await match.save();
