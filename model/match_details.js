@@ -153,7 +153,8 @@ matchDetailsSchema.methods.finishInning = function () {
   return this;
 };
 matchDetailsSchema.methods.isMatchFinished = function () {
-  if (this.currentInning.number > 1) {
+  if (this.currentInning.number >= 2) {
+    console.log("match inning is 2");
     const oversCompleted = this.currentOver.number >= this.numberOfOvers;
     const runsChased = this.team1Batting
       ? this.team1Score > this.team2Score
@@ -163,9 +164,12 @@ matchDetailsSchema.methods.isMatchFinished = function () {
       : this.team2Outs >= this.squad2;
 
     if (oversCompleted || runsChased || wicketsFinished) {
+      console.log("true");
       return true;
     }
   }
+  console.log("false");
+
   return false;
 };
 matchDetailsSchema.methods.finishMatch = function () {
