@@ -10,6 +10,8 @@ exports.putStopStartMatch = async (req, res, next) => {
   const match = await MatchDetails.findById(matchId);
   if (!match) return next(new Error("Couldn't find match"));
 
+  console.log(match.stopMatch);
+
   if (match.matchStopped.stop && reason == null) {
     match = match.resumeMatch();
   } else {
