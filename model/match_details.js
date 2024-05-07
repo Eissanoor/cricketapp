@@ -129,7 +129,6 @@ const matchDetailsSchema = new mongoose.Schema(
 
 matchDetailsSchema.methods.isInningFinished = function () {
   if (this.currentInning.number == 1) {
-    console.log("Checking for inning completion");
     const wicketsFinished = this.team1Batting
       ? this.team1Outs >= this.squad1.length - 1
       : this.team2Outs >= this.squad2.length - 1;

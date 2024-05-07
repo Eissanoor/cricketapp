@@ -4,15 +4,14 @@ const Player = require("../model/player");
 
 const scorerHelper = require("../utils/scorer");
 
-exports.putStopStartMatch = async (req, res, next, socketIo) => {
+exports.putStopStartMatch = async (req, res, next) => {
   try {
-    const matchId = req.params.matchId;
-    const { reason } = req.body;
+    const { matchId, reason } = req.body;
 
     const match = await MatchDetails.findById(matchId);
     if (!match) return next(new Error("Couldn't find match"));
 
-    if (match.matchStopped.stop) {
+    if (match.matchStopped.stop && reason == null) {
       match = match.resumeMatch();
     } else {
       match = match.stopMatch(reason);
@@ -23,7 +22,7 @@ exports.putStopStartMatch = async (req, res, next, socketIo) => {
       success: true,
       message: "Match updated successfully",
       status: 200,
-      data: null,
+      data: match,
     });
   } catch (err) {
     next(err);

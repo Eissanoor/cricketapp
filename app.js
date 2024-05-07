@@ -11,6 +11,7 @@ const scorerController = require("./controllers/scorer");
 // Routes
 const adminRouter = require("./router/admin");
 const userRouter = require("./router/user");
+const scorerRouter = require("./router/scorer");
 
 // Schemas
 const MatchDetails = require("./model/match_details");
@@ -89,10 +90,7 @@ app.post("/action", (req, res, next) => {
   scorerController.postAction(req, res, next, socketIo);
 });
 
-app.put("/stop-match", (req, res, next) => {
-  scorerController.putStopStartMatch(req, res, next, socketIo);
-});
-
+app.use(scorerRouter);
 app.use(adminRouter);
 app.use(userRouter);
 
