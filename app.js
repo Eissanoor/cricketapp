@@ -41,6 +41,11 @@ app.post("/set-openings", async (req, res) => {
       match.openingBowler = openingBowler;
     }
 
+    // start the second inning
+    if (match.currentInning.number === 2 && !match.currentInning.started) {
+      match.currentInning.started = true;
+    }
+
     let scorecard = await ScoreCard.findOne({
       match: match._id,
       innings: match.currentInning,

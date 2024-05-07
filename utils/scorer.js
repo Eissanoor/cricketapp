@@ -291,11 +291,6 @@ const addBallToOver = async function (match, ball) {
   // Save the current over
   await currentOver.save();
 
-  // start the second inning
-  if (match.currentInning.number === 2 && !match.currentInning.started) {
-    match.currentInning.started = true;
-  }
-
   // update partnership
   if (!match.partnership) {
     match.partnership = { runs: 0, balls: 0 };
