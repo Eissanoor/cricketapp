@@ -5,26 +5,28 @@ const Player = require("../model/player");
 const scorerHelper = require("../utils/scorer");
 
 exports.putStopStartMatch = async (req, res, next) => {
-  const { matchId, reason } = req.body;
+  try {
+    const { matchId, reason } = req.body;
 
-  const match = await MatchDetails.findById(matchId);
-  if (!match) return next(new Error("Couldn't find match"));
+    const match = await MatchDetails.findById(matchId);
+    if (!match) return next(new Error("Couldn't find match"));
 
-  console.log(match.stopMatch);
+    if (match.matchStopped.stop && reason == null) {
+      match.resumeMatch();
+    } else {
+      match.stopMatch(reason);
+    }
 
-  if (match.matchStopped.stop && reason == null) {
-    match.resumeMatch();
-  } else {
-    match.stopMatch(reason);
+    const updatedMatch = await match.save();
+    return res.status(200).json({
+      success: true,
+      message: "Match updated successfully",
+      status: 200,
+      data: updatedMatch,
+    });
+  } catch (err) {
+    next(err);
   }
-
-  const updatedMatch = await match.save();
-  return res.status(200).json({
-    success: true,
-    message: "Match updated successfully",
-    status: 200,
-    data: updatedMatch,
-  });
 };
 
 // * Actions handler
