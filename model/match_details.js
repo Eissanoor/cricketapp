@@ -48,7 +48,10 @@ const matchDetailsSchema = new mongoose.Schema(
     striker: { type: mongoose.Schema.Types.ObjectId, ref: "Player" },
     nonStriker: { type: mongoose.Schema.Types.ObjectId, ref: "Player" },
     openingBowler: { type: mongoose.Schema.Types.ObjectId, ref: "Player" },
-    currentInning: { type: Number, default: 1 },
+    currentInning: {
+      number: { type: Number, default: 1 },
+      started: { type: Boolean, default: true },
+    },
     innings: [
       {
         number: { type: Number, required: true },
@@ -154,7 +157,8 @@ matchDetailsSchema.methods.finishInning = function () {
   this.partnership.runs = 0;
   this.partnership.balls = 0;
   // update the number of inning to 2, indicating 2nd innings
-  this.currentInning = 2;
+  this.currentInning.number = 2;
+  this.currentInning.started = false;
   return this;
 };
 

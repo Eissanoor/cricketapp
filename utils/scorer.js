@@ -32,7 +32,7 @@ const calculateNetRunRate = (
 const handleStrikerScorecard = async (match, ball, data, extraType) => {
   let scorecard = await ScoreCard.findOne({
     match: match._id,
-    innings: match.currentInning,
+    innings: match.currentInning.number,
   });
 
   if (!scorecard) {
@@ -144,7 +144,7 @@ const handleStrikerScorecard = async (match, ball, data, extraType) => {
 const handleBowlerScorecard = async (match, ball) => {
   const scorecard = await ScoreCard.findOne({
     match: match._id,
-    innings: match.currentInning,
+    innings: match.currentInning.number,
   });
   if (!scorecard) return new Error("No scorecard found");
   const bowlerScorecardIndex = scorecard.bowlers.findIndex(
@@ -271,23 +271,6 @@ const addBallToOver = async function (match, ball) {
   }
 
   // Find the current over
-  //   let currentOver = match.overs.find(
-  //     (over) => over.number === match.currentOver.number
-  //   );
-
-  //   if (currentOver) {
-  //     // If the current over exists, add the ball to it
-  //     currentOver.balls.push(ball._id);
-  //   } else {
-  //     // If the current over doesn't exist, create a new over and add the ball to it
-  //     currentOver = {
-  //       number: match.currentOver.number,
-  //       balls: [ball._id],
-  //     };
-  //     match.overs.push(currentOver);
-  //   }
-
-  // Find the current over
   let currentOver = await Over.findOne({
     match: match._id,
     number: match.currentOver.number,
@@ -307,6 +290,11 @@ const addBallToOver = async function (match, ball) {
 
   // Save the current over
   await currentOver.save();
+
+  // start the second inning
+  if (match.currentInning.number === 2 && !match.currentInning.started) {
+    match.currentInning.started = true;
+  }
 
   // update partnership
   if (!match.partnership) {
