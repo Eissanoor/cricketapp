@@ -160,8 +160,8 @@ matchDetailsSchema.methods.isMatchFinished = function () {
       ? this.team1Score > this.team2Score
       : this.team2Score > this.team1Score;
     const wicketsFinished = this.team1Batting
-      ? this.team1Outs >= this.squad1
-      : this.team2Outs >= this.squad2;
+      ? this.team1Outs >= this.squad1.length - 1
+      : this.team2Outs >= this.squad2.length - 1;
 
     if (oversCompleted || runsChased || wicketsFinished) {
       console.log("true");
