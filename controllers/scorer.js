@@ -23,7 +23,7 @@ exports.putStopStartMatch = async (req, res, next) => {
     success: true,
     message: "Match updated successfully",
     status: 200,
-    data: matupdatedMatchch,
+    data: updatedMatch,
   });
 };
 
