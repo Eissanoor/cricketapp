@@ -233,7 +233,6 @@ const handleOverCompletion = async (match, socketIo) => {
       match = await match.save();
       return socketIo.emit("matchCompleted", match);
     }
-
     // check if inning is finished or not
     if (match.isInningFinished()) {
       match = match.finishInning();
@@ -246,18 +245,22 @@ const handleOverCompletion = async (match, socketIo) => {
       overNumber: match.currentOver.number,
     });
   }
-  // check if match is finished or not
-  if (match.isMatchFinished()) {
-    match = match.finishMatch();
-    match = await match.save();
-    return socketIo.emit("matchCompleted", match);
-  }
 
   // check if inning is finished or not
   if (match.isInningFinished()) {
     match = match.finishInning();
     match = await match.save();
     return socketIo.emit("inningCompleted", match);
+  }
+
+  // check if match is finished or not
+  console.log("match is finished");
+  console.log(match.isInningFinished());
+
+  if (match.isMatchFinished()) {
+    match = match.finishMatch();
+    match = await match.save();
+    return socketIo.emit("matchCompleted", match);
   }
 };
 const addBallToOver = async function (match, ball) {

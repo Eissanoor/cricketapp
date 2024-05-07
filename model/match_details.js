@@ -124,13 +124,12 @@ const matchDetailsSchema = new mongoose.Schema(
 );
 
 matchDetailsSchema.methods.isInningFinished = function () {
-  if (this.currentInning == 1) {
+  if (this.currentInning.number == 1) {
     console.log("Checking for inning completion");
     const wicketsFinished = this.team1Batting
       ? this.team1Outs >= this.squad1.length - 1
       : this.team2Outs >= this.squad2.length - 1;
     if (this.currentOver.number >= this.numberOfOvers || wicketsFinished) {
-      console.log("true");
       // // change batting and bowling
       // this.team1Batting = !this.team1Batting;
       // this.team2Batting = !this.team2Batting;
@@ -163,7 +162,7 @@ matchDetailsSchema.methods.finishInning = function () {
 };
 
 matchDetailsSchema.methods.isMatchFinished = function () {
-  if (this.currentInning > 1) {
+  if (this.currentInning.number > 1) {
     const oversCompleted = this.currentOver.number >= this.numberOfOvers;
     const runsChased = this.team1Batting
       ? this.team1Score > this.team2Score
