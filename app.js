@@ -52,7 +52,7 @@ app.post("/set-openings", async (req, res, next) => {
 
     let scorecard = await ScoreCard.findOne({
       match: match._id,
-      innings: match.currentInning,
+      innings: match.currentInning.number,
     });
 
     if (!scorecard) {
@@ -62,7 +62,7 @@ app.post("/set-openings", async (req, res, next) => {
         bowlingTeam: teamBatting === match.team1 ? match.team2 : match.team1,
         batsmen: [{ player: openingBatsmen[0] }],
         bowlers: [{ player: openingBowler }],
-        innings: match.currentInning,
+        innings: match.currentInning.number,
       });
       await scorecard.save();
 
