@@ -274,6 +274,7 @@ const addBallToOver = async function (match, ball) {
   let currentOver = await Over.findOne({
     match: match._id,
     number: match.currentOver.number,
+    innings: match.currentInning.number,
   });
 
   if (currentOver) {

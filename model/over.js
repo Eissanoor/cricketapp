@@ -9,6 +9,7 @@ const overSchema = new mongoose.Schema(
     },
     number: { type: Number, required: true },
     balls: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ball" }],
+    innings: { type: Number, default: 1 },
   },
   {
     timestamps: true,
