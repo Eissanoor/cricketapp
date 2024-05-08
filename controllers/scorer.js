@@ -4,7 +4,7 @@ const Player = require("../model/player");
 
 const scorerHelper = require("../utils/scorer");
 
-exports.putStopStartMatch = async (req, res, next) => {
+exports.putStopStartMatch = async (req, res, next, socketIo) => {
   try {
     const { matchId, reason } = req.body;
 
@@ -18,6 +18,7 @@ exports.putStopStartMatch = async (req, res, next) => {
     }
 
     const updatedMatch = await match.save();
+    socketIo.emit("match-" + matchId, updatedMatch);
     return res.status(200).json({
       success: true,
       message: "Match updated successfully",

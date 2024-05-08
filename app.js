@@ -89,6 +89,9 @@ app.post("/set-openings", async (req, res, next) => {
 app.post("/action", (req, res, next) => {
   scorerController.postAction(req, res, next, socketIo);
 });
+app.put("/start-stop-match", (req, res, next) => {
+  scorerController.putStopStartMatch(req, res, next, socketIo);
+});
 
 app.use(scorerRouter);
 app.use(adminRouter);
