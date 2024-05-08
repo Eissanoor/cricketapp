@@ -47,30 +47,33 @@ exports.postAction = async (req, res, next, socketIo) => {
       );
     }
 
-    let crr, rrr;
-    if (match.team1Batting) {
-      crr = scorerHelper.calculateCurrentRunRate(
-        match.team1Score,
-        match.team2Overs
-      );
-      rrr = scorerHelper.calculateRequiredRunRate(
-        match.team2Score,
-        match.numberOfOvers - match.team2Overs
-      );
-      match.team1CurrentRunRate = crr;
-      match.team1RequiredRunRate = rrr;
-    } else {
-      crr = scorerHelper.calculateCurrentRunRate(
-        match.team2Score,
-        match.team1Overs
-      );
-      rrr = scorerHelper.calculateRequiredRunRate(
-        match.team1Score,
-        match.numberOfOvers - match.team1Overs
-      );
-      match.team2CurrentRunRate = crr;
-      match.team2RequiredRunRate = rrr;
-    }
+    // let crr, rrr;
+    // if (match.team1Batting) {
+    //   crr = scorerHelper.calculateCurrentRunRate(
+    //     match.team1Score,
+    //     match.team2Overs
+    //   );
+    //   rrr = scorerHelper.calculateRequiredRunRate(
+    //     match.team2Score,
+    //     match.numberOfOvers - match.team2Overs
+    //   );
+    //   match.team1CurrentRunRate = crr;
+    //   match.team1RequiredRunRate = rrr;
+    // } else {
+    //   crr = scorerHelper.calculateCurrentRunRate(
+    //     match.team2Score,
+    //     match.team1Overs
+    //   );
+    //   rrr = scorerHelper.calculateRequiredRunRate(
+    //     match.team1Score,
+    //     match.numberOfOvers - match.team1Overs
+    //   );
+    //   match.team2CurrentRunRate = crr;
+    //   match.team2RequiredRunRate = rrr;
+    // }
+
+    match.calculateCurrentRunRate();
+    match.calculateRequiredRunRate();
     await match.save();
     // Perform action based on the action type
     switch (actionType) {

@@ -127,6 +127,28 @@ const matchDetailsSchema = new mongoose.Schema(
   }
 );
 
+matchDetailsSchema.methods.calculateCurrentRunRate = function () {
+  if (this.team1Batting) {
+    this.team1CurrentRunRate = this.team1Score / this.team1Overs;
+  } else {
+    this.team2CurrentRunRate = this.team2Score / this.team2Overs;
+  }
+};
+
+matchDetailsSchema.methods.calculateRequiredRunRate = function () {
+  if (this.currentInning.number > 1) {
+    if (this.team1Batting) {
+      const runsRequired = this.team2Score - this.team1Score + 1;
+      const oversLeft = this.totalOvers - this.team1Overs;
+      this.team1RequiredRunRate = runsRequired / oversLeft;
+    } else {
+      const runsRequired = this.team1Score - this.team2Score + 1;
+      const oversLeft = this.totalOvers - this.team2Overs;
+      this.team2RequiredRunRate = runsRequired / oversLeft;
+    }
+  }
+};
+
 matchDetailsSchema.methods.isInningFinished = function () {
   if (this.currentInning.number == 1) {
     const wicketsFinished = this.team1Batting
@@ -150,6 +172,12 @@ matchDetailsSchema.methods.finishInning = function () {
   // update the number of inning to 2, indicating 2nd innings
   this.currentInning.number = 2;
   this.currentInning.started = false;
+  // Make last wicket to null
+  this.lastWicket = null;
+  // reset partnerships
+  this.partnership.runs = 0;
+  this.partnership.balls = 0;
+
   return this;
 };
 matchDetailsSchema.methods.isMatchFinished = function () {
@@ -164,11 +192,9 @@ matchDetailsSchema.methods.isMatchFinished = function () {
       : this.team2Outs >= this.squad2.length - 1;
 
     if (oversCompleted || runsChased || wicketsFinished) {
-      console.log("true");
       return true;
     }
   }
-  console.log("false");
 
   return false;
 };
