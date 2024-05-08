@@ -129,9 +129,17 @@ const matchDetailsSchema = new mongoose.Schema(
 
 matchDetailsSchema.methods.calculateCurrentRunRate = function () {
   if (this.team1Batting) {
-    this.team1CurrentRunRate = this.team1Score / this.team1Overs;
+    if (this.team1Overs !== 0) {
+      this.team1CurrentRunRate = this.team1Score / this.team1Overs;
+    } else {
+      this.team1CurrentRunRate = 0;
+    }
   } else {
-    this.team2CurrentRunRate = this.team2Score / this.team2Overs;
+    if (this.team2Overs !== 0) {
+      this.team2CurrentRunRate = this.team2Score / this.team2Overs;
+    } else {
+      this.team2CurrentRunRate = 0;
+    }
   }
 };
 
@@ -140,11 +148,19 @@ matchDetailsSchema.methods.calculateRequiredRunRate = function () {
     if (this.team1Batting) {
       const runsRequired = this.team2Score - this.team1Score + 1;
       const oversLeft = this.totalOvers - this.team1Overs;
-      this.team1RequiredRunRate = runsRequired / oversLeft;
+      if (oversLeft !== 0) {
+        this.team1RequiredRunRate = runsRequired / oversLeft;
+      } else {
+        this.team1RequiredRunRate = 0;
+      }
     } else {
       const runsRequired = this.team1Score - this.team2Score + 1;
       const oversLeft = this.totalOvers - this.team2Overs;
-      this.team2RequiredRunRate = runsRequired / oversLeft;
+      if (oversLeft !== 0) {
+        this.team2RequiredRunRate = runsRequired / oversLeft;
+      } else {
+        this.team2RequiredRunRate = 0;
+      }
     }
   }
 };
