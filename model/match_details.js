@@ -142,12 +142,11 @@ matchDetailsSchema.methods.calculateCurrentRunRate = function () {
     }
   }
 };
-
 matchDetailsSchema.methods.calculateRequiredRunRate = function () {
   if (this.currentInning.number > 1) {
     if (this.team1Batting) {
       const runsRequired = this.team2Score - this.team1Score + 1;
-      const oversLeft = this.totalOvers - this.team1Overs;
+      const oversLeft = this.numberOfOvers - this.team1Overs;
       if (oversLeft !== 0) {
         this.team1RequiredRunRate = runsRequired / oversLeft;
       } else {
@@ -155,7 +154,7 @@ matchDetailsSchema.methods.calculateRequiredRunRate = function () {
       }
     } else {
       const runsRequired = this.team1Score - this.team2Score + 1;
-      const oversLeft = this.totalOvers - this.team2Overs;
+      const oversLeft = this.numberOfOvers - this.team2Overs;
       if (oversLeft !== 0) {
         this.team2RequiredRunRate = runsRequired / oversLeft;
       } else {
@@ -164,7 +163,6 @@ matchDetailsSchema.methods.calculateRequiredRunRate = function () {
     }
   }
 };
-
 matchDetailsSchema.methods.isInningFinished = function () {
   if (this.currentInning.number == 1) {
     const wicketsFinished = this.team1Batting
@@ -190,9 +188,6 @@ matchDetailsSchema.methods.finishInning = function () {
   this.currentInning.started = false;
   // Make last wicket to null
   this.lastWicket = null;
-  // reset partnerships
-  this.partnership.runs = 0;
-  this.partnership.balls = 0;
 
   return this;
 };

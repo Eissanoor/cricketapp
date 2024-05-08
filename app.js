@@ -29,7 +29,7 @@ app.post("/set-openings", async (req, res, next) => {
     const { matchId, teamBatting, openingBatsmen, openingBowler } = req.body;
 
     // Update match details with opening batsmen and bowler for the specified inning
-    const match = await MatchDetails.findById(matchId);
+    let match = await MatchDetails.findById(matchId);
 
     // Update openings based on the team batting
     if (teamBatting === match.team1) {
