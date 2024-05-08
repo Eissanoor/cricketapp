@@ -129,40 +129,42 @@ const matchDetailsSchema = new mongoose.Schema(
 
 matchDetailsSchema.methods.calculateCurrentRunRate = function () {
   if (this.team1Batting) {
-    if (this.team1Overs !== 0) {
-      this.team1CurrentRunRate = this.team1Score / this.team1Overs;
+    if (this.team2Overs !== 0) {
+      this.team1CurrentRunRate = this.team1Score / this.team2Overs;
     } else {
-      this.team1CurrentRunRate = 0;
+      this.team1CurrentRunRate = this.team1Score / 0.1; // Assuming 0.1 as the initial overs for calculation
     }
   } else {
-    if (this.team2Overs !== 0) {
-      this.team2CurrentRunRate = this.team2Score / this.team2Overs;
+    if (this.team1Overs !== 0) {
+      this.team2CurrentRunRate = this.team2Score / this.team1Overs;
     } else {
-      this.team2CurrentRunRate = 0;
+      this.team2CurrentRunRate = this.team2Score / 0.1; // Assuming 0.1 as the initial overs for calculation
     }
   }
 };
+
 matchDetailsSchema.methods.calculateRequiredRunRate = function () {
   if (this.currentInning.number > 1) {
     if (this.team1Batting) {
-      const runsRequired = this.team2Score - this.team1Score + 1;
-      const oversLeft = this.numberOfOvers - this.team1Overs;
+      const runsRequired = this.team2Score - this.team1Score;
+      const oversLeft = this.numberOfOvers - this.team2Overs;
       if (oversLeft !== 0) {
         this.team1RequiredRunRate = runsRequired / oversLeft;
       } else {
-        this.team1RequiredRunRate = 0;
+        this.team1RequiredRunRate = runsRequired / 0.1; // Assuming 0.1 as the initial overs for calculation
       }
     } else {
-      const runsRequired = this.team1Score - this.team2Score + 1;
-      const oversLeft = this.numberOfOvers - this.team2Overs;
+      const runsRequired = this.team1Score - this.team2Score;
+      const oversLeft = this.numberOfOvers - this.team1Overs;
       if (oversLeft !== 0) {
         this.team2RequiredRunRate = runsRequired / oversLeft;
       } else {
-        this.team2RequiredRunRate = 0;
+        this.team2RequiredRunRate = runsRequired / 0.1; // Assuming 0.1 as the initial overs for calculation
       }
     }
   }
 };
+
 matchDetailsSchema.methods.isInningFinished = function () {
   if (this.currentInning.number == 1) {
     const wicketsFinished = this.team1Batting
