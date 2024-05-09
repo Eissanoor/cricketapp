@@ -1183,7 +1183,6 @@ router.post("/create", async (req, res, next) => {
 router.get("/test", async (req, res, next) => {
   res.json({ testing: "TESTING" });
 });
-
 router.post("/add-match-details", async (req, res, next) => {
   try {
     const {
@@ -1330,6 +1329,7 @@ router.put("/start-match/:matchId", async (req, res, next) => {
   }
 });
 router.get("/get-upcoming-matches/:adminId", async (req, res, next) => {
+  console.log("hi");
   try {
     const adminId = req.params.adminId;
     const matches = await MatchDetails.find({
