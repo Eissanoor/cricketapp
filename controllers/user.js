@@ -49,7 +49,7 @@ exports.getUpcomingMathces = async (req, res, next) => {
   }
 };
 
-exports.getScoreCardsByMatchId = async (req, res, next) => {
+exports.getScoreCards = async (req, res, next) => {
   try {
     const matchId = req.params.matchId;
     const scorecards = await ScoreCard.find({ match: matchId })

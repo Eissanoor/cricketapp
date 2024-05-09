@@ -446,11 +446,13 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     // add out player into the list of out players
     match.outPlayers.push(data.playerIdOut);
 
-    // Mark the player as out
+    // Set new player and set their inning values accordingly
     if (match.striker.equals(data.playerIdOut)) {
-      match.striker = data.newPlayerId; // Mark the striker as null
+      match.striker = data.newPlayerId;
+      await scorerHelper.setPlayersInnings(match.striker);
     } else if (match.nonStriker.equals(data.playerIdOut)) {
-      match.nonStriker = data.newPlayerId; // Mark the non-striker as null
+      match.nonStriker = data.newPlayerId;
+      await scorerHelper.setPlayersInnings(match.nonStriker);
     }
 
     // reset partnership for the batsmen
