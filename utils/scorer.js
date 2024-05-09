@@ -476,7 +476,7 @@ const updateRealPlayerStats = async function (
     if (!player.t20Stats) {
       player.t20Stats = {
         player: match.striker,
-        ballsFaced: isExtra === true ? 0 : 1,
+        balls: isExtra === true ? 0 : 1,
         runs: runsScored,
         sixes: runsScored === 6 ? 1 : 0,
         fours: runsScored === 4 ? 1 : 0,
@@ -485,7 +485,7 @@ const updateRealPlayerStats = async function (
       };
     } else {
       if (isExtra != true) {
-        player.t20Stats.ballsFaced++;
+        player.t20Stats.balls++;
       }
       player.t20Stats.runs += runsScored;
       if (runsScored === 6) {
@@ -495,13 +495,13 @@ const updateRealPlayerStats = async function (
       }
       // Update the strike rate
       player.t20Stats.strikeRate =
-        (player.t20Stats.runs / player.stats.ballsFaced) * 100;
+        (player.t20Stats.runs / player.stats.balls) * 100;
     }
   } else if (totalOvers === 50) {
     if (!player.odiStats) {
       player.odiStats = {
         player: match.striker,
-        ballsFaced: isExtra === true ? 0 : 1,
+        balls: isExtra === true ? 0 : 1,
         runs: runsScored,
         sixes: runsScored === 6 ? 1 : 0,
         fours: runsScored === 4 ? 1 : 0,
@@ -510,7 +510,7 @@ const updateRealPlayerStats = async function (
       };
     } else {
       if (isExtra != true) {
-        player.odiStats.ballsFaced++;
+        player.odiStats.balls++;
       }
       player.odiStats.runs += runsScored;
       if (runsScored === 6) {
@@ -520,13 +520,13 @@ const updateRealPlayerStats = async function (
       }
       // Update the strike rate
       player.odiStats.strikeRate =
-        (player.odiStats.runs / player.stats.ballsFaced) * 100;
+        (player.odiStats.runs / player.stats.balls) * 100;
     }
   } else {
     if (!player.lastPerformance) {
       player.lastPerformance = {
         player: match.striker,
-        ballsFaced: isExtra === true ? 0 : 1,
+        balls: isExtra === true ? 0 : 1,
         runs: runsScored,
         sixes: runsScored === 6 ? 1 : 0,
         fours: runsScored === 4 ? 1 : 0,
@@ -535,7 +535,7 @@ const updateRealPlayerStats = async function (
       };
     } else {
       if (isExtra != true) {
-        player.lastPerformance.ballsFaced++;
+        player.lastPerformance.balls++;
       }
       player.lastPerformance.runs += runsScored;
       if (runsScored === 6) {
