@@ -470,7 +470,7 @@ const updateRealPlayerStats = async function (
     return next(new Error("Player not found"));
   }
 
-  player.updateStats(format, { runs: 100, balls: 50 });
+  //   player.updateStats(format, { runs: 100, balls: 50 });
 
   if (totalOvers === 20) {
     if (!player.t20Stats) {

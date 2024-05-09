@@ -251,7 +251,8 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     await scorerHelper.updateRealPlayerStats(
       match.striker,
       runsScored,
-      ball.isExtra
+      ball.isExtra,
+      match.numberOfOvers,
     );
 
     let scorecard = await scorerHelper.handleStrikerScorecard(
