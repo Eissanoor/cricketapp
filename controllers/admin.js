@@ -1,5 +1,5 @@
 const MatchDetails = require("../models/match_details");
-const Player = require("../models/player");
+const ScoreCard = require("../models/score_card");
 
 const scorerHelper = require("../utils/scorer");
 
