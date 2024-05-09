@@ -7,15 +7,14 @@ require("./database/db");
 
 // Controllers
 const scorerController = require("./controllers/scorer");
+const adminController = require("./controllers/admin");
 
 // Routes
 const adminRouter = require("./router/admin");
 const userRouter = require("./router/user");
 const scorerRouter = require("./router/scorer");
 
-// Schemas
-const MatchDetails = require("./model/match_details");
-
+// Assignments
 var app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -23,68 +22,9 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 app.use(cors());
 
-// * Live Match Section
+// Middlewares
 app.post("/set-openings", async (req, res, next) => {
-  try {
-    const { matchId, teamBatting, openingBatsmen, openingBowler } = req.body;
-
-    // Update match details with opening batsmen and bowler for the specified inning
-    let match = await MatchDetails.findById(matchId);
-
-    // Update openings based on the team batting
-    if (teamBatting === match.team1) {
-      match.striker = openingBatsmen[0];
-      match.nonStriker = openingBatsmen[1];
-      match.openingBowler = openingBowler;
-    } else {
-      match.striker = openingBatsmen[0];
-      match.nonStriker = openingBatsmen[1];
-      match.openingBowler = openingBowler;
-    }
-
-    // start the second inning
-    if (
-      match.currentInning.number == 2 &&
-      match.currentInning.started == false
-    ) {
-      match.currentInning.started = true;
-      match = await match.save();
-    }
-
-    let scorecard = await ScoreCard.findOne({
-      match: match._id,
-      innings: match.currentInning.number,
-    });
-
-    if (!scorecard) {
-      scorecard = new ScoreCard({
-        match: match._id,
-        battingTeam: teamBatting === match.team1 ? match.team1 : match.team2,
-        bowlingTeam: teamBatting === match.team1 ? match.team2 : match.team1,
-        batsmen: [{ player: openingBatsmen[0] }],
-        bowlers: [{ player: openingBowler }],
-        innings: match.currentInning.number,
-      });
-      await scorecard.save();
-
-      match.scorecard.push(scorecard);
-    }
-
-    const matchstart = await match.save();
-
-    // Send real-time update using socket.io
-    socketIo.emit("match-" + matchId, matchstart);
-    res.status(200).json({
-      success: true,
-      message: "Opening batsmen and bowler set successfully.",
-      status: 200,
-      data: null,
-    });
-  } catch (error) {
-    // throw error for error handling middleware
-    // error.message = "Error while setting opening batsmen and bowler.";
-    return next(error);
-  }
+  adminController.postSetOpenings(req, res, next, socketIo);
 });
 app.post("/action", (req, res, next) => {
   scorerController.postAction(req, res, next, socketIo);
@@ -109,7 +49,7 @@ app.use((error, req, res, next) => {
 
 var swaggerUi = require("swagger-ui-express"),
   swaggerDocument = require("./swagger.json");
-const ScoreCard = require("./model/score_card");
+const ScoreCard = require("./models/score_card");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const PORT = process.env.PORT || 3002;
 const serverssss = app.listen(PORT, () => {

@@ -1,8 +1,8 @@
-const Ball = require("../model/ball");
-const MatchDetails = require("../model/match_details");
-const ScoreCard = require("../model/score_card");
-const Player = require("../model/player");
-const Over = require("../model/over");
+const Ball = require("../models/ball");
+const MatchDetails = require("../models/match_details");
+const ScoreCard = require("../models/score_card");
+const Player = require("../models/player");
+const Over = require("../models/over");
 
 // Function to calculate current run rate
 const calculateCurrentRunRate = (totalRuns, totalOvers) => {
@@ -493,6 +493,19 @@ const updateRealPlayerStats = async function (playerId, runsScored, isExtra) {
   await player.save();
 };
 
+const setPlayersInnings = async function (strikerId, nonStrikerId) {
+  // set inning values for the batsmen
+  const striker = await Player.findById(strikerId);
+  const nonStriker = await Player.findById(nonStrikerId);
+
+  if (!striker || !nonStriker)
+    throw new Error("Striker or nonStriker not found");
+
+  if (match.numberOfOvers == 50) await striker.setInnings("odi");
+  else if (match.numberOfOvers == 20) await striker.setInnings("t20");
+  else await nonStriker.setInnings("other");
+};
+
 exports.calculateCurrentRunRate = calculateCurrentRunRate;
 exports.calculateRequiredRunRate = calculateRequiredRunRate;
 exports.calculateNetRunRate = calculateNetRunRate;
@@ -505,3 +518,4 @@ exports.generateWicketMessage = generateWicketMessage;
 exports.updateBatsmanStats = updateBatsmanStats;
 exports.updateBlowerStats = updateBlowerStats;
 exports.updateRealPlayerStats = updateRealPlayerStats;
+exports.setPlayersInnings = setPlayersInnings;

@@ -1,7 +1,7 @@
-const MatchDetails = require("../model/match_details");
-const ScoreCard = require("../model/score_card");
-const Ball = require("../model/ball");
-const Over = require("../model/over");
+const MatchDetails = require("../models/match_details");
+const ScoreCard = require("../models/score_card");
+const Ball = require("../models/ball");
+const Over = require("../models/over");
 
 exports.getLiveMatches = async (req, res, next) => {
   try {

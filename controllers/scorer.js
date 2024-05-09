@@ -1,6 +1,6 @@
-const Ball = require("../model/ball");
-const MatchDetails = require("../model/match_details");
-const Player = require("../model/player");
+const Ball = require("../models/ball");
+const MatchDetails = require("../models/match_details");
+const Player = require("../models/player");
 
 const scorerHelper = require("../utils/scorer");
 
