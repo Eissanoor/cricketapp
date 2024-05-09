@@ -458,37 +458,121 @@ const updateBlowerStats = function (match, ball, extraType) {
 
   return match;
 };
-const updateRealPlayerStats = async function (playerId, runsScored, isExtra) {
+const updateRealPlayerStats = async function (
+  playerId,
+  runsScored,
+  isExtra,
+  totalOvers
+) {
   const player = await Player.findById(playerId);
 
   if (!player) {
     return next(new Error("Player not found"));
   }
 
-  if (!player.stats) {
-    player.stats = {
-      player: match.striker,
-      ballsFaced: isExtra === true ? 0 : 1,
-      runs: runsScored,
-      sixes: runsScored === 6 ? 1 : 0,
-      fours: runsScored === 4 ? 1 : 0,
-      strikeRate: runsScored * 100,
-      // Initialize other stats as needed
-    };
+  player.updateStats(format, { runs: 100, balls: 50 });
+
+  if (totalOvers === 20) {
+    if (!player.t20Stats) {
+      player.t20Stats = {
+        player: match.striker,
+        ballsFaced: isExtra === true ? 0 : 1,
+        runs: runsScored,
+        sixes: runsScored === 6 ? 1 : 0,
+        fours: runsScored === 4 ? 1 : 0,
+        strikeRate: runsScored * 100,
+        // Initialize other t20Stats as needed
+      };
+    } else {
+      if (isExtra != true) {
+        player.t20Stats.ballsFaced++;
+      }
+      player.t20Stats.runs += runsScored;
+      if (runsScored === 6) {
+        player.t20Stats.sixes++;
+      } else if (runsScored === 4) {
+        player.t20Stats.fours++;
+      }
+      // Update the strike rate
+      player.t20Stats.strikeRate =
+        (player.t20Stats.runs / player.stats.ballsFaced) * 100;
+    }
+  } else if (totalOvers === 50) {
+    if (!player.odiStats) {
+      player.odiStats = {
+        player: match.striker,
+        ballsFaced: isExtra === true ? 0 : 1,
+        runs: runsScored,
+        sixes: runsScored === 6 ? 1 : 0,
+        fours: runsScored === 4 ? 1 : 0,
+        strikeRate: runsScored * 100,
+        // Initialize other odiStats as needed
+      };
+    } else {
+      if (isExtra != true) {
+        player.odiStats.ballsFaced++;
+      }
+      player.odiStats.runs += runsScored;
+      if (runsScored === 6) {
+        player.odiStats.sixes++;
+      } else if (runsScored === 4) {
+        player.odiStats.fours++;
+      }
+      // Update the strike rate
+      player.odiStats.strikeRate =
+        (player.odiStats.runs / player.stats.ballsFaced) * 100;
+    }
   } else {
-    if (isExtra != true) {
-      player.stats.ballsFaced++;
+    if (!player.lastPerformance) {
+      player.lastPerformance = {
+        player: match.striker,
+        ballsFaced: isExtra === true ? 0 : 1,
+        runs: runsScored,
+        sixes: runsScored === 6 ? 1 : 0,
+        fours: runsScored === 4 ? 1 : 0,
+        strikeRate: runsScored * 100,
+        // Initialize other lastPerformance as needed
+      };
+    } else {
+      if (isExtra != true) {
+        player.lastPerformance.ballsFaced++;
+      }
+      player.lastPerformance.runs += runsScored;
+      if (runsScored === 6) {
+        player.lastPerformance.sixes++;
+      } else if (runsScored === 4) {
+        player.lastPerformance.fours++;
+      }
+      // Update the strike rate
+      player.lastPerformance.strikeRate =
+        (player.lastPerformance.runs / player.stats.ballsFaced) * 100;
     }
-    player.stats.runs += runsScored;
-    if (runsScored === 6) {
-      player.stats.sixes++;
-    } else if (runsScored === 4) {
-      player.stats.fours++;
-    }
-    // Update the strike rate
-    player.stats.strikeRate =
-      (player.stats.runs / player.stats.ballsFaced) * 100;
   }
+
+  //   if (!player.stats) {
+  //     player.stats = {
+  //       player: match.striker,
+  //       ballsFaced: isExtra === true ? 0 : 1,
+  //       runs: runsScored,
+  //       sixes: runsScored === 6 ? 1 : 0,
+  //       fours: runsScored === 4 ? 1 : 0,
+  //       strikeRate: runsScored * 100,
+  //       // Initialize other stats as needed
+  //     };
+  //   } else {
+  //     if (isExtra != true) {
+  //       player.stats.ballsFaced++;
+  //     }
+  //     player.stats.runs += runsScored;
+  //     if (runsScored === 6) {
+  //       player.stats.sixes++;
+  //     } else if (runsScored === 4) {
+  //       player.stats.fours++;
+  //     }
+  //     // Update the strike rate
+  //     player.stats.strikeRate =
+  //       (player.stats.runs / player.stats.ballsFaced) * 100;
+  //   }
 
   await player.save();
 };
