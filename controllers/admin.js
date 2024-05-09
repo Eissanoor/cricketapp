@@ -24,8 +24,8 @@ exports.postSetOpenings = async (req, res, next, socketIo) => {
     }
 
     // set inning values for the batsmen
-    await scorerHelper.setPlayersInnings(match.striker);
-    await scorerHelper.setPlayersInnings(match.nonStriker);
+    await scorerHelper.setPlayersInnings(match.striker, matchId);
+    await scorerHelper.setPlayersInnings(match.nonStriker, matchId);
 
     // start the second inning
     if (

@@ -493,11 +493,13 @@ const updateRealPlayerStats = async function (playerId, runsScored, isExtra) {
   await player.save();
 };
 
-const setPlayersInnings = async function (playerId) {
+const setPlayersInnings = async function (playerId, matchId) {
   // set inning values for the batsmen
   const player = await Player.findById(playerId);
+  const match = await MatchDetails.findById(matchId);
 
   if (!player) throw new Error("Player not found");
+  if (!match) throw new Error("Match not found");
 
   if (match.numberOfOvers == 50) await player.setInnings("odi");
   else if (match.numberOfOvers == 20) await player.setInnings("t20");

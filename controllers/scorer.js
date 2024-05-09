@@ -449,10 +449,10 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     // Set new player and set their inning values accordingly
     if (match.striker.equals(data.playerIdOut)) {
       match.striker = data.newPlayerId;
-      await scorerHelper.setPlayersInnings(match.striker);
+      await scorerHelper.setPlayersInnings(match.striker, matchId);
     } else if (match.nonStriker.equals(data.playerIdOut)) {
       match.nonStriker = data.newPlayerId;
-      await scorerHelper.setPlayersInnings(match.nonStriker);
+      await scorerHelper.setPlayersInnings(match.nonStriker, matchId);
     }
 
     // reset partnership for the batsmen
