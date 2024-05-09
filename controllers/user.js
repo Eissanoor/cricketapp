@@ -1,6 +1,6 @@
 const MatchDetails = require("../models/match_details");
 const ScoreCard = require("../models/score_card");
-const Ball = require("../models/ball");
+const Player = require("../models/player");
 const Over = require("../models/over");
 
 exports.getLiveMatches = async (req, res, next) => {
@@ -121,6 +121,26 @@ exports.getCompletedMatches = async (req, res, next) => {
       success: true,
       message: "Completed matches found successfully",
       data: matches,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getPlayerDetails = async function (req, res, next) {
+  const id = req.params.playerId;
+
+  try {
+    const player = await Player.findById(id);
+    if (!player) {
+      return next(new Error("Couldn't find a player"));
+    }
+
+    return res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Player details retrieved",
+      data: player,
     });
   } catch (error) {
     next(error);

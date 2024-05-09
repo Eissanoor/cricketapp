@@ -17,4 +17,7 @@ router.get("/get-overs-for-match/:matchId", userController.getMatchOvers);
 
 router.get("/get-completed-matches", userController.getCompletedMatches);
 
+// * PLAYER *
+router.get("/player-details/:playerId", userController.getPlayerDetails);
+
 module.exports = router;
