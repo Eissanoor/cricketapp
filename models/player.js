@@ -25,6 +25,7 @@ const playerSchema = new mongoose.Schema({
     innings: { type: Number, default: 0 },
     highestScore: { type: Number, default: 0 },
     matches: { type: Number, default: 0 },
+    strikeRate: { type: Number, default: 0 },
     // Add other T20-specific fields as needed
   },
   odiStats: {
@@ -39,6 +40,7 @@ const playerSchema = new mongoose.Schema({
     innings: { type: Number, default: 0 },
     highestScore: { type: Number, default: 0 },
     matches: { type: Number, default: 0 },
+    strikeRate: { type: Number, default: 0 },
     // Add other ODI-specific fields as needed
   },
   lastPerformance: {
@@ -53,6 +55,7 @@ const playerSchema = new mongoose.Schema({
     innings: { type: Number, default: 0 },
     highestScore: { type: Number, default: 0 },
     matches: { type: Number, default: 0 },
+    strikeRate: { type: Number, default: 0 },
     // Add other fields for last performance as needed
   },
 });
