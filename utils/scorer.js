@@ -495,7 +495,7 @@ const updateRealPlayerStats = async function (
       }
       // Update the strike rate
       player.t20Stats.strikeRate =
-        (player.t20Stats.runs / player.stats.balls) * 100;
+        (player.t20Stats.runs / player.t20Stats.balls) * 100;
     }
   } else if (totalOvers === 50) {
     if (!player.odiStats) {
@@ -520,7 +520,7 @@ const updateRealPlayerStats = async function (
       }
       // Update the strike rate
       player.odiStats.strikeRate =
-        (player.odiStats.runs / player.stats.balls) * 100;
+        (player.odiStats.runs / player.odiStats.balls) * 100;
     }
   } else {
     if (!player.lastPerformance) {
@@ -545,7 +545,7 @@ const updateRealPlayerStats = async function (
       }
       // Update the strike rate
       player.lastPerformance.strikeRate =
-        (player.lastPerformance.runs / player.stats.ballsFaced) * 100;
+        (player.lastPerformance.runs / player.lastPerformance.balls) * 100;
     }
   }
 
