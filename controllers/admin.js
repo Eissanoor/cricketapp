@@ -1,6 +1,5 @@
 const MatchDetails = require("../models/match_details");
 const ScoreCard = require("../models/score_card");
-const Player = require("../models/player");
 
 const scorerHelper = require("../utils/scorer");
 
@@ -19,20 +18,8 @@ exports.postSetOpenings = async (req, res, next, socketIo) => {
     await scorerHelper.setPlayersInnings(match.nonStriker, matchId);
 
     const team = match.team1Batting ? match.team2 : match.team1;
-    const st = await Player.findById(match.striker);
-    const nst = await Player.findById(match.nonStriker);
-
-    // Create a new performance object
-    const newPerformance = { matchId, team };
-
-    if (st.latestPerformance.length >= 5) {
-      st.latestPerformance.pop();
-    }
-    st.latestPerformance.unshift(newPerformance);
-    st.markModified("latestPerformance");
-
-    // Save the changes to the database
-    await st.save();
+    await scorerHelper.addLatestPerformance(match.striker, matchId, team);
+    await scorerHelper.addLatestPerformance(match.nonStriker, matchId, team);
 
     if (match.currentInning.number == 2 && !match.currentInning.started) {
       match.currentInning.started = true;

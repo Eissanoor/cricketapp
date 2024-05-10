@@ -564,6 +564,21 @@ const setPlayersInnings = async function (playerId, matchId) {
   else if (match.numberOfOvers == 20) await player.setInnings("t20");
 };
 
+const addLatestPerformance = async function (playerId, matchId, team) {
+  const player = await Player.findById(playerId);
+  // Create a new performance object
+  const newPerformance = { matchId, team };
+
+  if (player.latestPerformance.length >= 5) {
+    player.latestPerformance.pop();
+  }
+  player.latestPerformance.unshift(newPerformance);
+  player.markModified("latestPerformance");
+
+  // Save the changes to the database
+  await player.save();
+};
+
 exports.calculateCurrentRunRate = calculateCurrentRunRate;
 exports.calculateRequiredRunRate = calculateRequiredRunRate;
 exports.calculateNetRunRate = calculateNetRunRate;
@@ -577,3 +592,4 @@ exports.updateBatsmanStats = updateBatsmanStats;
 exports.updateBlowerStats = updateBlowerStats;
 exports.updateRealPlayerStats = updateRealPlayerStats;
 exports.setPlayersInnings = setPlayersInnings;
+exports.addLatestPerformance = addLatestPerformance;

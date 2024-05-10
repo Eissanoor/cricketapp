@@ -76,7 +76,7 @@ playerSchema.methods.setInnings = async function (format) {
   await this.save();
 };
 
-playerSchema.methods.setLatestPerformance = async function (matchId, team) {
+playerSchema.methods.addLatestPerformance = async function (matchId, team) {
   // Create a new performance object
   const newPerformance = { matchId, team };
 
