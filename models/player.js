@@ -84,10 +84,13 @@ playerSchema.methods.updateLatestPerformanceScore = async function (
     (p) => p.match === matchId
   );
 
+  console.log(performanceIndex);
+
   if (performanceIndex != -1) {
     this.latestPerformance[performanceIndex].runs += runs;
     this.markModified("latestPerformance");
   }
+  console.log(this);
   await this.save();
 };
 
