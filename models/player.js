@@ -43,7 +43,7 @@ const playerSchema = new mongoose.Schema({
     strikeRate: { type: Number, default: 0 },
     // Add other ODI-specific fields as needed
   },
-  lastPerformance: {
+  stats: {
     sixes: { type: Number, default: 0 },
     fours: { type: Number, default: 0 },
     wickets: { type: Number, default: 0 },
@@ -57,6 +57,10 @@ const playerSchema = new mongoose.Schema({
     matches: { type: Number, default: 0 },
     strikeRate: { type: Number, default: 0 },
     // Add other fields for last performance as needed
+  },
+  latestPerformance: {
+    teams: [{ type: String }],
+    runs: { type: Number, default: 0 },
   },
 });
 
