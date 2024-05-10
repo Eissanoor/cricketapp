@@ -19,8 +19,20 @@ exports.postSetOpenings = async (req, res, next, socketIo) => {
     await scorerHelper.setPlayersInnings(match.nonStriker, matchId);
 
     const team = match.team1Batting ? match.team2 : match.team1;
-    await Player.findById(match.striker).setLatestPerformance(matchId, team);
-    await Player.findById(match.nonStriker).setLatestPerformance(matchId, team);
+    const st = await Player.findById(match.striker);
+    const nst = await Player.findById(match.nonStriker);
+
+    // Create a new performance object
+    const newPerformance = { matchId, team };
+
+    if (st.latestPerformance.length >= 5) {
+      st.latestPerformance.pop();
+    }
+    st.latestPerformance.unshift(newPerformance);
+    st.markModified("latestPerformance");
+
+    // Save the changes to the database
+    await st.save();
 
     if (match.currentInning.number == 2 && !match.currentInning.started) {
       match.currentInning.started = true;
