@@ -58,10 +58,13 @@ const playerSchema = new mongoose.Schema({
     strikeRate: { type: Number, default: 0 },
     // Add other fields for last performance as needed
   },
-  latestPerformance: {
-    teams: [{ type: String }],
-    runs: { type: Number, default: 0 },
-  },
+  latestPerformance: [
+    {
+      team: { type: String },
+      runs: { type: Number, default: 0 },
+      match: { type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" },
+    },
+  ],
 });
 
 playerSchema.methods.setInnings = async function (format) {
@@ -69,8 +72,21 @@ playerSchema.methods.setInnings = async function (format) {
     this.t20Stats.innings += 1;
   } else if (format === "odi") {
     this.odiStats.innings += 1;
-  } else {
-    this.lastPerformance.innings += 1;
+  }
+  await this.save();
+};
+
+playerSchema.methods.updateLatestPerformanceScore = async function (
+  matchId,
+  runs
+) {
+  const performanceIndex = this.latestPerformance.findIndex(
+    (p) => p.match === matchId
+  );
+
+  if (performanceIndex != -1) {
+    this.latestPerformance[performanceIndex].runs += runs;
+    this.markModified("latestPerformance");
   }
   await this.save();
 };

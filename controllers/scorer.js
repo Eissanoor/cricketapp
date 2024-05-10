@@ -249,10 +249,10 @@ exports.handleScoreAction = async (matchId, runsScored, socketIo) => {
     match = scorerHelper.updateBatsmanStats(match, runsScored, ball.isExtra);
     match = scorerHelper.updateBlowerStats(match, ball, ball.extraType);
     await scorerHelper.updateRealPlayerStats(
-      match.striker,
+      match,
       runsScored,
       ball.isExtra,
-      match.numberOfOvers,
+      match.numberOfOvers
     );
 
     let scorecard = await scorerHelper.handleStrikerScorecard(
@@ -432,7 +432,12 @@ exports.handleOutAction = async (matchId, data, socketIo) => {
     // Update player stats
     match = scorerHelper.updateBatsmanStats(match, 0, false);
     match = scorerHelper.updateBlowerStats(match, ball, ball.extraType);
-    await scorerHelper.updateRealPlayerStats(match.striker, 0, ball.isExtra);
+    await scorerHelper.updateRealPlayerStats(
+      match,
+      0,
+      ball.isExtra,
+      match.numberOfOvers
+    );
 
     let scorecard = await scorerHelper.handleStrikerScorecard(
       match,
@@ -546,9 +551,10 @@ exports.handleNoBallAction = async (matchId, data) => {
         extraBall.extraType
       );
       await scorerHelper.updateRealPlayerStats(
-        match.striker,
+        match,
         runsScored,
-        extraBall.isExtra
+        extraBall.isExtra,
+        match.numberOfOvers
       );
 
       let scorecard = await scorerHelper.handleStrikerScorecard(
@@ -660,9 +666,10 @@ exports.handleByesAndLegByesAction = async (matchId, data, socketIo) => {
     match = scorerHelper.updateBatsmanStats(match, 0, ball.isExtra);
     match = scorerHelper.updateBlowerStats(match, ball, ball.extraType);
     await scorerHelper.updateRealPlayerStats(
-      match.striker,
+      match,
       runsScored,
-      ball.isExtra
+      ball.isExtra,
+      match.numberOfOvers
     );
 
     let scorecard = await scorerHelper.handleStrikerScorecard(

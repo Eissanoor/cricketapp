@@ -459,16 +459,19 @@ const updateBlowerStats = function (match, ball, extraType) {
   return match;
 };
 const updateRealPlayerStats = async function (
-  playerId,
+  match,
   runsScored,
   isExtra,
   totalOvers
 ) {
-  const player = await Player.findById(playerId);
+  const player = await Player.findById(match.striker);
 
   if (!player) {
     return next(new Error("Player not found"));
   }
+
+  // update the latest performance stats
+  await player.updateLatestPerformanceScore(match._id, runsScored);
 
   if (totalOvers === 20) {
     if (!player.t20Stats) {
@@ -525,7 +528,7 @@ const updateRealPlayerStats = async function (
   if (!player.stats) {
     player.stats = {
       player: match.striker,
-      ballsFaced: isExtra === true ? 0 : 1,
+      balls: isExtra === true ? 0 : 1,
       runs: runsScored,
       sixes: runsScored === 6 ? 1 : 0,
       fours: runsScored === 4 ? 1 : 0,
@@ -534,7 +537,7 @@ const updateRealPlayerStats = async function (
     };
   } else {
     if (isExtra != true) {
-      player.stats.ballsFaced++;
+      player.stats.balls++;
     }
     player.stats.runs += runsScored;
     if (runsScored === 6) {
@@ -543,8 +546,7 @@ const updateRealPlayerStats = async function (
       player.stats.fours++;
     }
     // Update the strike rate
-    player.stats.strikeRate =
-      (player.stats.runs / player.stats.ballsFaced) * 100;
+    player.stats.strikeRate = (player.stats.runs / player.stats.balls) * 100;
   }
 
   await player.save();
@@ -560,7 +562,6 @@ const setPlayersInnings = async function (playerId, matchId) {
 
   if (match.numberOfOvers == 50) await player.setInnings("odi");
   else if (match.numberOfOvers == 20) await player.setInnings("t20");
-  else await player.setInnings("other");
 };
 
 exports.calculateCurrentRunRate = calculateCurrentRunRate;
