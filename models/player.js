@@ -90,7 +90,23 @@ playerSchema.methods.updateLatestPerformanceScore = async function (
     this.latestPerformance[performanceIndex].runs += runs;
     this.markModified("latestPerformance");
   }
-  console.log(this);
+  console.log(this.latestPerformance);
+  await this.save();
+};
+
+playerSchema.methods.setLatestPerformance = async function (matchId, team) {
+  // Create a new performance object
+  const newPerformance = { matchId, team };
+
+  // If the latestPerformance array has reached its max size, remove the last element
+  if (this.latestPerformance.length >= 5) {
+    this.latestPerformance.pop();
+  }
+
+  // Add the new performance at the beginning of the array
+  this.latestPerformance.unshift(newPerformance);
+
+  // Save the changes to the database
   await this.save();
 };
 

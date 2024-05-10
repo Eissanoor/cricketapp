@@ -1,5 +1,6 @@
 const MatchDetails = require("../models/match_details");
 const ScoreCard = require("../models/score_card");
+const Player = require("../models/player");
 
 const scorerHelper = require("../utils/scorer");
 
@@ -7,31 +8,21 @@ exports.postSetOpenings = async (req, res, next, socketIo) => {
   try {
     const { matchId, teamBatting, openingBatsmen, openingBowler } = req.body;
 
-    // Update match details with opening batsmen and bowler for the specified inning
     let match = await MatchDetails.findById(matchId);
-
     if (!match) return next(new Error("Couldn't find match"));
 
-    // Update openings based on the team batting
-    if (teamBatting === match.team1) {
-      match.striker = openingBatsmen[0];
-      match.nonStriker = openingBatsmen[1];
-      match.openingBowler = openingBowler;
-    } else {
-      match.striker = openingBatsmen[0];
-      match.nonStriker = openingBatsmen[1];
-      match.openingBowler = openingBowler;
-    }
+    match.striker = openingBatsmen[0];
+    match.nonStriker = openingBatsmen[1];
+    match.openingBowler = openingBowler;
 
-    // set inning values for the batsmen
     await scorerHelper.setPlayersInnings(match.striker, matchId);
     await scorerHelper.setPlayersInnings(match.nonStriker, matchId);
 
-    // start the second inning
-    if (
-      match.currentInning.number == 2 &&
-      match.currentInning.started == false
-    ) {
+    const team = match.team1Batting ? match.team2 : match.team1;
+    await Player.findById(match.striker).setLatestPerformance(matchId, team);
+    await Player.findById(match.nonStriker).setLatestPerformance(matchId, team);
+
+    if (match.currentInning.number == 2 && !match.currentInning.started) {
       match.currentInning.started = true;
       match = await match.save();
     }
@@ -51,14 +42,12 @@ exports.postSetOpenings = async (req, res, next, socketIo) => {
         innings: match.currentInning.number,
       });
       await scorecard.save();
-
       match.scorecard.push(scorecard);
     }
 
     const matchstart = await match.save();
-
-    // Send real-time update using socket.io
     socketIo.emit("match-" + matchId, matchstart);
+
     res.status(200).json({
       success: true,
       message: "Opening batsmen and bowler set successfully.",
@@ -73,19 +62,14 @@ exports.postSetOpenings = async (req, res, next, socketIo) => {
 exports.setManOfTheMatch = async (req, res, next) => {
   try {
     const { matchId, playerId } = req.body;
-    // Find the match details
     let match = await MatchDetails.findById(matchId);
 
     if (!match)
       return next(new Error("Could not find match details for " + matchId));
 
-    // Set the man of the match
     match.manOfTheMatch = playerId;
-
-    // Save the updated match details
     const updatedMatch = await match.save();
 
-    // send response in response architecture format
     res.status(200).json({
       status: 200,
       success: true,
