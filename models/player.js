@@ -60,7 +60,7 @@ const playerSchema = new mongoose.Schema({
   },
   latestPerformance: [
     {
-      team: { type: String },
+      team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
       runs: { type: Number, default: 0 },
       match: { type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" },
     },

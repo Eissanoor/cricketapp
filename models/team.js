@@ -7,10 +7,12 @@ const teamSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
-  admin: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "admin", // Reference to the Admin model
-  }],
+  admin: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "admin", // Reference to the Admin model
+    },
+  ],
   players: [
     {
       type: mongoose.Schema.Types.ObjectId,
