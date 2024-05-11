@@ -131,7 +131,10 @@ exports.getPlayerDetails = async function (req, res, next) {
   const id = req.params.playerId;
 
   try {
-    const player = await Player.findById(id);
+    const player = await Player.findById(id).populate(
+      "latestPerformance.team",
+      "name"
+    );
     if (!player) {
       return next(new Error("Couldn't find a player"));
     }
