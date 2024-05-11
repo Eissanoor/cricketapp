@@ -564,14 +564,20 @@ const setPlayersInnings = async function (playerId, matchId) {
   else if (match.numberOfOvers == 20) await player.setInnings("t20");
 };
 
-const addLatestPerformance = async function (playerId, matchId, team) {
+const addLatestPerformance = async function (playerId, matchId, teamId) {
   const player = await Player.findById(playerId);
+
   // Create a new performance object
-  const newPerformance = { matchId, team };
+  const newPerformance = {
+    match: matchId,
+    team: teamId,
+    runs: 0,
+  };
 
   if (player.latestPerformance.length >= 5) {
     player.latestPerformance.pop();
   }
+
   player.latestPerformance.unshift(newPerformance);
   player.markModified("latestPerformance");
 
