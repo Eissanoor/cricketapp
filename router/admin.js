@@ -582,9 +582,11 @@ router.post("/add-players", upload.single("Image"), async (req, res, next) => {
 router.get("/get-player-detail-by-adminid/:admin", async (req, res, next) => {
   try {
     const adminId = req.params.admin;
-    const data = await Player.find({ admins: adminId });
+    const players = await Player.find({ admins: adminId }).select(
+      "-latestPerformance"
+    );
 
-    if (!data) {
+    if (!players) {
       return res.status(404).json({
         status: 404,
         success: false,
@@ -597,16 +599,10 @@ router.get("/get-player-detail-by-adminid/:admin", async (req, res, next) => {
       status: 200,
       success: true,
       message: "Player details",
-      data: data,
+      data: players,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Internal server error",
-      data: null,
-    });
+    next(error);
   }
 });
 router.post("/get-player-detail-by-playerid", async (req, res, next) => {
