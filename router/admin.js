@@ -909,8 +909,7 @@ router.post("/get-teams", async (req, res, next) => {
 
     // Find teams where admin matches adminId
     const teams = await Team.find({ admin: adminId })
-      .populate("players")
-      .select("-latestPerformance")
+      .populate("players", "-latestPerformance")
       .populate("admin");
 
     res.status(200).json({
