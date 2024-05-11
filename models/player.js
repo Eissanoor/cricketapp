@@ -99,6 +99,7 @@ playerSchema.methods.updateLatestPerformanceScore = async function (
   matchId,
   runs
 ) {
+  console.log(matchId, runs);
   const performanceIndex = this.latestPerformance.findIndex(
     (p) => p.match === matchId
   );
