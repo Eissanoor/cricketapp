@@ -355,6 +355,7 @@ exports.handleWideAction = async (matchId, extraRuns, extraType, socketIo) => {
           ? match.team2Score - match.team1Score
           : 0
       );
+
       return socketIo.emit("matchCompleted", match);
     }
 

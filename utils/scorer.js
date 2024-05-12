@@ -593,37 +593,44 @@ const addTeamRecentPerformance = async function addTeamRecentPerformance(
   wins,
   wonByRuns
 ) {
-  const team = await Team.findById(team1);
+  try {
+    const team = await Team.findById(team1);
 
-  // Find the team index in the recentPerformance array
-  const teamIndex = team.recentPerformance.findIndex(
-    (performance) => performance.team.toString() === team2.toString()
-  );
+    // Find the team index in the recentPerformance array
+    let teamIndex = team.recentPerformance.findIndex(
+      (performance) => performance.team.toString() === team2.toString()
+    );
 
-  // If the team doesn't exist in recentPerformance, add it
-  if (teamIndex === -1) {
-    team.recentPerformance.push({
-      team: team2,
-      history: [],
+    // If the team doesn't exist in recentPerformance, add it
+    if (teamIndex === -1) {
+      team.recentPerformance.push({
+        team: team2,
+        history: [],
+      });
+      // Update the teamIndex to point to the newly added team
+      teamIndex = team.recentPerformance.length - 1;
+    }
+
+    // Get the team's recent performance
+    const teamPerformance = team.recentPerformance[teamIndex];
+
+    // Add the new performance at the beginning of the history array
+    teamPerformance.history.unshift({
+      wins: wins,
+      wonByRuns: wonByRuns,
+      match: matchId,
     });
+
+    // If the history array has reached its max size, remove the last element
+    if (teamPerformance.history.length > 5) {
+      teamPerformance.history.pop();
+    }
+    console.log("working");
+    console.log(team);
+    await team.save();
+  } catch (error) {
+    throw error;
   }
-
-  // Get the team's recent performance
-  const teamPerformance = team.recentPerformance[teamIndex];
-
-  // Add the new performance at the beginning of the history array
-  teamPerformance.history.unshift({
-    wins: wins,
-    wonByRuns: wonByRuns,
-    match: matchId,
-  });
-
-  // If the history array has reached its max size, remove the last element
-  if (teamPerformance.history.length > 5) {
-    teamPerformance.history.pop();
-  }
-
-  await team.save();
 };
 
 exports.calculateCurrentRunRate = calculateCurrentRunRate;
