@@ -625,8 +625,6 @@ const addTeamRecentPerformance = async function addTeamRecentPerformance(
     if (teamPerformance.history.length > 5) {
       teamPerformance.history.pop();
     }
-    console.log("working");
-    console.log(team);
     await team.save();
   } catch (error) {
     throw error;

@@ -195,7 +195,6 @@ matchDetailsSchema.methods.finishInning = function () {
 };
 matchDetailsSchema.methods.isMatchFinished = function () {
   if (this.currentInning.number >= 2) {
-    console.log("match inning is 2");
     const oversCompleted = this.currentOver.number >= this.numberOfOvers;
     const runsChased = this.team1Batting
       ? this.team1Score > this.team2Score
