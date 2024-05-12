@@ -337,7 +337,7 @@ exports.handleWideAction = async (matchId, extraRuns, extraType, socketIo) => {
       match = match.finishMatch();
       match = await match.save();
       // Add recent performance to the team
-      scorerHelper.addTeamRecentPerformance(
+      await scorerHelper.addTeamRecentPerformance(
         match.team1,
         match.team2,
         match._id,
@@ -346,7 +346,7 @@ exports.handleWideAction = async (matchId, extraRuns, extraType, socketIo) => {
           ? match.team1Score - match.team2Score
           : 0
       );
-      scorerHelper.addTeamRecentPerformance(
+      await scorerHelper.addTeamRecentPerformance(
         match.team2,
         match.team1,
         match._id,
@@ -601,7 +601,7 @@ exports.handleNoBallAction = async (matchId, data) => {
       match = await match.save();
 
       // Add recent performance to the team
-      scorerHelper.addTeamRecentPerformance(
+      await scorerHelper.addTeamRecentPerformance(
         match.team1,
         match.team2,
         match._id,
@@ -610,7 +610,7 @@ exports.handleNoBallAction = async (matchId, data) => {
           ? match.team1Score - match.team2Score
           : 0
       );
-      scorerHelper.addTeamRecentPerformance(
+      await scorerHelper.addTeamRecentPerformance(
         match.team2,
         match.team1,
         match._id,
