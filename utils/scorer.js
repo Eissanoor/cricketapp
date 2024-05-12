@@ -5,21 +5,20 @@ const Player = require("../models/player");
 const Over = require("../models/over");
 const Team = require("../models/team");
 
-// Function to calculate current run rate
 const calculateCurrentRunRate = (totalRuns, totalOvers) => {
   if (totalRuns === 0 && totalOvers === 0) {
     return 0;
   }
   return (totalRuns / totalOvers).toFixed(2);
 };
-// Function to calculate required run rate
+
 const calculateRequiredRunRate = (targetRuns, remainingOvers) => {
   if (targetRuns === 0 && remainingOvers === 0) {
     return 0;
   }
   return (targetRuns / remainingOvers).toFixed(2);
 };
-// Function to calculate net run rate
+
 const calculateNetRunRate = (
   teamRuns,
   teamOvers,
@@ -30,6 +29,7 @@ const calculateNetRunRate = (
   const opponentRunRate = opponentOvers > 0 ? opponentRuns / opponentOvers : 0;
   return (teamRunRate - opponentRunRate).toFixed(2);
 };
+
 const handleStrikerScorecard = async (match, ball, data, extraType) => {
   let scorecard = await ScoreCard.findOne({
     match: match._id,
@@ -142,6 +142,7 @@ const handleStrikerScorecard = async (match, ball, data, extraType) => {
   }
   return scorecard;
 };
+
 const handleBowlerScorecard = async (match, ball) => {
   const scorecard = await ScoreCard.findOne({
     match: match._id,
@@ -181,6 +182,7 @@ const handleBowlerScorecard = async (match, ball) => {
   }
   return scorecard;
 };
+
 const handleOverCompletion = async (match, socketIo) => {
   // Populate the balls array in currentOver
   const matchWithPopulatedBalls = await MatchDetails.findById(
@@ -299,6 +301,7 @@ const handleOverCompletion = async (match, socketIo) => {
     return socketIo.emit("matchCompleted", match);
   }
 };
+
 const addBallToOver = async function (match, ball) {
   // Add the ball to the current over
   match.currentOver.balls.push(ball._id);
@@ -340,6 +343,7 @@ const addBallToOver = async function (match, ball) {
 
   return match;
 };
+
 const describeBall = function (batsman, bowler, runs) {
   let runDescription = "";
   switch (runs) {
@@ -370,6 +374,7 @@ const describeBall = function (batsman, bowler, runs) {
 
   return `${batsman} hits a ${runDescription} on ${bowler}'s ball.`;
 };
+
 const generateWicketMessage = (
   wicketType,
   fielderName,
@@ -419,6 +424,7 @@ const generateWicketMessage = (
 
   return message;
 };
+
 const updateBatsmanStats = function (match, runsScored, isExtra) {
   // Update player stats
   const strikerStatsIndex = match.playerStats.findIndex(
@@ -459,6 +465,7 @@ const updateBatsmanStats = function (match, runsScored, isExtra) {
 
   return match;
 };
+
 const updateBlowerStats = function (match, ball, extraType) {
   var runsScored = extraType === "byes" ? 0 : ball.runsScored;
   // Update player stats
@@ -497,6 +504,7 @@ const updateBlowerStats = function (match, ball, extraType) {
 
   return match;
 };
+
 const updateRealPlayerStats = async function (
   match,
   runsScored,
@@ -633,8 +641,6 @@ const addTeamRecentPerformance = async function addTeamRecentPerformance(
 ) {
   try {
     const team = await Team.findById(team1);
-
-    console.log(team1, team2, matchId, wins, wonByRuns);
 
     // Find the team index in the recentPerformance array
     let teamIndex = team.recentPerformance.findIndex(
