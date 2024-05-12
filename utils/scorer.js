@@ -232,6 +232,25 @@ const handleOverCompletion = async (match, socketIo) => {
     if (match.isMatchFinished()) {
       match = match.finishMatch();
       match = await match.save();
+      // Add recent performance to the team
+      await addTeamRecentPerformance(
+        match.team1.toString,
+        match.team2.toString,
+        match._id.toString,
+        match.winningTeam.toString() === match.team1.toString(),
+        match.winningTeam.toString() === match.team1.toString()
+          ? match.team1Score - match.team2Score
+          : 0
+      );
+      await addTeamRecentPerformance(
+        match.team2.toString,
+        match.team1.toString,
+        match._id.toString,
+        match.winningTeam.toString() === match.team2.toString(),
+        match.winningTeam.toString() === match.team2.toString()
+          ? match.team2Score - match.team1Score
+          : 0
+      );
       return socketIo.emit("matchCompleted", match);
     }
     // check if inning is finished or not
@@ -258,6 +277,25 @@ const handleOverCompletion = async (match, socketIo) => {
   if (match.isMatchFinished()) {
     match = match.finishMatch();
     match = await match.save();
+    // Add recent performance to the team
+    await addTeamRecentPerformance(
+      match.team1.toString,
+      match.team2.toString,
+      match._id.toString,
+      match.winningTeam.toString() === match.team1.toString(),
+      match.winningTeam.toString() === match.team1.toString()
+        ? match.team1Score - match.team2Score
+        : 0
+    );
+    await addTeamRecentPerformance(
+      match.team2.toString,
+      match.team1.toString,
+      match._id.toString,
+      match.winningTeam.toString() === match.team2.toString(),
+      match.winningTeam.toString() === match.team2.toString()
+        ? match.team2Score - match.team1Score
+        : 0
+    );
     return socketIo.emit("matchCompleted", match);
   }
 };
