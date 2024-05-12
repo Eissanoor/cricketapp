@@ -3,6 +3,7 @@ const MatchDetails = require("../models/match_details");
 const ScoreCard = require("../models/score_card");
 const Player = require("../models/player");
 const Over = require("../models/over");
+const Team = require("../models/team");
 
 // Function to calculate current run rate
 const calculateCurrentRunRate = (totalRuns, totalOvers) => {
@@ -585,6 +586,46 @@ const addLatestPerformance = async function (playerId, matchId, teamId) {
   await player.save();
 };
 
+const addTeamRecentPerformance = async function addTeamRecentPerformance(
+  team1,
+  team2,
+  matchId,
+  wins,
+  wonByRuns
+) {
+  const team = await Team.findById(team1);
+
+  // Find the team index in the recentPerformance array
+  const teamIndex = team.recentPerformance.findIndex(
+    (performance) => performance.team.toString() === team2.toString()
+  );
+
+  // If the team doesn't exist in recentPerformance, add it
+  if (teamIndex === -1) {
+    team.recentPerformance.push({
+      team: team2,
+      history: [],
+    });
+  }
+
+  // Get the team's recent performance
+  const teamPerformance = team.recentPerformance[teamIndex];
+
+  // Add the new performance at the beginning of the history array
+  teamPerformance.history.unshift({
+    wins: wins,
+    wonByRuns: wonByRuns,
+    match: matchId,
+  });
+
+  // If the history array has reached its max size, remove the last element
+  if (teamPerformance.history.length > 5) {
+    teamPerformance.history.pop();
+  }
+
+  await team.save();
+};
+
 exports.calculateCurrentRunRate = calculateCurrentRunRate;
 exports.calculateRequiredRunRate = calculateRequiredRunRate;
 exports.calculateNetRunRate = calculateNetRunRate;
@@ -599,3 +640,4 @@ exports.updateBlowerStats = updateBlowerStats;
 exports.updateRealPlayerStats = updateRealPlayerStats;
 exports.setPlayersInnings = setPlayersInnings;
 exports.addLatestPerformance = addLatestPerformance;
+exports.addTeamRecentPerformance = addTeamRecentPerformance;

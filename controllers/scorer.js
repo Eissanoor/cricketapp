@@ -1,6 +1,7 @@
 const Ball = require("../models/ball");
 const MatchDetails = require("../models/match_details");
 const Player = require("../models/player");
+const Team = require("../models/team");
 
 const scorerHelper = require("../utils/scorer");
 
@@ -579,6 +580,27 @@ exports.handleNoBallAction = async (matchId, data) => {
     if (match.isMatchFinished()) {
       match = match.finishMatch();
       match = await match.save();
+
+      // Add recent performance to the team
+      scorerHelper.addTeamRecentPerformance(
+        match.team1,
+        match.team2,
+        match._id,
+        match.winningTeam.toString() === match.team1.toString(),
+        match.winningTeam.toString() === match.team1.toString()
+          ? match.team1Score - match.team2Score
+          : 0
+      );
+      scorerHelper.addTeamRecentPerformance(
+        match.team2,
+        match.team1,
+        match._id,
+        match.winningTeam.toString() === match.team2.toString(),
+        match.winningTeam.toString() === match.team2.toString()
+          ? match.team2Score - match.team1Score
+          : 0
+      );
+
       return socketIo.emit("matchCompleted", match);
     }
 

@@ -7,16 +7,18 @@ const teamSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
-  admin: [
+  admin: [{ type: mongoose.Schema.Types.ObjectId, ref: "admin" }],
+  players: [{ type: mongoose.Schema.Types.ObjectId, ref: "Player" }],
+  recentPerformance: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "admin", // Reference to the Admin model
-    },
-  ],
-  players: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Player", // Reference to the Player model
+      team: { type: mongoose.Schema.Types.ObjectId },
+      history: [
+        {
+          wins: Boolean,
+          wonByRuns: Number,
+          match: { type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" },
+        },
+      ],
     },
   ],
 });
