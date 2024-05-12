@@ -31,7 +31,7 @@ exports.getUpcomingMathces = async (req, res, next) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 0 }).populate(
       "team1 team2 squad1 squad2",
-      "name image Image"
+      "name image Image recentPerformance"
     );
 
     if (!matches || matches.length === 0) {
