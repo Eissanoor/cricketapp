@@ -234,18 +234,18 @@ const handleOverCompletion = async (match, socketIo) => {
       match = await match.save();
       // Add recent performance to the team
       await addTeamRecentPerformance(
-        match.team1.toString,
-        match.team2.toString,
-        match._id.toString,
+        match.team1,
+        match.team2,
+        match._id,
         match.winningTeam.toString() === match.team1.toString(),
         match.winningTeam.toString() === match.team1.toString()
           ? match.team1Score - match.team2Score
           : 0
       );
       await addTeamRecentPerformance(
-        match.team2.toString,
-        match.team1.toString,
-        match._id.toString,
+        match.team2,
+        match.team1,
+        match._id,
         match.winningTeam.toString() === match.team2.toString(),
         match.winningTeam.toString() === match.team2.toString()
           ? match.team2Score - match.team1Score
@@ -279,18 +279,18 @@ const handleOverCompletion = async (match, socketIo) => {
     match = await match.save();
     // Add recent performance to the team
     await addTeamRecentPerformance(
-      match.team1.toString,
-      match.team2.toString,
-      match._id.toString,
+      match.team1,
+      match.team2,
+      match._id,
       match.winningTeam.toString() === match.team1.toString(),
       match.winningTeam.toString() === match.team1.toString()
         ? match.team1Score - match.team2Score
         : 0
     );
     await addTeamRecentPerformance(
-      match.team2.toString,
-      match.team1.toString,
-      match._id.toString,
+      match.team2,
+      match.team1,
+      match._id,
       match.winningTeam.toString() === match.team2.toString(),
       match.winningTeam.toString() === match.team2.toString()
         ? match.team2Score - match.team1Score
