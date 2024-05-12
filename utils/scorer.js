@@ -596,7 +596,7 @@ const addTeamRecentPerformance = async function addTeamRecentPerformance(
   try {
     const team = await Team.findById(team1);
 
-    console.log(team1, team2, matchId, wins, winsByRuns);
+    console.log(team1, team2, matchId, wins, wonByRuns);
 
     // Find the team index in the recentPerformance array
     let teamIndex = team.recentPerformance.findIndex(
