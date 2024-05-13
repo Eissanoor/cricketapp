@@ -1,5 +1,8 @@
+const mongoose = require("mongoose");
+
 const MatchDetails = require("../models/match_details");
 const ScoreCard = require("../models/score_card");
+const Tournament = require("../models/tournament");
 
 const scorerHelper = require("../utils/scorer");
 
@@ -80,6 +83,79 @@ exports.setManOfTheMatch = async (req, res, next) => {
   } catch (error) {
     error.message =
       "An error occurred while saving the match, please try again";
+    next(error);
+  }
+};
+
+exports.postTournament = async (req, res, next, cloudinary) => {
+  try {
+    const {
+      admins,
+      seriesName,
+      seriesLocation,
+      tournamentType,
+      numberOfOvers,
+      numberOfTeams,
+      startDate,
+      endDate,
+    } = req.body;
+
+    const adminIds = Array.isArray(admins)
+      ? admins.map((id) => mongoose.Types.ObjectId(id))
+      : [];
+
+    let imageFile = null;
+    const file = req.file;
+    if (file) {
+      imageFile = `data:image/png;base64,${file.buffer.toString("base64")}`;
+
+      const result = await cloudinary.uploader.upload(imageFile);
+      imageFile = result.url;
+    }
+
+    const tournament = new Tournament({
+      image: imageFile,
+      admins: adminIds,
+      seriesName: seriesName,
+      seriesLocation: seriesLocation,
+      tournamentType: tournamentType,
+      numberOfOvers: numberOfOvers,
+      numberOfTeams: numberOfTeams,
+      startDate: startDate,
+      endDate: endDate,
+    });
+    const result = await tournament.save();
+
+    res.status(201).json({
+      status: 201,
+      success: true,
+      message: "Tournament saved successfully",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getTournaments = async (req, res, next) => {
+  try {
+    const adminId = req.query.adminId;
+    let tournaments;
+    if (adminId) {
+      tournaments = await Tournament.find({ admins: adminId });
+    } else {
+      tournaments = await Tournament.find();
+    }
+    if (tournaments.length < 1)
+      return next(new Error("No tournament found for the admin"));
+    if (!tournaments) return next(new Error("No tournament found"));
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Tournament found successfully",
+      data: tournaments,
+    });
+  } catch (error) {
     next(error);
   }
 };
