@@ -159,3 +159,27 @@ exports.getTournaments = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.putTournamentAccess = async (req, res, next) => {
+  try {
+    const { tournamentId, adminId } = req.body;
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      const error = new Error("No tournament found");
+      error.statusCode = 404;
+      return next(error);
+    }
+    if (!tournament.admins.includes(adminId)) {
+      tournament.admins.push(adminId);
+      await tournament.save();
+    }
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Tournament access shared successfully",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
