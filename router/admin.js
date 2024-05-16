@@ -1464,6 +1464,6 @@ router.get("/tournaments", adminController.getTournaments);
 
 router.put("/tournament-access", adminController.putTournamentAccess);
 
-router.get("/get-tournament", adminController.getTournament);
+router.get("/tournament/:tournamentId", adminController.getTournament);
 
 module.exports = router;
