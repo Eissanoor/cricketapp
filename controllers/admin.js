@@ -238,3 +238,32 @@ exports.putTeamToTournament = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.deleteTeamFromTournament = async (req, res, next) => {
+  try {
+    const { tournamentId, teamId } = req.body;
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      const error = new Error("No tournament found");
+      error.statusCode = 404;
+      return next(error);
+    }
+    const teamIndex = tournament.teams.indexOf(teamId);
+    if (teamIndex > -1) {
+      tournament.teams.splice(teamIndex, 1);
+      await tournament.save();
+    } else {
+      const error = new Error("Team not found in tournament");
+      error.statusCode = 404;
+      return next(error);
+    }
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Team removed from tournament successfully",
+      data: tournament,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

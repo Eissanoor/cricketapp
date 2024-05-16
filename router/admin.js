@@ -1468,4 +1468,6 @@ router.get("/tournament/:tournamentId", adminController.getTournament);
 
 router.put("/team-to-tournament", adminController.putTeamToTournament);
 
+router.delete("/team-to-tournament", adminController.deleteTeamFromTournament);
+
 module.exports = router;
