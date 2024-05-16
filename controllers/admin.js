@@ -142,9 +142,9 @@ exports.getTournaments = async (req, res, next) => {
     const adminId = req.query.adminId;
     let tournaments;
     if (adminId) {
-      tournaments = await Tournament.find({ admins: adminId });
+      tournaments = await Tournament.find({ admins: adminId }).select("-teams");
     } else {
-      tournaments = await Tournament.find();
+      tournaments = await Tournament.find().select("-teams");
     }
     if (tournaments.length < 1)
       return next(new Error("No tournament found for the admin"));
@@ -154,6 +154,28 @@ exports.getTournaments = async (req, res, next) => {
       success: true,
       message: "Tournament found successfully",
       data: tournaments,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getTournament = async (req, res, next) => {
+  try {
+    const { tournamentId } = req.params;
+    const tournament = await Tournament.findById(tournamentId).populate(
+      "teams"
+    );
+    if (!tournament) {
+      const error = new Error("No tournament found");
+      error.statusCode = 404;
+      return next(error);
+    }
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Tournament found successfully",
+      data: tournament,
     });
   } catch (error) {
     next(error);

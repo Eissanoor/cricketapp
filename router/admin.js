@@ -1460,8 +1460,10 @@ router.post(
     adminController.postTournament(req, res, next, cloudinary);
   }
 );
-router.get("/tournament", adminController.getTournaments);
+router.get("/tournaments", adminController.getTournaments);
 
 router.put("/tournament-access", adminController.putTournamentAccess);
+
+router.get("/tournament", adminController.getTournament);
 
 module.exports = router;
