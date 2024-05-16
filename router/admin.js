@@ -1466,4 +1466,6 @@ router.put("/tournament-access", adminController.putTournamentAccess);
 
 router.get("/tournament/:tournamentId", adminController.getTournament);
 
+router.put("/team-to-tournament/:teamId", adminController.putTeamToTournament);
+
 module.exports = router;

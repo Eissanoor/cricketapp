@@ -209,3 +209,27 @@ exports.putTournamentAccess = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.putTeamToTournament = async (req, res, next) => {
+  try {
+    const { tournamentId, teamId } = req.body;
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      const error = new Error("No tournament found");
+      error.statusCode = 404;
+      return next(error);
+    }
+    if (!tournament.teams.includes(teamId)) {
+      tournament.teams.push(teamId);
+      await tournament.save();
+    }
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Team added to tournament successfully",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
