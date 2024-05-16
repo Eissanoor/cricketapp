@@ -172,6 +172,10 @@ exports.putTournamentAccess = async (req, res, next) => {
     if (!tournament.admins.includes(adminId)) {
       tournament.admins.push(adminId);
       await tournament.save();
+    } else {
+      const error = new Error("Admin already has access to this tournament");
+      error.statusCode = 404;
+      return next(error);
     }
     res.status(200).json({
       status: 200,
