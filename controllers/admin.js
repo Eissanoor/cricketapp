@@ -223,6 +223,10 @@ exports.putTeamToTournament = async (req, res, next) => {
     if (!tournament.teams.includes(teamId)) {
       tournament.teams.push(teamId);
       await tournament.save();
+    } else {
+      const error = new Error("Team already exists");
+      error.statusCode = 404;
+      return next(error);
     }
     res.status(200).json({
       status: 200,
