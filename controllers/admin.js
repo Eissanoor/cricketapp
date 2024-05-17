@@ -3,9 +3,100 @@ const mongoose = require("mongoose");
 const MatchDetails = require("../models/match_details");
 const ScoreCard = require("../models/score_card");
 const Tournament = require("../models/tournament");
+const Notifier = require("../models/notifier");
 
 const scorerHelper = require("../utils/scorer");
 
+// * ADMIN ************************************************
+exports.putAccess = async (req, res, next) => {
+  try {
+    const { adminId, id, type } = req.body;
+    const existingNotifier = await Notifier.findOne({
+      admin: adminId,
+      [type]: id,
+    });
+    if (existingNotifier) {
+      const error = new Error(
+        `You have already invited this admin for this ${type}`
+      );
+      error.statusCode = 409;
+      return next(error);
+    }
+    const notifier = new Notifier({
+      admin: adminId,
+      [type]: id,
+      type,
+    });
+    await notifier.save();
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: `Admin invited to ${type} successfully`,
+      data: notifier,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.putAcceptOrRejectAccess = async (req, res, next) => {
+  try {
+    const { adminId, id, accept, type } = req.body;
+    const notifier = await Notifier.findOne({
+      admin: adminId,
+      [type]: id,
+    });
+    if (!notifier) {
+      const error = new Error("No invitation found");
+      error.statusCode = 404;
+      return next(error);
+    }
+    if (accept) {
+      const entity = await mongoose
+        .model(type.charAt(0).toUpperCase() + type.slice(1))
+        .findById(id);
+      if (!entity) {
+        const error = new Error(`No ${type} found`);
+        error.statusCode = 404;
+        return next(error);
+      }
+      if (!entity.admins.includes(adminId)) {
+        entity.admins.push(adminId);
+        await entity.save();
+      }
+    }
+    await Notifier.findByIdAndRemove(notifier._id);
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: accept
+        ? `Admin added to ${type} successfully`
+        : "Invitation rejected successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAdminInvitations = async (req, res, next) => {
+  try {
+    const { adminId } = req.params;
+    const invitations = await Notifier.find({ admin: adminId }).populate(
+      "tournament",
+      "seriesName"
+    );
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Invitations retrieved successfully",
+      data: invitations,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// * MATCH ********************************
 exports.postSetOpenings = async (req, res, next, socketIo) => {
   try {
     const { matchId, teamBatting, openingBatsmen, openingBowler } = req.body;
@@ -86,6 +177,8 @@ exports.setManOfTheMatch = async (req, res, next) => {
     next(error);
   }
 };
+
+// * TOURNAMENT ********************************
 
 exports.postTournament = async (req, res, next, cloudinary) => {
   try {
@@ -177,34 +270,6 @@ exports.getTournament = async (req, res, next) => {
       success: true,
       message: "Tournament found successfully",
       data: tournament,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.putTournamentAccess = async (req, res, next) => {
-  try {
-    const { tournamentId, adminId } = req.body;
-    const tournament = await Tournament.findById(tournamentId);
-    if (!tournament) {
-      const error = new Error("No tournament found");
-      error.statusCode = 404;
-      return next(error);
-    }
-    if (!tournament.admins.includes(adminId)) {
-      tournament.admins.push(adminId);
-      await tournament.save();
-    } else {
-      const error = new Error("Admin already has access to this tournament");
-      error.statusCode = 404;
-      return next(error);
-    }
-    res.status(200).json({
-      status: 200,
-      success: true,
-      message: "Tournament access shared successfully",
-      data: null,
     });
   } catch (error) {
     next(error);

@@ -7,12 +7,7 @@ const playerSchema = new mongoose.Schema({
   age: String,
   Image: String,
   additionalInfo: String,
-  admins: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "admin", // Reference to the Admin model
-    },
-  ],
+  admins: [{ type: mongoose.Schema.Types.ObjectId, ref: "admin" }],
   t20Stats: {
     sixes: { type: Number, default: 0 },
     fours: { type: Number, default: 0 },

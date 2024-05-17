@@ -421,6 +421,12 @@ cron.schedule("59 23 */1 * *", async () => {
   }
 });
 
+router.get("/admin/invitations/:adminId", adminController.getAdminInvitations);
+
+router.put("/access", adminController.putAccess);
+
+router.put("/access/response", adminController.putAcceptOrRejectAccess);
+
 // * Player * * * * * * * * * * * * * * * *
 
 router.post("/add-players", upload.single("Image"), async (req, res, next) => {
@@ -1461,8 +1467,6 @@ router.post(
   }
 );
 router.get("/tournaments", adminController.getTournaments);
-
-router.put("/tournament-access", adminController.putTournamentAccess);
 
 router.get("/tournament/:tournamentId", adminController.getTournament);
 
