@@ -83,7 +83,7 @@ exports.getAdminInvitations = async (req, res, next) => {
     const { adminId } = req.params;
     const invitations = await Notifier.find({ admin: adminId }).populate(
       "tournament",
-      "seriesName"
+      "seriesName image"
     );
     res.status(200).json({
       status: 200,
