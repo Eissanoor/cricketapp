@@ -39,7 +39,7 @@ exports.putAccess = async (req, res, next) => {
   }
 };
 
-exports.putAcceptOrRejectAccess = async (req, res, next) => {
+exports.invitationResponse = async (req, res, next) => {
   try {
     const { adminId, id, accept, type } = req.body;
     const notifier = await Notifier.findOne({
@@ -81,10 +81,10 @@ exports.putAcceptOrRejectAccess = async (req, res, next) => {
 exports.getAdminInvitations = async (req, res, next) => {
   try {
     const { adminId } = req.params;
-    const invitations = await Notifier.find({ admin: adminId }).populate(
-      "tournament",
-      "seriesName image"
-    );
+    const invitations = await Notifier.find({ admin: adminId })
+      .populate("tournament", "seriesName image")
+      .populate("player", "name Image")
+      .populate("team", "name image");
     res.status(200).json({
       status: 200,
       success: true,

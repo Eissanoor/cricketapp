@@ -425,7 +425,7 @@ router.get("/admin/invitations/:adminId", adminController.getAdminInvitations);
 
 router.put("/access", adminController.putAccess);
 
-router.put("/access/response", adminController.putAcceptOrRejectAccess);
+router.put("/access/response", adminController.invitationResponse);
 
 // * Player * * * * * * * * * * * * * * * *
 
