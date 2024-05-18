@@ -230,6 +230,60 @@ exports.postTournament = async (req, res, next, cloudinary) => {
   }
 };
 
+exports.updateTournament = async (req, res, next, cloudinary) => {
+  try {
+    const updateFields = Object.keys(req.body).reduce((acc, key) => {
+      if (req.body[key] != null) {
+        // check if the field is not null or undefined
+        acc[key] = req.body[key];
+      }
+      return acc;
+    }, {});
+
+    if (req.body.admins) {
+      updateFields.admins = Array.isArray(req.body.admins)
+        ? req.body.admins.map((id) => mongoose.Types.ObjectId(id))
+        : [];
+    }
+
+    const tournament = await Tournament.findById(req.params.id);
+    if (!tournament) {
+      const error = new Error("No tournament found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    let imageFile = null;
+    const file = req.file;
+    if (file) {
+      imageFile = `data:image/png;base64,${file.buffer.toString("base64")}`;
+
+      const result = await cloudinary.uploader.upload(imageFile);
+      imageFile = result.url;
+      updateFields.image = imageFile;
+
+      // Delete the old image from Cloudinary
+      const oldImagePublicId = tournament.image.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(oldImagePublicId);
+    }
+
+    const updatedTournament = await Tournament.findByIdAndUpdate(
+      req.params.id,
+      updateFields,
+      { new: true }
+    );
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Tournament updated successfully",
+      data: updatedTournament,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getTournaments = async (req, res, next) => {
   try {
     const adminId = req.query.adminId;
