@@ -1476,6 +1476,7 @@ router.put(
     adminController.updateTournament(req, res, next, cloudinary);
   }
 );
+
 router.get("/tournaments", adminController.getTournaments);
 
 router.get("/tournament/:tournamentId", adminController.getTournament);

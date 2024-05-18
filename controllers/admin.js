@@ -277,7 +277,7 @@ exports.updateTournament = async (req, res, next, cloudinary) => {
       status: 200,
       success: true,
       message: "Tournament updated successfully",
-      data: updatedTournament,
+      data: null,
     });
   } catch (error) {
     next(error);
