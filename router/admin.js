@@ -1468,9 +1468,14 @@ router.post(
   }
 );
 
-router.put("/tournament/:id", upload.single("image"), (req, res, next) => {
-  adminController.updateTournament(req, res, next, cloudinary);
-});
+router.put(
+  "/tournament/:id",
+  upload.single("image"),
+  validators.validateTournament,
+  (req, res, next) => {
+    adminController.updateTournament(req, res, next, cloudinary);
+  }
+);
 router.get("/tournaments", adminController.getTournaments);
 
 router.get("/tournament/:tournamentId", adminController.getTournament);
