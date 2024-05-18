@@ -421,6 +421,8 @@ cron.schedule("59 23 */1 * *", async () => {
   }
 });
 
+// * ADMIN RELATED ACTIVITIES ************************************************************
+
 router.get("/admin/invitations/:adminId", adminController.getAdminInvitations);
 
 router.put("/access", adminController.putAccess);
