@@ -4,6 +4,8 @@ const MatchDetails = require("../models/match_details");
 const ScoreCard = require("../models/score_card");
 const Tournament = require("../models/tournament");
 const Notifier = require("../models/notifier");
+const Team = require("../models/team");
+const Player = require("../models/player");
 
 const scorerHelper = require("../utils/scorer");
 
@@ -97,6 +99,153 @@ exports.getAdminInvitations = async (req, res, next) => {
 };
 
 // * MATCH ********************************
+exports.postAddMatch = async (req, res, next) => {
+  try {
+    const {
+      admin,
+      team1,
+      team2,
+      matchType,
+      ballType,
+      pitchType,
+      numberOfOvers,
+      oversPerBowler,
+      cityOrTown,
+      ground,
+      matchDateTime,
+    } = req.body;
+
+    // Validate required input
+    if (
+      !admin ||
+      !team1 ||
+      !team2 ||
+      !matchType ||
+      !ballType ||
+      !pitchType ||
+      !numberOfOvers ||
+      !oversPerBowler ||
+      !cityOrTown ||
+      !ground ||
+      !matchDateTime
+    ) {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: "All fields are required",
+      });
+    }
+    const MatchDetailsObj = {
+      admin,
+      team1,
+      team2,
+      matchType,
+      ballType,
+      pitchType,
+      numberOfOvers,
+      oversPerBowler,
+      cityOrTown,
+      ground,
+      matchDateTime,
+      whoWinsTheToss: null,
+      tossDetails: null,
+      matchStatus: 0, // Default matchStatus
+      team1Batting: null,
+      team2Batting: null,
+      team1toss: null,
+      team2toss: null,
+      manOfTheMatch: null,
+      team1Score: 0,
+      team2Score: 0,
+      team1Overs: 0,
+      team2Overs: 0,
+      team1Balls: 0,
+      team2Balls: 0,
+      team1Outs: 0,
+      team2Outs: 0,
+      squad1: null, // Default squad1
+      squad2: null, // Default squad2
+    };
+
+    const newMatchDetails = new MatchDetails(MatchDetailsObj);
+
+    const savedMatchDetails = await newMatchDetails.save();
+
+    res.status(201).json({
+      status: 201,
+      success: true,
+      message: "Match Details has been added successfully",
+      data: null,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+exports.postStartMatch = async (req, res, next) => {
+  try {
+    const matchId = req.params.matchId;
+    const {
+      whoWinsTheToss,
+      tossDetails,
+      matchStatus,
+      squad1,
+      squad2,
+      team1Batting,
+      team2Batting,
+      team1toss,
+      team2toss,
+    } = req.body;
+
+    // Update match details
+    const updatedMatch = await MatchDetails.findByIdAndUpdate(
+      matchId,
+      {
+        whoWinsTheToss,
+        tossDetails,
+        matchStatus,
+        squad1,
+        squad2,
+        team1Batting,
+        team2Batting,
+        team1toss,
+        team2toss,
+      },
+      { new: true }
+    );
+
+    if (!updatedMatch) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "Match not found",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Match started successfully",
+      data: updatedMatch,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
 exports.postSetOpenings = async (req, res, next, socketIo) => {
   try {
     const { matchId, teamBatting, openingBatsmen, openingBowler } = req.body;
@@ -174,6 +323,31 @@ exports.setManOfTheMatch = async (req, res, next) => {
   } catch (error) {
     error.message =
       "An error occurred while saving the match, please try again";
+    next(error);
+  }
+};
+
+exports.getUpcomingMatches = async (req, res, next) => {
+  try {
+    const adminId = req.params.adminId;
+    const matches = await MatchDetails.find({
+      admin: adminId,
+      matchStatus: 0,
+    }).populate("team1 team2 squad1 squad2", "name image Image");
+
+    if (!matches || matches.length === 0) {
+      const error = new Error("No matches found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Match details",
+      data: matches,
+    });
+  } catch (error) {
     next(error);
   }
 };
@@ -402,6 +576,91 @@ exports.deleteTeamFromTournament = async (req, res, next) => {
       success: true,
       message: "Team removed from tournament successfully",
       data: tournament,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.addTournamentMatch = async (req, res, next) => {
+  try {
+    const {
+      admin,
+      team1,
+      team2,
+      matchType,
+      ballType,
+      pitchType,
+      numberOfOvers,
+      oversPerBowler,
+      cityOrTown,
+      ground,
+      matchDateTime,
+      tournamentId,
+      tournamentMatchType,
+    } = req.body;
+
+    const MatchDetailsObj = {
+      admin,
+      team1,
+      team2,
+      matchType,
+      ballType,
+      pitchType,
+      numberOfOvers,
+      oversPerBowler,
+      cityOrTown,
+      ground,
+      matchDateTime,
+      whoWinsTheToss: null,
+      tossDetails: null,
+      matchStatus: 0,
+      team1Batting: null,
+      team2Batting: null,
+      team1toss: null,
+      team2toss: null,
+      manOfTheMatch: null,
+      team1Score: 0,
+      team2Score: 0,
+      team1Overs: 0,
+      team2Overs: 0,
+      team1Balls: 0,
+      team2Balls: 0,
+      team1Outs: 0,
+      team2Outs: 0,
+      squad1: null,
+      squad2: null,
+      tournament: tournamentId,
+    };
+
+    const newMatchDetails = new MatchDetails(MatchDetailsObj);
+
+    const savedMatchDetails = await newMatchDetails.save();
+
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      const error = new Error(`Couldn't find tournament`);
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const matchIndex = tournament.matches.findIndex(
+      (m) => m.match.toString() === savedMatchDetails._id.toString()
+    );
+
+    if (matchIndex === -1) {
+      tournament.matches.push({
+        match: savedMatchDetails._id,
+        matchType: tournamentMatchType,
+      });
+      await tournament.save();
+    }
+
+    res.status(201).json({
+      status: 201,
+      success: true,
+      message: "New match added successfully",
+      data: null,
     });
   } catch (error) {
     next(error);

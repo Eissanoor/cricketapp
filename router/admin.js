@@ -1102,185 +1102,15 @@ router.get("/test", async (req, res, next) => {
 });
 
 // * Match Details * * * * * * * * * * * * * * * * * * *
-router.post("/add-match-details", async (req, res, next) => {
-  try {
-    const {
-      admin,
-      team1,
-      team2,
-      matchType,
-      ballType,
-      pitchType,
-      numberOfOvers,
-      oversPerBowler,
-      cityOrTown,
-      ground,
-      matchDateTime,
-    } = req.body;
+router.post("/add-match-details", adminController.postAddMatch);
 
-    // Validate required input
-    if (
-      !admin ||
-      !team1 ||
-      !team2 ||
-      !matchType ||
-      !ballType ||
-      !pitchType ||
-      !numberOfOvers ||
-      !oversPerBowler ||
-      !cityOrTown ||
-      !ground ||
-      !matchDateTime
-    ) {
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message: "All fields are required",
-      });
-    }
-    const MatchDetailsObj = {
-      admin,
-      team1,
-      team2,
-      matchType,
-      ballType,
-      pitchType,
-      numberOfOvers,
-      oversPerBowler,
-      cityOrTown,
-      ground,
-      matchDateTime,
-      whoWinsTheToss: null,
-      tossDetails: null,
-      matchStatus: 0, // Default matchStatus
-      team1Batting: null,
-      team2Batting: null,
-      team1toss: null,
-      team2toss: null,
-      manOfTheMatch: null,
-      team1Score: 0,
-      team2Score: 0,
-      team1Overs: 0,
-      team2Overs: 0,
-      team1Balls: 0,
-      team2Balls: 0,
-      team1Outs: 0,
-      team2Outs: 0,
-      squad1: null, // Default squad1
-      squad2: null, // Default squad2
-    };
+router.put("/start-match/:matchId", adminController.postStartMatch);
 
-    const newMatchDetails = new MatchDetails(MatchDetailsObj);
+router.get(
+  "/get-upcoming-matches/:adminId",
+  adminController.getUpcomingMatches
+);
 
-    const savedMatchDetails = await newMatchDetails.save();
-
-    res.status(201).json({
-      status: 201,
-      success: true,
-      message: "Match Details has been added successfully",
-      data: null,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Internal Server Error",
-      error: error.message,
-    });
-  }
-});
-router.put("/start-match/:matchId", async (req, res, next) => {
-  try {
-    const matchId = req.params.matchId;
-    const {
-      whoWinsTheToss,
-      tossDetails,
-      matchStatus,
-      squad1,
-      squad2,
-      team1Batting,
-      team2Batting,
-      team1toss,
-      team2toss,
-    } = req.body;
-
-    // Update match details
-    const updatedMatch = await MatchDetails.findByIdAndUpdate(
-      matchId,
-      {
-        whoWinsTheToss,
-        tossDetails,
-        matchStatus,
-        squad1,
-        squad2,
-        team1Batting,
-        team2Batting,
-        team1toss,
-        team2toss,
-      },
-      { new: true }
-    );
-
-    if (!updatedMatch) {
-      return res.status(404).json({
-        status: 404,
-        success: false,
-        message: "Match not found",
-        data: null,
-      });
-    }
-
-    res.status(200).json({
-      status: 200,
-      success: true,
-      message: "Match started successfully",
-      data: updatedMatch,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Internal Server Error",
-      error: error.message,
-    });
-  }
-});
-router.get("/get-upcoming-matches/:adminId", async (req, res, next) => {
-  console.log("hi");
-  try {
-    const adminId = req.params.adminId;
-    const matches = await MatchDetails.find({
-      admin: adminId,
-      matchStatus: 0,
-    }).populate("team1 team2 squad1 squad2", "name image Image");
-
-    if (!matches || matches.length === 0) {
-      return res.status(404).json({
-        status: 404,
-        success: false,
-        message: "No matches found for the current admin",
-        data: null,
-      });
-    }
-
-    res.status(200).json({
-      status: 200,
-      success: true,
-      message: "Match details",
-      data: matches,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Internal server error",
-      data: null,
-    });
-  }
-});
 router.get(
   "/get-MatchDetails-by-MatchDetailsId/:MatchDetailID",
   async (req, res, next) => {
@@ -1314,6 +1144,7 @@ router.get(
     }
   }
 );
+
 router.get("/get-allMatchDetails", async (req, res, next) => {
   try {
     const data = await MatchDetails.find();
@@ -1484,5 +1315,11 @@ router.get("/tournament/:tournamentId", adminController.getTournament);
 router.put("/team-to-tournament", adminController.putTeamToTournament);
 
 router.delete("/team-to-tournament", adminController.deleteTeamFromTournament);
+
+router.post(
+  "/add-tournament-match",
+  validators.validateTournamentMatch,
+  adminController.addTournamentMatch
+);
 
 module.exports = router;

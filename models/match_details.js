@@ -120,6 +120,7 @@ const matchDetailsSchema = new mongoose.Schema(
       stop: { type: Boolean, default: false },
       stopReason: String,
     },
+    tournament: { type: mongoose.Schema.Types.ObjectId, ref: "Tournament" },
     // Other fields related to match statistics
   },
   {
