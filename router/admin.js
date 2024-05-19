@@ -1322,4 +1322,6 @@ router.post(
   adminController.addTournamentMatch
 );
 
+router.get("/tournament-upcoming/:id", adminController.getTournamentUpcoming);
+
 module.exports = router;

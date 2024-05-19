@@ -630,7 +630,11 @@ exports.addTournamentMatch = async (req, res, next) => {
       team2Outs: 0,
       squad1: null,
       squad2: null,
-      tournament: tournamentId,
+      //   tournament: tournamentId,
+      tournamentInfo: {
+        tournament: tournamentId,
+        matchType: tournamentMatchType,
+      },
     };
 
     const newMatchDetails = new MatchDetails(MatchDetailsObj);
@@ -661,6 +665,31 @@ exports.addTournamentMatch = async (req, res, next) => {
       success: true,
       message: "New match added successfully",
       data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getTournamentUpcoming = async (req, res, next) => {
+  try {
+    const tournamentId = req.params.id;
+    const matches = await MatchDetails.find({
+      "tournamentInfo.tournament": mongoose.Types.ObjectId(tournamentId),
+      matchStatus: 0,
+    }).populate("team1 team2 squad1 squad2", "name image Image");
+
+    if (!matches || matches.length === 0) {
+      const error = new Error("No matches found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Match details",
+      data: matches,
     });
   } catch (error) {
     next(error);

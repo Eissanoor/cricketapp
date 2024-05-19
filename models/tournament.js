@@ -19,12 +19,12 @@ const tournamentSchema = new mongoose.Schema({
       eliminated: { type: Boolean, default: false },
     },
   ],
-  matches: [
-    {
-      match: { type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" },
-      matchType: { type: String, enum: matchTypes, required: true },
-    },
-  ],
+  //   matches: [
+  //     {
+  //       match: { type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" },
+  //       matchType: { type: String, enum: matchTypes, required: true },
+  //     },
+  //   ],
   //   useGroups: { type: Boolean, required: true },
   //   groups: [
   //     {
