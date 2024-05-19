@@ -311,7 +311,7 @@ exports.getTournament = async (req, res, next) => {
   try {
     const { tournamentId } = req.params;
     const tournament = await Tournament.findById(tournamentId).populate(
-      "teams",
+      "teams.team",
       "name image"
     );
     if (!tournament) {
