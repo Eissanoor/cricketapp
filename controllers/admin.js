@@ -648,17 +648,17 @@ exports.addTournamentMatch = async (req, res, next) => {
       return next(error);
     }
 
-    const matchIndex = tournament.matches.findIndex(
-      (m) => m.match.toString() === savedMatchDetails._id.toString()
-    );
+    // const matchIndex = tournament.matches.findIndex(
+    //   (m) => m.match.toString() === savedMatchDetails._id.toString()
+    // );
 
-    if (matchIndex === -1) {
-      tournament.matches.push({
-        match: savedMatchDetails._id,
-        matchType: tournamentMatchType,
-      });
-      await tournament.save();
-    }
+    // if (matchIndex === -1) {
+    //   tournament.matches.push({
+    //     match: savedMatchDetails._id,
+    //     matchType: tournamentMatchType,
+    //   });
+    //   await tournament.save();
+    // }
 
     res.status(201).json({
       status: 201,
