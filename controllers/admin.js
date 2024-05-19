@@ -339,14 +339,32 @@ exports.putTeamToTournament = async (req, res, next) => {
       error.statusCode = 404;
       return next(error);
     }
-    if (!tournament.teams.includes(teamId)) {
-      tournament.teams.push(teamId);
+
+    const teamIndex = tournament.teams.findIndex(
+      (t) => t.team.toString() === teamId.toString()
+    );
+
+    if (teamIndex === -1) {
+      tournament.teams.push({
+        team: teamId,
+        qualified: false,
+        eliminated: false,
+      });
       await tournament.save();
     } else {
       const error = new Error("Team already exists");
       error.statusCode = 404;
       return next(error);
     }
+
+    // if (!tournament.teams.includes(teamId)) {
+    //   tournament.teams.push(teamId);
+    //   await tournament.save();
+    // } else {
+    //   const error = new Error("Team already exists");
+    //   error.statusCode = 404;
+    //   return next(error);
+    // }
     res.status(200).json({
       status: 200,
       success: true,
@@ -367,7 +385,10 @@ exports.deleteTeamFromTournament = async (req, res, next) => {
       error.statusCode = 404;
       return next(error);
     }
-    const teamIndex = tournament.teams.indexOf(teamId);
+    const teamIndex = tournament.teams.findIndex(
+      (t) => t.team.toString() === teamId.toString()
+    );
+
     if (teamIndex > -1) {
       tournament.teams.splice(teamIndex, 1);
       await tournament.save();
