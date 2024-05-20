@@ -740,7 +740,9 @@ exports.TournamentUpcomingMatches = async (req, res, next) => {
     const matches = await MatchDetails.find({
       "tournamentInfo.tournament": mongoose.Types.ObjectId(tournamentId),
       matchStatus: 0,
-    }).populate("team1 team2 squad1 squad2", "name image Image");
+    })
+      .populate("team1 team2 squad1 squad2", "name image Image")
+      .populate("tournamentInfo.tournament", "seriesName seriesLocation");
 
     if (!matches || matches.length === 0) {
       const error = new Error("No matches found");
@@ -770,7 +772,8 @@ exports.TournamentLiveMatches = async (req, res, next) => {
         "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
       )
       .populate("team1 team2", "name image")
-      .populate("squad1 squad2", "name");
+      .populate("squad1 squad2", "name")
+      .populate("tournamentInfo.tournament", "seriesName seriesLocation");
 
     if (!matches || matches.length === 0) {
       const error = new Error("Tournament contains no matches");
