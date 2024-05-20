@@ -10,7 +10,8 @@ exports.getLiveMatches = async (req, res, next) => {
         "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
       )
       .populate("team1 team2", "name image")
-      .populate("squad1 squad2", "name");
+      .populate("squad1 squad2", "name")
+      .populate("tournamentInfo.tournament", "seriesName seriesLocation");
     if (!matches || matches.length === 0) {
       return next(new Error("No matches found"));
     }
