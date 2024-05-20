@@ -198,7 +198,8 @@ exports.getLastFiveTournaments = async (req, res, next) => {
     // Find the last 5 tournaments
     const tournaments = await Tournament.find()
       .sort({ _id: -1 }) // Sort by _id in descending order to get the latest tournaments
-      .limit(5); // Limit to 5 tournaments
+      .limit(5) // Limit to 5 tournaments
+      .select("-teams");
 
     if (!tournaments || !tournaments.length < 1) {
       const error = new Error("Tournament not found");
