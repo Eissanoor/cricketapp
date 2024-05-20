@@ -145,7 +145,7 @@ exports.getOtherAdmins = async (req, res, next) => {
 };
 
 // * TEAM ***
-exports.postAddTeam = async (req, res, next) => {
+exports.postAddTeam = async (req, res, next, cloudinary) => {
   try {
     const { name, location, admins, players } = req.body;
     const playerID = Array.isArray(players)
@@ -218,7 +218,7 @@ exports.getTeams = async (req, res, next) => {
   }
 };
 
-exports.putUpdateTeam = async (req, res, next) => {
+exports.putUpdateTeam = async (req, res, next, cloudinary) => {
   try {
     const teamID = req.body.teamID;
     const { name, location } = req.body;
@@ -269,7 +269,7 @@ exports.putUpdateTeam = async (req, res, next) => {
   }
 };
 
-exports.deleteTeam = async (req, res, next) => {
+exports.deleteTeam = async (req, res, next, cloudinary) => {
   try {
     const teamID = req.body.teamID;
     const deletedPlayer = await Team.findByIdAndDelete({ _id: teamID });
@@ -449,7 +449,7 @@ exports.getTeamPlayers = async (req, res, next) => {
 };
 
 // * PLAYER ***
-exports.postAddPlayer = async (req, res, next) => {
+exports.postAddPlayer = async (req, res, next, cloudinary) => {
   try {
     const {
       name,

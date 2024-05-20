@@ -437,7 +437,9 @@ router.post(
   "/add-players",
   upload.single("Image"),
   validators.validatePlayer,
-  adminController.postAddPlayer
+  async (req, res, next) => {
+    await adminController.postAddPlayer(req, res, next, cloudinary);
+  }
 );
 router.get(
   "/get-player-detail-by-adminid/:admin",
@@ -461,15 +463,17 @@ router.post(
   "/add-team",
   upload.single("image"),
   validators.validateTeam,
-  adminController.postAddTeam
+  async (req, res, next) => {
+    await adminController.postAddTeam(req, res, next, cloudinary);
+  }
 );
 router.post("/get-teams", adminController.getTeams);
-router.put(
-  "/update-team",
-  upload.single("image"),
-  adminController.putUpdateTeam
-);
-router.delete("/delete-team-byid", adminController.deleteTeam);
+router.put("/update-team", upload.single("image"), async (req, res, next) => {
+  await adminController.putUpdateTeam(req, res, next, cloudinary);
+});
+router.delete("/delete-team-byid", async (req, res, next) => {
+  await adminController.deleteTeam(res, res, next, cloudinary);
+});
 router.put("/in-team-add-player", adminController.putPlayerToTeam);
 router.put("/share-team", adminController.putShareTeam);
 router.get("/get-players-by-teamId/:teamID", adminController.getTeamPlayers);
@@ -598,8 +602,8 @@ router.post(
   "/tournament",
   upload.single("image"),
   validators.validateTournament,
-  (req, res, next) => {
-    adminController.postTournament(req, res, next, cloudinary);
+  async (req, res, next) => {
+    await adminController.postTournament(req, res, next, cloudinary);
   }
 );
 
