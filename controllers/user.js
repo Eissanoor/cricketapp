@@ -29,10 +29,12 @@ exports.getLiveMatches = async (req, res, next) => {
 
 exports.getUpcomingMathces = async (req, res, next) => {
   try {
-    const matches = await MatchDetails.find({ matchStatus: 0 }).populate(
-      "team1 team2 squad1 squad2",
-      "name image Image recentPerformance"
-    );
+    const matches = await MatchDetails.find({ matchStatus: 0 })
+      .populate(
+        "team1 team2 squad1 squad2",
+        "name image Image recentPerformance"
+      )
+      .populate("tournamentInfo.tournament", "seriesName seriesLocation");
 
     if (!matches || matches.length === 0) {
       return next(new Error("No matches found"));
