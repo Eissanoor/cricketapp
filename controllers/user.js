@@ -31,6 +31,7 @@ exports.getLiveMatches = async (req, res, next) => {
 exports.getUpcomingMathces = async (req, res, next) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 0 })
+
       .populate(
         "team1 team2 squad1 squad2",
         "name image Image recentPerformance"
@@ -123,6 +124,33 @@ exports.getCompletedMatches = async (req, res, next) => {
       status: 200,
       success: true,
       message: "Completed matches found successfully",
+      data: matches,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getBannerMatches = async (req, res, next) => {
+  try {
+    const { matchStatus } = req.query;
+
+    // Find the matches with the given matchStatus
+    const matches = await MatchDetails.find({ matchStatus: matchStatus })
+      .sort({ _id: -1 })
+      .limit(10)
+      .select(
+        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
+      )
+      .populate(
+        "team1 team2 squad1 squad2",
+        "name image Image recentPerformance"
+      )
+      .populate("tournamentInfo.tournament", "seriesName seriesLocation");
+
+    res.status(200).json({
+      status: 200,
+      success: true,
       data: matches,
     });
   } catch (error) {
