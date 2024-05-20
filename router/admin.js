@@ -1256,6 +1256,6 @@ router.get(
   adminController.TournamentUpcomingMatches
 );
 
-router.get("/tournament-live", adminController.TournamentLiveMatches);
+router.get("/tournament-live/:id", adminController.TournamentLiveMatches);
 
 module.exports = router;
