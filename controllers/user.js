@@ -2,6 +2,7 @@ const MatchDetails = require("../models/match_details");
 const ScoreCard = require("../models/score_card");
 const Player = require("../models/player");
 const Over = require("../models/over");
+const Tournament = require("../models/tournament");
 
 exports.getLiveMatches = async (req, res, next) => {
   try {
@@ -185,6 +186,31 @@ exports.getPlayerDetails = async function (req, res, next) {
       success: true,
       message: "Player details retrieved",
       data: player,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// * TOURNAMENT ***
+exports.getLastFiveTournaments = async (req, res, next) => {
+  try {
+    // Find the last 5 tournaments
+    const tournaments = await Tournament.find()
+      .sort({ _id: -1 }) // Sort by _id in descending order to get the latest tournaments
+      .limit(5); // Limit to 5 tournaments
+
+    if (!tournaments || !tournaments.length < 1) {
+      const error = new Error("Tournament not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      data: tournaments,
+      message: "Tournaments are now available",
     });
   } catch (error) {
     next(error);
