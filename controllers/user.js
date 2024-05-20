@@ -139,9 +139,9 @@ exports.getBannerMatches = async (req, res, next) => {
     const matches = await MatchDetails.find({ matchStatus: matchStatus })
       .sort({ _id: -1 })
       .limit(10)
-      .select(
-        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
-      )
+      //   .select(
+      //     "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
+      //   )
       .populate(
         "team1 team2 squad1 squad2",
         "name image Image recentPerformance"
