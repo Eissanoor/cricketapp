@@ -2,6 +2,7 @@ const multer = require("multer");
 const upload = multer();
 const { body, validationResult } = require("express-validator");
 
+// * TOURNAMENT ***
 exports.validateTournament = [
   //   upload.none(),
   body("seriesName").notEmpty().withMessage("Series name is required"),
@@ -19,17 +20,20 @@ exports.validateTournament = [
     const errors = validationResult(req);
     console.log(errors);
     if (!errors.isEmpty()) {
-      let error = errors.array()[0].msg;
-      return next(new Error(error));
+      const message = errors.array()[0].msg;
+      const error = new Error(message);
+      error.statusCode = 422;
+      return next(error);
     }
     next();
   },
 ];
 
+// * MATCH ***
 exports.validateTournamentMatch = [
   body("admin").notEmpty().withMessage("Admin is required"),
-  body("team1").notEmpty().withMessage("Team 1 is required"),
-  body("team2").notEmpty().withMessage("Team 2 is required"),
+  body("team1").notEmpty().withMessage("Team1 is required"),
+  body("team2").notEmpty().withMessage("Team2 is required"),
   body("matchType").notEmpty().withMessage("Match type is required"),
   body("ballType").notEmpty().withMessage("Ball type is required"),
   body("pitchType").notEmpty().withMessage("Pitch type is required"),
@@ -42,13 +46,67 @@ exports.validateTournamentMatch = [
   body("cityOrTown").notEmpty().withMessage("City or town is required"),
   body("ground").notEmpty().withMessage("Ground is required"),
   body("matchDateTime")
+    .isISO8601()
+    .withMessage("Match date time must be a valid ISO 8601 date"),
+  body("tournamentId").notEmpty().withMessage("Tournament ID is required"),
+  body("tournamentMatchType")
     .notEmpty()
-    .withMessage("Match date and time is required"),
+    .withMessage("Tournament match type is required"),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      let error = errors.array()[0].msg;
-      return next(new Error(error));
+      const message = errors.array()[0].msg;
+      const error = new Error(message);
+      error.statusCode = 422;
+      return next(error);
+    }
+    next();
+  },
+];
+
+exports.validateMatch = [
+  body("admin").notEmpty().withMessage("Admin is required"),
+  body("team1").notEmpty().withMessage("Team1 is required"),
+  body("team2").notEmpty().withMessage("Team2 is required"),
+  body("matchType").notEmpty().withMessage("Match type is required"),
+  body("ballType").notEmpty().withMessage("Ball type is required"),
+  body("pitchType").notEmpty().withMessage("Pitch type is required"),
+  body("numberOfOvers")
+    .isInt({ gt: 0 })
+    .withMessage("Number of overs must be a positive integer"),
+  body("oversPerBowler")
+    .isInt({ gt: 0 })
+    .withMessage("Overs per bowler must be a positive integer"),
+  body("cityOrTown").notEmpty().withMessage("City or town is required"),
+  body("ground").notEmpty().withMessage("Ground is required"),
+  body("matchDateTime")
+    .isISO8601()
+    .withMessage("Match date time must be a valid ISO 8601 date"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const message = errors.array()[0].msg;
+      const error = new Error(message);
+      error.statusCode = 422;
+      return next(error);
+    }
+    next();
+  },
+];
+
+// * TEAM ***
+exports.validateTeam = [
+  body("name").notEmpty().withMessage("Team name is required"),
+  body("location").notEmpty().withMessage("Location is required"),
+  body("admins").isArray().withMessage("Admins must be an array"),
+  body("players").isArray().withMessage("Players must be an array"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const message = errors.array()[0].msg;
+      const error = new Error(message);
+      error.statusCode = 422;
+      return next(error);
     }
     next();
   },

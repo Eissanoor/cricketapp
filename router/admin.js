@@ -760,183 +760,19 @@ router.put("/share-player", async (req, res, next) => {
 });
 
 // * Team * * * * * * * * * * * * * * * * *
-router.post("/add-team", upload.single("image"), async (req, res, next) => {
-  try {
-    const { name, location, admins, players } = req.body;
-    const playerID = Array.isArray(players)
-      ? players.map((id) => mongoose.Types.ObjectId(id))
-      : [];
-
-    const adminIDs = Array.isArray(admins)
-      ? admins.map((id) => mongoose.Types.ObjectId(id))
-      : [];
-    let ManuImage = null;
-
-    if (!name || !location) {
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message: "name location parameter is missing",
-        data: null,
-      });
-    }
-
-    const file = req.file;
-    if (file) {
-      ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
-
-      const result = await cloudinary.uploader.upload(ManuImage);
-      ManuImage = result.url;
-    }
-
-    const MenuEmp = new Team({
-      name: name,
-      location: location,
-      admins: adminIDs,
-      players: playerID,
-
-      image: ManuImage,
-    });
-    const savedPlayer = await MenuEmp.save();
-
-    res.status(201).json({
-      status: 201,
-      success: true,
-      message: "Team has been added successfully",
-      data: savedPlayer,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Internal Server Error",
-      error: error.message,
-    });
-  }
-});
-router.post("/get-teams", async (req, res, next) => {
-  try {
-    const { adminId } = req.body;
-
-    if (!adminId) {
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message: "adminId parameter is missing",
-        data: null,
-      });
-    }
-
-    // Find teams where admin matches adminId
-    const teams = await Team.find({ admins: adminId })
-      .populate("players", "-latestPerformance")
-      .populate("admins");
-
-    res.status(200).json({
-      status: 200,
-      success: true,
-      message: "Teams fetched successfully",
-      data: teams,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Internal Server Error",
-      error: error.message,
-    });
-  }
-});
-router.put("/update-team", upload.single("image"), async (req, res, next) => {
-  try {
-    const teamID = req.body.teamID;
-    const { name, location } = req.body;
-    const existingProduct = await Team.findById({ _id: teamID });
-    if (!existingProduct) {
-      return res.status(404).json({
-        status: 404,
-        success: false,
-        message: "Team not found",
-        data: null,
-      });
-    }
-    let ManuImage = null;
-    if (req.file) {
-      ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
-      const result = await cloudinary.uploader.upload(ManuImage);
-      ManuImage = result.url;
-    } else {
-      ManuImage = existingProduct.image;
-    }
-    existingProduct.name = name;
-    existingProduct.location = location;
-    existingProduct.image = ManuImage;
-    const updatedProduct = await existingProduct.save();
-    res.status(200).json({
-      status: 200,
-      success: true,
-      message: "Team updated successfully",
-      data: updatedProduct,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Internal Server Error",
-      data: null,
-    });
-  }
-});
-router.delete("/delete-team-byid", async (req, res, next) => {
-  try {
-    const teamID = req.body.teamID;
-    const deletedPlayer = await Team.findByIdAndDelete({ _id: teamID });
-
-    if (!deletedPlayer) {
-      return res.status(404).json({
-        status: 404,
-        success: false,
-        message: "team not found",
-        data: null,
-      });
-    }
-
-    const image = deletedPlayer.image;
-
-    if (image) {
-      const parts = image.split("/");
-
-      // Get the last part of the split array
-      const lastPart = parts[parts.length - 1];
-
-      // Split the last part by '.'
-      const publicId = lastPart.split(".")[0];
-
-      const result = await cloudinary.uploader.destroy(publicId, {
-        resource_type: "image",
-      });
-      console.log(result);
-    }
-
-    res.status(200).json({
-      status: 200,
-      success: true,
-      message: "team deleted successfully",
-      data: null,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Internal Server Error",
-      data: null,
-    });
-  }
-});
+router.post(
+  "/add-team",
+  upload.single("image"),
+  validators.validateTeam,
+  adminController.postAddTeam
+);
+router.post("/get-teams", adminController.getTeams);
+router.put(
+  "/update-team",
+  upload.single("image"),
+  adminController.putUpdateTeam
+);
+router.delete("/delete-team-byid", adminController.deleteTeam);
 router.put("/in-team-add-player", async (req, res, next) => {
   try {
     const teamID = req.body.teamID;
@@ -1092,23 +928,18 @@ router.get("/get-players-by-teamId/:teamID", async (req, res, next) => {
     });
   }
 });
-router.post("/create", async (req, res, next) => {
-  const data = req.body;
-  await matchDetails.add({ data });
-  res.send({ msg: "User Added" });
-});
-router.get("/test", async (req, res, next) => {
-  res.json({ testing: "TESTING" });
-});
 
 // * Match Details * * * * * * * * * * * * * * * * * * *
-router.post("/add-match-details", adminController.postAddMatch);
+router.post(
+  "/add-match-details",
+  validators.validateMatch,
+  adminController.postAddMatch
+);
 router.put("/start-match/:matchId", adminController.postStartMatch);
 router.get(
   "/get-upcoming-matches/:adminId",
   adminController.getUpcomingMatches
 );
-
 router.get(
   "/get-MatchDetails-by-MatchDetailsId/:MatchDetailID",
   async (req, res, next) => {
@@ -1213,7 +1044,6 @@ router.get(
     }
   }
 );
-
 router.get("/get-live-matches/:adminId", adminController.getLiveMatches);
 router.get("/get-matchesdetails/:matchId", adminController.getMatchDetails);
 router.put("/set-man-of-the-match", adminController.setManOfTheMatch);

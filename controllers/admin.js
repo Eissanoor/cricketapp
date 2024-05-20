@@ -98,6 +98,170 @@ exports.getAdminInvitations = async (req, res, next) => {
   }
 };
 
+// * TEAM ***
+exports.postAddTeam = async (req, res, next) => {
+  try {
+    const { name, location, admins, players } = req.body;
+    const playerID = Array.isArray(players)
+      ? players.map((id) => mongoose.Types.ObjectId(id))
+      : [];
+
+    const adminIDs = Array.isArray(admins)
+      ? admins.map((id) => mongoose.Types.ObjectId(id))
+      : [];
+    let ManuImage = null;
+
+    const file = req.file;
+    if (file) {
+      ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
+      const result = await cloudinary.uploader.upload(ManuImage);
+      ManuImage = result.url;
+    }
+    const team = new Team({
+      name: name,
+      location: location,
+      admins: adminIDs,
+      players: playerID,
+      image: ManuImage,
+    });
+    const savedTeam = await team.save();
+
+    res.status(201).json({
+      status: 201,
+      success: true,
+      message: "Team has been added successfully",
+      data: savedTeam,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getTeams = async (req, res, next) => {
+  try {
+    const { adminId } = req.body;
+
+    if (!adminId) {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: "Required parameter 'adminId' is missing",
+        data: null,
+      });
+    }
+
+    // Find teams where admin matches adminId
+    const teams = await Team.find({ admins: adminId })
+      .populate("players", "-latestPerformance")
+      .populate("admins");
+
+    if (!teams || teams.length === 0) {
+      const error = new Error("No teams found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Teams fetched successfully",
+      data: teams,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.putUpdateTeam = async (req, res, next) => {
+  try {
+    const teamID = req.body.teamID;
+    const { name, location } = req.body;
+    const team = await Team.findById({ _id: teamID });
+
+    if (!team) {
+      const error = new Error("Team not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    // let ManuImage = null;
+    // if (req.file) {
+    //   ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
+    //   const result = await cloudinary.uploader.upload(ManuImage);
+    //   ManuImage = result.url;
+    // } else {
+    //   ManuImage = team.image;
+    // }
+
+    let ManuImage = null;
+    if (req.file) {
+      // If there's a previous image, delete it
+      if (team.image) {
+        const publicId = team.image.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(publicId);
+      }
+
+      ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
+      const result = await cloudinary.uploader.upload(ManuImage);
+      ManuImage = result.url;
+    } else {
+      ManuImage = team.image;
+    }
+
+    team.name = name;
+    team.location = location;
+    team.image = ManuImage;
+    const updatedProduct = await team.save();
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Team updated successfully",
+      data: updatedProduct,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteTeam = async (req, res, next) => {
+  try {
+    const teamID = req.body.teamID;
+    const deletedPlayer = await Team.findByIdAndDelete({ _id: teamID });
+
+    if (!deletedPlayer) {
+      const error = new Error(`Team ${teamID} is not deleted`);
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const image = deletedPlayer.image;
+
+    if (image) {
+      const parts = image.split("/");
+
+      // Get the last part of the split array
+      const lastPart = parts[parts.length - 1];
+
+      // Split the last part by '.'
+      const publicId = lastPart.split(".")[0];
+
+      const result = await cloudinary.uploader.destroy(publicId, {
+        resource_type: "image",
+      });
+      console.log(result);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "team deleted successfully",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // * MATCH ********************************
 exports.postAddMatch = async (req, res, next) => {
   try {
@@ -115,26 +279,6 @@ exports.postAddMatch = async (req, res, next) => {
       matchDateTime,
     } = req.body;
 
-    // Validate required input
-    if (
-      !admin ||
-      !team1 ||
-      !team2 ||
-      !matchType ||
-      !ballType ||
-      !pitchType ||
-      !numberOfOvers ||
-      !oversPerBowler ||
-      !cityOrTown ||
-      !ground ||
-      !matchDateTime
-    ) {
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message: "All fields are required",
-      });
-    }
     const MatchDetailsObj = {
       admin,
       team1,
