@@ -762,13 +762,13 @@ router.put("/share-player", async (req, res, next) => {
 // * Team * * * * * * * * * * * * * * * * *
 router.post("/add-team", upload.single("image"), async (req, res, next) => {
   try {
-    const { name, location, admin, players } = req.body;
+    const { name, location, admins, players } = req.body;
     const playerID = Array.isArray(players)
       ? players.map((id) => mongoose.Types.ObjectId(id))
       : [];
 
-    const adminIDs = Array.isArray(admin)
-      ? admin.map((id) => mongoose.Types.ObjectId(id))
+    const adminIDs = Array.isArray(admins)
+      ? admins.map((id) => mongoose.Types.ObjectId(id))
       : [];
     let ManuImage = null;
 
@@ -792,7 +792,7 @@ router.post("/add-team", upload.single("image"), async (req, res, next) => {
     const MenuEmp = new Team({
       name: name,
       location: location,
-      admin: adminIDs,
+      admins: adminIDs,
       players: playerID,
 
       image: ManuImage,
@@ -829,9 +829,9 @@ router.post("/get-teams", async (req, res, next) => {
     }
 
     // Find teams where admin matches adminId
-    const teams = await Team.find({ admin: adminId })
+    const teams = await Team.find({ admins: adminId })
       .populate("players", "-latestPerformance")
-      .populate("admin");
+      .populate("admins");
 
     res.status(200).json({
       status: 200,
@@ -953,7 +953,7 @@ router.put("/in-team-add-player", async (req, res, next) => {
       });
     }
 
-    const team = await Team.findOne({ _id: teamID, admin: adminId });
+    const team = await Team.findOne({ _id: teamID, admins: adminId });
 
     if (!team) {
       return res.status(404).json({
@@ -1014,7 +1014,7 @@ router.put("/share-team", async (req, res, next) => {
       });
     }
 
-    const team = await Team.findOne({ _id: teamID, admin: adminId });
+    const team = await Team.findOne({ _id: teamID, admins: adminId });
 
     if (!team) {
       return res.status(404).json({
@@ -1027,8 +1027,8 @@ router.put("/share-team", async (req, res, next) => {
 
     if (Array.isArray(newAdmins) && newAdmins.length > 0) {
       for (const newAdminId of newAdmins) {
-        if (!team.admin.includes(newAdminId)) {
-          team.admin.push(newAdminId);
+        if (!team.admins.includes(newAdminId)) {
+          team.admins.push(newAdminId);
         } else {
           return res.status(400).json({
             status: 400,

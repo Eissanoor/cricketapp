@@ -7,7 +7,7 @@ const teamSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
-  admin: [{ type: mongoose.Schema.Types.ObjectId, ref: "admin" }],
+  admins: [{ type: mongoose.Schema.Types.ObjectId, ref: "admin" }],
   players: [{ type: mongoose.Schema.Types.ObjectId, ref: "Player" }],
   recentPerformance: [
     {
