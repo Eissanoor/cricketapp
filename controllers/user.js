@@ -201,7 +201,7 @@ exports.getLastFiveTournaments = async (req, res, next) => {
       .limit(5) // Limit to 5 tournaments
       .select("-teams");
 
-    if (!tournaments || !tournaments.length < 1) {
+    if (!tournaments || tournaments.length < 1) {
       const error = new Error("Tournament not found");
       error.statusCode = 404;
       return next(error);
