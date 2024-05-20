@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const Register = require("../models/providerregister");
+const Register = require("../models/admin");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 const SECRET = process.env.SECRET;

@@ -6,6 +6,7 @@ const Tournament = require("../models/tournament");
 const Notifier = require("../models/notifier");
 const Team = require("../models/team");
 const Player = require("../models/player");
+const Admin = require("../models/admin");
 
 const scorerHelper = require("../utils/scorer");
 
@@ -94,6 +95,51 @@ exports.getAdminInvitations = async (req, res, next) => {
       data: invitations,
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+exports.getOtherAdmins = async (req, res, next) => {
+  try {
+    const adminID = req.body.adminID;
+    const page = parseInt(req.body.page) || 1; // Current page number, default is 1
+    const limit = parseInt(req.body.limit) || 10; // Number of documents per page, default is 10
+    const search = req.body.search || null; // Search string, default is null
+
+    // Calculate the number of documents to skip based on the page and limit
+    const skip = (page - 1) * limit;
+
+    let query = { _id: { $ne: adminID } };
+
+    // If search is provided and not null, add it to the query
+    if (search !== null) {
+      query = {
+        ...query,
+        fullname: { $regex: search, $options: "i" }, // Case-insensitive partial match for name
+      };
+    }
+
+    // Find all admin except the one with the provided adminID, with pagination and search
+    const data = await Admin.find(query).skip(skip).limit(limit);
+
+    // If no data found, return an empty array instead of null
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "No other admins found",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Other admin details",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -258,6 +304,398 @@ exports.deleteTeam = async (req, res, next) => {
       data: null,
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+exports.putPlayerToTeam = async (req, res, next) => {
+  try {
+    const teamID = req.body.teamID;
+    const adminId = req.body.adminId;
+    const newPlayers = req.body.newPlayers;
+
+    const checkAdmin = await Admin.findOne({ _id: adminId });
+    if (!checkAdmin || checkAdmin.status === 0) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "This admin is either not found or blocked",
+        data: null,
+      });
+    }
+
+    const team = await Team.findOne({ _id: teamID, admins: adminId });
+
+    if (!team) {
+      const error = new Error("Team not found");
+      error.status = 404;
+      return next(error);
+    }
+
+    if (Array.isArray(newPlayers) && newPlayers.length > 0) {
+      for (const newPlayerId of newPlayers) {
+        if (!team.players.includes(newPlayerId)) {
+          team.players.push(newPlayerId);
+        } else {
+          return res.status(400).json({
+            status: 400,
+            success: false,
+            message: `Player with ID ${newPlayerId} already exists in the team`,
+            data: null,
+          });
+        }
+      }
+    }
+
+    const updatedTeam = await team.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Team details updated with new players",
+      data: updatedTeam,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.putShareTeam = async (req, res, next) => {
+  try {
+    const teamID = req.body.teamID;
+    const adminId = req.body.adminId;
+    const newAdmins = req.body.newAdmins;
+
+    // Check if the requesting admin is not blocked
+    const checkAdmin = await Admin.findOne({ _id: adminId });
+    if (!checkAdmin || checkAdmin.status === 0) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "This admin is either not found or blocked",
+        data: null,
+      });
+    }
+
+    const team = await Team.findOne({ _id: teamID, admins: adminId });
+
+    if (!team) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "Team not found for this Team ID",
+        data: null,
+      });
+    }
+
+    if (Array.isArray(newAdmins) && newAdmins.length > 0) {
+      for (const newAdminId of newAdmins) {
+        if (!team.admins.includes(newAdminId)) {
+          team.admins.push(newAdminId);
+        } else {
+          return res.status(400).json({
+            status: 400,
+            success: false,
+            message: `Admin with ID ${newAdminId} already exists in the team`,
+            data: null,
+          });
+        }
+      }
+    }
+
+    // Save the updated team with new admins added
+    const updatedTeam = await team.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Team details updated with new admins",
+      data: updatedTeam,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+};
+
+exports.getTeamPlayers = async (req, res, next) => {
+  try {
+    const teamID = req.params.teamID;
+    const teams = await Team.find({ _id: teamID }).populate(
+      "players",
+      "name location role Image"
+    );
+
+    if (!teams || teams.length === 0) {
+      const error = new Error("No teams found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Team details",
+      data: teams[0].players,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// * PLAYER ***
+exports.postAddPlayer = async (req, res, next) => {
+  try {
+    const {
+      name,
+      location,
+      role,
+      age,
+      additionalInfo,
+      admins,
+      sixes,
+      fours,
+      wickets,
+    } = req.body;
+    const adminObjectIds = Array.isArray(admins)
+      ? admins.map((id) => mongoose.Types.ObjectId(id))
+      : [];
+    let ManuImage = null;
+
+    const file = req.file;
+    if (file) {
+      ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
+
+      const result = await cloudinary.uploader.upload(ManuImage);
+      ManuImage = result.url;
+    }
+
+    const player = new Player({
+      name: name,
+      location: location,
+      role: role,
+      age: age,
+      additionalInfo: additionalInfo,
+      admins: adminObjectIds,
+      stats: {
+        sixes: sixes,
+        fours: fours,
+        wickets: wickets,
+      },
+      Image: ManuImage,
+    });
+    const savedPlayer = await player.save();
+
+    res.status(201).json({
+      status: 201,
+      success: true,
+      message: "Player has been added successfully",
+      data: savedPlayer,
+    });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+exports.playerDetailsByAdminId = async (req, res, next) => {
+  try {
+    const adminId = req.params.admin;
+    const players = await Player.find({ admins: adminId }).select(
+      "-latestPerformance"
+    );
+
+    if (!players) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "Player not found for this admin ID",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Player details",
+      data: players,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.playerDetailsByPlayerId = async (req, res, next) => {
+  try {
+    const playerId = req.body.playerId;
+    const data = await Player.findOne({ _id: playerId });
+
+    if (!data) {
+      const error = new Error("Player not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Player details",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+exports.deletePlayer = async (req, res, next) => {
+  try {
+    const playerId = req.body.playerId;
+    const deletedPlayer = await Player.findByIdAndDelete(playerId);
+
+    if (!deletedPlayer) {
+      const error = new Error("Player not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const image = deletedPlayer.Image;
+
+    if (image) {
+      const parts = image.split("/");
+
+      // Get the last part of the split array
+      const lastPart = parts[parts.length - 1];
+
+      // Split the last part by '.'
+      const publicId = lastPart.split(".")[0];
+
+      const result = await cloudinary.uploader.destroy(publicId, {
+        resource_type: "image",
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Player deleted successfully",
+      data: null,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
+exports.updatePlayer = async (req, res, next) => {
+  try {
+    const playerId = req.body.playerId;
+    const { name, location, role, age, additionalInfo, admins } = req.body;
+
+    const player = await Player.findById(playerId);
+    if (!player) {
+      const error = new Error("Player not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    // let ManuImage = null;
+    // if (req.file) {
+    //   ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
+    //   const result = await cloudinary.uploader.upload(ManuImage);
+    //   ManuImage = result.url;
+    // } else {
+    //   ManuImage = player.Image;
+    // }
+
+    let ManuImage = null;
+    if (req.file) {
+      // If there's a previous image, delete it
+      if (player.Image) {
+        const publicId = player.Image.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(publicId);
+      }
+
+      ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
+      const result = await cloudinary.uploader.upload(ManuImage);
+      ManuImage = result.url;
+    } else {
+      ManuImage = player.Image;
+    }
+
+    player.name = name;
+    player.location = location;
+    player.role = role;
+    player.age = age;
+    player.additionalInfo = additionalInfo;
+    player.admins = admins;
+    player.Image = ManuImage;
+
+    const updatedPlayer = await player.save();
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Player updated successfully",
+      data: updatedPlayer,
+    });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+exports.sharePlayer = async (req, res, next) => {
+  try {
+    const playerId = req.body.playerId;
+    const adminId = req.body.adminId;
+    const newAdmins = req.body.newAdmins;
+
+    // Check if the requesting admin is not blocked
+    const checkAdmin = await Admin.findOne({ _id: adminId });
+    if (!checkAdmin || checkAdmin.status === 0) {
+      const error = new Error("This admin is either not found or blocked");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const player = await Player.findOne({ _id: playerId, admins: adminId });
+
+    if (!player) {
+      const error = new Error("Player not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    if (Array.isArray(newAdmins) && newAdmins.length > 0) {
+      for (const newAdminId of newAdmins) {
+        if (!player.admins.includes(newAdminId)) {
+          player.admins.push(newAdminId);
+        } else {
+          const error = new Error(
+            `Admin with ID ${newAdminId} already exists for this player`
+          );
+          error.statusCode = 404;
+          return next(error);
+        }
+      }
+    }
+
+    // Save the updated player with new admins added
+    const updatedPlayer = await player.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Player details updated with new admins",
+      data: updatedPlayer,
+    });
+  } catch (error) {
+    console.log(error);
     next(error);
   }
 };

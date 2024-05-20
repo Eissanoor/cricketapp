@@ -111,3 +111,51 @@ exports.validateTeam = [
     next();
   },
 ];
+
+// * PLAYER ***
+exports.validatePlayer = [
+  body("name").notEmpty().withMessage("Name is required"),
+  body("location").notEmpty().withMessage("Location is required"),
+  body("role").notEmpty().withMessage("Role is required"),
+  body("age").isInt({ gt: 0 }).withMessage("Age must be a positive integer"),
+  body("additionalInfo").notEmpty().withMessage("Additional info is required"),
+  body("admins").isArray().withMessage("Admins must be an array"),
+  body("sixes")
+    .isInt({ gt: 0 })
+    .withMessage("Sixes must be a positive integer"),
+  body("fours")
+    .isInt({ gt: 0 })
+    .withMessage("Fours must be a positive integer"),
+  body("wickets")
+    .isInt({ gt: 0 })
+    .withMessage("Wickets must be a positive integer"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const message = errors.array()[0].msg;
+      const error = new Error(message);
+      error.statusCode = 422;
+      return next(error);
+    }
+    next();
+  },
+];
+
+exports.validateUpdatePlayer = [
+  body("name").notEmpty().withMessage("Name is required"),
+  body("location").notEmpty().withMessage("Location is required"),
+  body("role").notEmpty().withMessage("Role is required"),
+  body("age").isInt({ gt: 0 }).withMessage("Age must be a positive integer"),
+  body("additionalInfo").notEmpty().withMessage("Additional info is required"),
+  body("admins").isArray().withMessage("Admins must be an array"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const message = errors.array()[0].msg;
+      const error = new Error(message);
+      error.statusCode = 422;
+      return next(error);
+    }
+    next();
+  },
+];
