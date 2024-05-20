@@ -352,6 +352,69 @@ exports.getUpcomingMatches = async (req, res, next) => {
   }
 };
 
+exports.getLiveMatches = async (req, res, next) => {
+  try {
+    const adminId = req.params.adminId;
+    const matches = await MatchDetails.find({
+      admin: adminId,
+      matchStatus: 1,
+    })
+      .select(
+        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
+      )
+      .populate("team1 team2", "name image")
+      .populate("squad1 squad2", "name");
+
+    if (!matches || matches.length === 0) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "No matches found for the current admin.",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Match details",
+      data: matches,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getMatchDetails = async (req, res, next) => {
+  try {
+    const matchId = req.params.matchId;
+    const matches = await MatchDetails.findOne({
+      _id: matchId,
+      //   matchStatus: 1,
+    })
+      .populate(
+        "team1 team2 squad1 squad2 openingBowler striker nonStriker manOfTheMatch currentOver.balls overs.balls playerStats.player bowlerStats.player",
+        "name image Image runsScored isExtra ballTo description extraType wicketType isWicket age role"
+      )
+      .populate("lastWicket.player", "name -_id");
+
+    if (!matches || matches.length === 0) {
+      const error = new Error("No matches found");
+      error.statusCode = 404;
+      return next(new Error("No match found!"));
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Match details",
+      data: matches,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // * TOURNAMENT ********************************
 
 exports.postTournament = async (req, res, next, cloudinary) => {
@@ -671,7 +734,7 @@ exports.addTournamentMatch = async (req, res, next) => {
   }
 };
 
-exports.getTournamentUpcoming = async (req, res, next) => {
+exports.TournamentUpcomingMatches = async (req, res, next) => {
   try {
     const tournamentId = req.params.id;
     const matches = await MatchDetails.find({
@@ -681,6 +744,36 @@ exports.getTournamentUpcoming = async (req, res, next) => {
 
     if (!matches || matches.length === 0) {
       const error = new Error("No matches found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Match details",
+      data: matches,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.TournamentLiveMatches = async (req, res, next) => {
+  try {
+    const tournamentId = req.params.id;
+    const matches = await MatchDetails.find({
+      "tournamentInfo.tournament": mongoose.Types.ObjectId(tournamentId),
+      matchStatus: 1,
+    })
+      .select(
+        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
+      )
+      .populate("team1 team2", "name image")
+      .populate("squad1 squad2", "name");
+
+    if (!matches || matches.length === 0) {
+      const error = new Error("Tournament contains no matches");
       error.statusCode = 404;
       return next(error);
     }

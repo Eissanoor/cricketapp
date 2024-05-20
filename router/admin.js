@@ -1103,9 +1103,7 @@ router.get("/test", async (req, res, next) => {
 
 // * Match Details * * * * * * * * * * * * * * * * * * *
 router.post("/add-match-details", adminController.postAddMatch);
-
 router.put("/start-match/:matchId", adminController.postStartMatch);
-
 router.get(
   "/get-upcoming-matches/:adminId",
   adminController.getUpcomingMatches
@@ -1144,7 +1142,6 @@ router.get(
     }
   }
 );
-
 router.get("/get-allMatchDetails", async (req, res, next) => {
   try {
     const data = await MatchDetails.find();
@@ -1216,77 +1213,9 @@ router.get(
     }
   }
 );
-router.get("/get-live-matches/:adminId", async (req, res, next) => {
-  try {
-    const adminId = req.params.adminId;
-    const matches = await MatchDetails.find({
-      admin: adminId,
-      matchStatus: 1,
-    })
-      .select(
-        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
-      )
-      .populate("team1 team2", "name image")
-      .populate("squad1 squad2", "name");
 
-    if (!matches || matches.length === 0) {
-      return res.status(404).json({
-        status: 404,
-        success: false,
-        message: "No matches found for the current admin.",
-        data: null,
-      });
-    }
-
-    res.status(200).json({
-      status: 200,
-      success: true,
-      message: "Match details",
-      data: matches,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-router.get("/get-matchesdetails/:matchId", async (req, res, next) => {
-  try {
-    const matchId = req.params.matchId;
-    const matches = await MatchDetails.findOne({
-      _id: matchId,
-      //   matchStatus: 1,
-    })
-      .populate(
-        "team1 team2 squad1 squad2 openingBowler striker nonStriker manOfTheMatch currentOver.balls overs.balls playerStats.player bowlerStats.player",
-        "name image Image runsScored isExtra ballTo description extraType wicketType isWicket age role"
-      )
-      .populate("lastWicket.player", "name -_id");
-
-    if (!matches || matches.length === 0) {
-      //   return res.status(404).json({
-      //     status: 404,
-      //     success: false,
-      //     message: "No matches found for the current matchId.",
-      //     data: null,
-      //   });
-      return next(new Error("No match found!"));
-    }
-
-    res.status(200).json({
-      status: 200,
-      success: true,
-      message: "Match details",
-      data: matches,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Internal server error",
-      data: null,
-    });
-  }
-});
+router.get("/get-live-matches/:adminId", adminController.getLiveMatches);
+router.get("/get-matchesdetails/:matchId", adminController.getMatchDetails);
 router.put("/set-man-of-the-match", adminController.setManOfTheMatch);
 
 // * Tournament matches * * * * * * * * * * * * * * * * * * *
@@ -1322,6 +1251,11 @@ router.post(
   adminController.addTournamentMatch
 );
 
-router.get("/tournament-upcoming/:id", adminController.getTournamentUpcoming);
+router.get(
+  "/tournament-upcoming/:id",
+  adminController.TournamentUpcomingMatches
+);
+
+router.get("/tournament-live", adminController.TournamentLiveMatches);
 
 module.exports = router;
