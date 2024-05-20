@@ -553,7 +553,7 @@ exports.playerDetailsByPlayerId = async (req, res, next) => {
   }
 };
 
-exports.deletePlayer = async (req, res, next) => {
+exports.deletePlayer = async (req, res, next, cloudinary) => {
   try {
     const playerId = req.body.playerId;
     const deletedPlayer = await Player.findByIdAndDelete(playerId);

@@ -449,12 +449,16 @@ router.post(
   "/get-player-detail-by-playerid",
   adminController.playerDetailsByPlayerId
 );
-router.delete("/delete-player-byid", adminController.deletePlayer);
+router.delete("/delete-player-byid", async (req, res, next) => {
+  await adminController.deletePlayer(req, res, next, cloudinary);
+});
 router.put(
   "/update-player",
   upload.single("Image"),
   validators.validateUpdatePlayer,
-  adminController.updatePlayer
+  async (req, res, next) => {
+    await adminController.updatePlayer(req, res, next, cloudinary);
+  }
 );
 router.put("/share-player", adminController.sharePlayer);
 
