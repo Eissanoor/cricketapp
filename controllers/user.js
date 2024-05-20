@@ -151,6 +151,7 @@ exports.getBannerMatches = async (req, res, next) => {
     res.status(200).json({
       status: 200,
       success: true,
+      message: "Banner matches received successfully",
       data: matches,
     });
   } catch (error) {
