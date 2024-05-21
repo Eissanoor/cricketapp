@@ -73,8 +73,8 @@ exports.postAction = async (req, res, next, socketIo) => {
     //   match.team2RequiredRunRate = rrr;
     // }
 
-    match.calculateCurrentRunRate();
-    match.calculateRequiredRunRate();
+    // match.calculateCurrentRunRate();
+    // match.calculateRequiredRunRate();
     await match.save();
     // Perform action based on the action type
     switch (actionType) {

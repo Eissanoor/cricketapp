@@ -210,6 +210,9 @@ const handleOverCompletion = async (match, socketIo) => {
       match.team1Balls = 0;
     }
 
+    match.calculateCurrentRunRate();
+    match.calculateRequiredRunRate();
+
     // Update bowler stats
     const bowlerStatsIndex = match.bowlerStats.findIndex(
       (playerStat) =>
@@ -703,8 +706,8 @@ const createPointsTable = async function (match) {
       // Update team1 points table
       if (pointsTableTeam1) {
         pointsTableTeam1.matchesPlayed += 1;
-        pointsTableTeam1.runsScored += match.team1Runs; // Assuming match has team1Runs
-        pointsTableTeam1.runsAgainst += match.team2Runs; // Assuming match has team2Runs
+        pointsTableTeam1.runsScored += match.team1Score; // Assuming match has team1Runs
+        pointsTableTeam1.runsAgainst += match.team2Score; // Assuming match has team2Runs
         pointsTableTeam1.oversFaced += match.team2Overs; // Assuming match has team1Overs
 
         if (match.winningTeam === match.team1) {
@@ -722,8 +725,8 @@ const createPointsTable = async function (match) {
           team: match.team1,
           tournament: match.tournamentInfo.tournament,
           matchesPlayed: 1,
-          runsScored: match.team1Runs,
-          runsAgainst: match.team2Runs,
+          runsScored: match.team1Score,
+          runsAgainst: match.team2Score,
           oversFaced: match.team2Overs,
           wins: match.winningTeam === match.team1 ? 1 : 0,
           losses: match.winningTeam === match.team1 ? 0 : 1,
@@ -738,8 +741,8 @@ const createPointsTable = async function (match) {
       // Update team2 points table
       if (pointsTableTeam2) {
         pointsTableTeam2.matchesPlayed += 1;
-        pointsTableTeam2.runsScored += match.team2Runs; // Assuming match has team2Runs
-        pointsTableTeam2.runsAgainst += match.team1Runs; // Assuming match has team1Runs
+        pointsTableTeam2.runsScored += match.team2Score; // Assuming match has team2Runs
+        pointsTableTeam2.runsAgainst += match.team1Score; // Assuming match has team1Runs
         pointsTableTeam2.oversFaced += match.team1Overs; // Assuming match has team2Overs
 
         if (match.winningTeam === match.team2) {
@@ -757,8 +760,8 @@ const createPointsTable = async function (match) {
           team: match.team2,
           tournament: match.tournamentInfo.tournament,
           matchesPlayed: 1,
-          runsScored: match.team2Runs,
-          runsAgainst: match.team1Runs,
+          runsScored: match.team2Score,
+          runsAgainst: match.team1Score,
           oversFaced: match.team1Overs,
           wins: match.winningTeam === match.team2 ? 1 : 0,
           losses: match.winningTeam === match.team2 ? 0 : 1,
