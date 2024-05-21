@@ -66,14 +66,7 @@ function generateOTP() {
   }
   return OTP;
 }
-router.get("/", (req, res, next) => {
-  res.json({
-    status: 200,
-    success: true,
-    message: "THIS IS HOME PAGE into development server",
-    data: null,
-  });
-});
+
 router.post("/signup", async (req, res, next) => {
   try {
     const email = req.body.email;

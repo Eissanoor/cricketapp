@@ -356,6 +356,9 @@ exports.handleWideAction = async (matchId, extraRuns, extraType, socketIo) => {
           : 0
       );
 
+      // add points table for both teams
+      await scorerHelper.createPointsTable(match);
+
       return socketIo.emit("matchCompleted", match);
     }
 
@@ -620,6 +623,9 @@ exports.handleNoBallAction = async (matchId, data) => {
           ? match.team2Score - match.team1Score
           : 0
       );
+
+      // add points table for both teams
+      await scorerHelper.createPointsTable(match);
 
       return socketIo.emit("matchCompleted", match);
     }

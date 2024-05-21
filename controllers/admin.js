@@ -942,7 +942,7 @@ exports.getLiveMatches = async (req, res, next) => {
       matchStatus: 1,
     })
       .select(
-        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
+        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs -tournamentInfo"
       )
       .populate("team1 team2", "name image")
       .populate("squad1 squad2", "name");

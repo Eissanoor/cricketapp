@@ -4,6 +4,7 @@ const ScoreCard = require("../models/score_card");
 const Player = require("../models/player");
 const Over = require("../models/over");
 const Team = require("../models/team");
+const PointsTable = require("../models/points_table");
 
 const calculateCurrentRunRate = (totalRuns, totalOvers) => {
   if (totalRuns === 0 && totalOvers === 0) {
@@ -253,6 +254,10 @@ const handleOverCompletion = async (match, socketIo) => {
           ? match.team2Score - match.team1Score
           : 0
       );
+
+      // add points table for both teams
+      await createPointsTable(match);
+
       return socketIo.emit("matchCompleted", match);
     }
     // check if inning is finished or not
@@ -298,6 +303,10 @@ const handleOverCompletion = async (match, socketIo) => {
         ? match.team2Score - match.team1Score
         : 0
     );
+
+    // add points table for both teams
+    await createPointsTable(match);
+
     return socketIo.emit("matchCompleted", match);
   }
 };
@@ -677,6 +686,98 @@ const addTeamRecentPerformance = async function addTeamRecentPerformance(
   }
 };
 
+const createPointsTable = async function (match) {
+  if (match.tournamentInfo) {
+    // Winning case
+    if (!match.draw) {
+      const pointsTableTeam1 = await PointsTable.findOne({
+        tournament: match.tournamentInfo.tournament,
+        team: match.team1,
+      });
+
+      const pointsTableTeam2 = await PointsTable.findOne({
+        tournament: match.tournamentInfo.tournament,
+        team: match.team2,
+      });
+
+      // Update team1 points table
+      if (pointsTableTeam1) {
+        pointsTableTeam1.matchesPlayed += 1;
+        pointsTableTeam1.runsScored += match.team1Runs; // Assuming match has team1Runs
+        pointsTableTeam1.runsAgainst += match.team2Runs; // Assuming match has team2Runs
+        pointsTableTeam1.oversFaced += match.team1Overs; // Assuming match has team1Overs
+
+        if (match.winningTeam === match.team1) {
+          pointsTableTeam1.wins += 1;
+          pointsTableTeam1.points += 2; // Assuming 2 points for a win
+        } else {
+          pointsTableTeam1.losses += 1;
+        }
+
+        pointsTableTeam1.calculateNRR();
+        await pointsTableTeam1.save();
+      }
+
+      // Update team2 points table
+      if (pointsTableTeam2) {
+        pointsTableTeam2.matchesPlayed += 1;
+        pointsTableTeam2.runsScored += match.team2Runs; // Assuming match has team2Runs
+        pointsTableTeam2.runsAgainst += match.team1Runs; // Assuming match has team1Runs
+        pointsTableTeam2.oversFaced += match.team2Overs; // Assuming match has team2Overs
+
+        if (match.winningTeam === match.team2) {
+          pointsTableTeam2.wins += 1;
+          pointsTableTeam2.points += 2; // Assuming 2 points for a win
+        } else {
+          pointsTableTeam2.losses += 1;
+        }
+
+        pointsTableTeam2.calculateNRR();
+        await pointsTableTeam2.save();
+      }
+    }
+
+    // Draw case
+    else {
+      const pointsTableTeam1 = await PointsTable.findOne({
+        tournament: match.tournamentInfo.tournament,
+        team: match.team1,
+      });
+
+      const pointsTableTeam2 = await PointsTable.findOne({
+        tournament: match.tournamentInfo.tournament,
+        team: match.team2,
+      });
+
+      // Update team1 points table
+      if (pointsTableTeam1) {
+        pointsTableTeam1.matchesPlayed += 1;
+        pointsTableTeam1.runsScored += match.team1Runs; // Assuming match has team1Runs
+        pointsTableTeam1.runsAgainst += match.team2Runs; // Assuming match has team2Runs
+        pointsTableTeam1.oversFaced += match.team1Overs; // Assuming match has team1Overs
+        pointsTableTeam1.draws += 1;
+        pointsTableTeam1.points += 1; // 1 point for a draw
+
+        pointsTableTeam1.calculateNRR();
+        await pointsTableTeam1.save();
+      }
+
+      // Update team2 points table
+      if (pointsTableTeam2) {
+        pointsTableTeam2.matchesPlayed += 1;
+        pointsTableTeam2.runsScored += match.team2Runs; // Assuming match has team2Runs
+        pointsTableTeam2.runsAgainst += match.team1Runs; // Assuming match has team1Runs
+        pointsTableTeam2.oversFaced += match.team2Overs; // Assuming match has team2Overs
+        pointsTableTeam2.draws += 1;
+        pointsTableTeam2.points += 1; // 1 point for a draw
+
+        pointsTableTeam2.calculateNRR();
+        await pointsTableTeam2.save();
+      }
+    }
+  }
+};
+
 exports.calculateCurrentRunRate = calculateCurrentRunRate;
 exports.calculateRequiredRunRate = calculateRequiredRunRate;
 exports.calculateNetRunRate = calculateNetRunRate;
@@ -692,3 +793,4 @@ exports.updateRealPlayerStats = updateRealPlayerStats;
 exports.setPlayersInnings = setPlayersInnings;
 exports.addLatestPerformance = addLatestPerformance;
 exports.addTeamRecentPerformance = addTeamRecentPerformance;
+exports.createPointsTable = createPointsTable;
