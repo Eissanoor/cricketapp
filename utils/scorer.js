@@ -690,12 +690,12 @@ const createPointsTable = async function (match) {
   if (match.tournamentInfo) {
     // Winning case
     if (!match.draw) {
-      const pointsTableTeam1 = await PointsTable.findOne({
+      let pointsTableTeam1 = await PointsTable.findOne({
         tournament: match.tournamentInfo.tournament,
         team: match.team1,
       });
 
-      const pointsTableTeam2 = await PointsTable.findOne({
+      let pointsTableTeam2 = await PointsTable.findOne({
         tournament: match.tournamentInfo.tournament,
         team: match.team2,
       });
