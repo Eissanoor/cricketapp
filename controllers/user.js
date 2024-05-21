@@ -32,7 +32,7 @@ exports.getLiveMatches = async (req, res, next) => {
 exports.getUpcomingMathces = async (req, res, next) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 0 })
-      .sort({ _id: -1 })
+      .sort({ matchDate: -1 }) // sort by matchDate in descending order
       .populate(
         "team1 team2 squad1 squad2",
         "name image Image recentPerformance"
