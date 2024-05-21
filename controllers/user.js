@@ -116,7 +116,8 @@ exports.getCompletedMatches = async (req, res, next) => {
       .select(
         "-striker -nonStriker -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
       )
-      .populate("team1 team2 squad1 squad2 manOfTheMatch", "name image Image");
+      .populate("team1 team2 squad1 squad2 manOfTheMatch", "name image Image")
+      .populate("tournamentInfo.tournament", "seriesName seriesLocation");
     if (!matches || matches.length === 0) {
       return next(new Error("No matches found"));
     }
