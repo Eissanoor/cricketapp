@@ -705,7 +705,7 @@ const createPointsTable = async function (match) {
         pointsTableTeam1.matchesPlayed += 1;
         pointsTableTeam1.runsScored += match.team1Runs; // Assuming match has team1Runs
         pointsTableTeam1.runsAgainst += match.team2Runs; // Assuming match has team2Runs
-        pointsTableTeam1.oversFaced += match.team1Overs; // Assuming match has team1Overs
+        pointsTableTeam1.oversFaced += match.team2Overs; // Assuming match has team1Overs
 
         if (match.winningTeam === match.team1) {
           pointsTableTeam1.wins += 1;
@@ -716,6 +716,23 @@ const createPointsTable = async function (match) {
 
         pointsTableTeam1.calculateNRR();
         await pointsTableTeam1.save();
+      } else {
+        // Create a new points table entry for team1
+        pointsTableTeam1 = new PointsTable({
+          team: match.team1,
+          tournament: match.tournamentInfo.tournament,
+          matchesPlayed: 1,
+          runsScored: match.team1Runs,
+          runsAgainst: match.team2Runs,
+          oversFaced: match.team2Overs,
+          wins: match.winningTeam === match.team1 ? 1 : 0,
+          losses: match.winningTeam === match.team1 ? 0 : 1,
+          draws: 0,
+          points: match.winningTeam === match.team1 ? 2 : 0,
+        });
+
+        pointsTableTeam1.calculateNRR();
+        await pointsTableTeam1.save();
       }
 
       // Update team2 points table
@@ -723,7 +740,7 @@ const createPointsTable = async function (match) {
         pointsTableTeam2.matchesPlayed += 1;
         pointsTableTeam2.runsScored += match.team2Runs; // Assuming match has team2Runs
         pointsTableTeam2.runsAgainst += match.team1Runs; // Assuming match has team1Runs
-        pointsTableTeam2.oversFaced += match.team2Overs; // Assuming match has team2Overs
+        pointsTableTeam2.oversFaced += match.team1Overs; // Assuming match has team2Overs
 
         if (match.winningTeam === match.team2) {
           pointsTableTeam2.wins += 1;
@@ -731,6 +748,23 @@ const createPointsTable = async function (match) {
         } else {
           pointsTableTeam2.losses += 1;
         }
+
+        pointsTableTeam2.calculateNRR();
+        await pointsTableTeam2.save();
+      } else {
+        // Create a new points table entry for team2
+        pointsTableTeam2 = new PointsTable({
+          team: match.team2,
+          tournament: match.tournamentInfo.tournament,
+          matchesPlayed: 1,
+          runsScored: match.team2Runs,
+          runsAgainst: match.team1Runs,
+          oversFaced: match.team1Overs,
+          wins: match.winningTeam === match.team2 ? 1 : 0,
+          losses: match.winningTeam === match.team2 ? 0 : 1,
+          draws: 0,
+          points: match.winningTeam === match.team2 ? 2 : 0,
+        });
 
         pointsTableTeam2.calculateNRR();
         await pointsTableTeam2.save();
@@ -754,9 +788,24 @@ const createPointsTable = async function (match) {
         pointsTableTeam1.matchesPlayed += 1;
         pointsTableTeam1.runsScored += match.team1Runs; // Assuming match has team1Runs
         pointsTableTeam1.runsAgainst += match.team2Runs; // Assuming match has team2Runs
-        pointsTableTeam1.oversFaced += match.team1Overs; // Assuming match has team1Overs
+        pointsTableTeam1.oversFaced += match.team2Overs; // Assuming match has team2Overs
         pointsTableTeam1.draws += 1;
         pointsTableTeam1.points += 1; // 1 point for a draw
+
+        pointsTableTeam1.calculateNRR();
+        await pointsTableTeam1.save();
+      } else {
+        // Create a new points table entry for team1
+        pointsTableTeam1 = new PointsTable({
+          team: match.team1,
+          tournament: match.tournamentInfo.tournament,
+          matchesPlayed: 1,
+          runsScored: match.team1Runs,
+          runsAgainst: match.team2Runs,
+          oversFaced: match.team2Overs,
+          draws: 1,
+          points: 1, // 1 point for a draw
+        });
 
         pointsTableTeam1.calculateNRR();
         await pointsTableTeam1.save();
@@ -767,9 +816,24 @@ const createPointsTable = async function (match) {
         pointsTableTeam2.matchesPlayed += 1;
         pointsTableTeam2.runsScored += match.team2Runs; // Assuming match has team2Runs
         pointsTableTeam2.runsAgainst += match.team1Runs; // Assuming match has team1Runs
-        pointsTableTeam2.oversFaced += match.team2Overs; // Assuming match has team2Overs
+        pointsTableTeam2.oversFaced += match.team1Overs; // Assuming match has team2Overs
         pointsTableTeam2.draws += 1;
         pointsTableTeam2.points += 1; // 1 point for a draw
+
+        pointsTableTeam2.calculateNRR();
+        await pointsTableTeam2.save();
+      } else {
+        // Create a new points table entry for team2
+        pointsTableTeam2 = new PointsTable({
+          team: match.team2,
+          tournament: match.tournamentInfo.tournament,
+          matchesPlayed: 1,
+          runsScored: match.team2Runs,
+          runsAgainst: match.team1Runs,
+          oversFaced: match.team1Overs,
+          draws: 1,
+          points: 1, // 1 point for a draw
+        });
 
         pointsTableTeam2.calculateNRR();
         await pointsTableTeam2.save();
