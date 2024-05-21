@@ -7,6 +7,7 @@ const Notifier = require("../models/notifier");
 const Team = require("../models/team");
 const Player = require("../models/player");
 const Admin = require("../models/admin");
+const PointsTable = require("../models/points_table");
 
 const scorerHelper = require("../utils/scorer");
 
@@ -1153,6 +1154,12 @@ exports.getTournament = async (req, res, next) => {
 exports.putTeamToTournament = async (req, res, next) => {
   try {
     const { tournamentId, teamId } = req.body;
+    const team = await Team.findById(teamId);
+    if (!team) {
+      const error = new Error("No team found");
+      error.statusCode = 404;
+      return next(error);
+    }
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
       const error = new Error("No tournament found");
@@ -1176,6 +1183,14 @@ exports.putTeamToTournament = async (req, res, next) => {
       error.statusCode = 404;
       return next(error);
     }
+
+    // create instance in points table
+    const pointsTable = new PointsTable({
+      tournament: tournament._id,
+      team: team._id,
+    });
+
+    const savedPointsTable = await pointsTable.save();
 
     // if (!tournament.teams.includes(teamId)) {
     //   tournament.teams.push(teamId);

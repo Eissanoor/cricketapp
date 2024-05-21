@@ -23,4 +23,7 @@ router.get("/player-details/:playerId", userController.getPlayerDetails);
 // * TOURNAMENT ***
 router.get("/last-five-tournaments", userController.getLastFiveTournaments);
 
+// * POINTS TABLE ***
+router.get("/tournament-points/:id", userController.getTournamentPointsTable);
+
 module.exports = router;

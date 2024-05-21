@@ -3,6 +3,7 @@ const ScoreCard = require("../models/score_card");
 const Player = require("../models/player");
 const Over = require("../models/over");
 const Tournament = require("../models/tournament");
+const PointsTable = require("../models/points_table");
 
 exports.getLiveMatches = async (req, res, next) => {
   try {
@@ -218,5 +219,30 @@ exports.getLastFiveTournaments = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+
+// * Points Table ***
+exports.getTournamentPointsTable = async (req, res, next) => {
+  try {
+    const tournament = req.params.id;
+    const pointsTable = await PointsTable.find({ tournament: tournament })
+      .sort({ points: -1 }) // sort by points in descending order
+      .populate("team", "name"); // assuming team is a reference to another collection
+
+    if (!pointsTable || points.length === 0) {
+      const error = new Error("No points found for tournament");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      data: pointsTable,
+      message: "Tournaments are now available",
+    });
+  } catch (err) {
+    next(err);
   }
 };
