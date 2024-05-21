@@ -126,7 +126,7 @@ const matchDetailsSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Tournament",
       },
-      matchType: { type: String, required: true },
+      matchType: { type: String },
     },
     // Other fields related to match statistics
   },
