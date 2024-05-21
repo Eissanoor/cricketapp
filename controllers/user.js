@@ -230,7 +230,7 @@ exports.getTournamentPointsTable = async (req, res, next) => {
       .sort({ points: -1 }) // sort by points in descending order
       .populate("team", "name"); // assuming team is a reference to another collection
 
-    if (!pointsTable || points.length === 0) {
+    if (!pointsTable || pointsTable.length === 0) {
       const error = new Error("No points found for tournament");
       error.statusCode = 404;
       return next(error);
