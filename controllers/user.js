@@ -113,6 +113,7 @@ exports.getMatchOvers = async (req, res, next) => {
 exports.getCompletedMatches = async (req, res, next) => {
   try {
     const matches = await MatchDetails.find({ matchStatus: 2 })
+      .sort({ _id: -1 })
       .select(
         "-striker -nonStriker -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
       )
