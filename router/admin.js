@@ -591,7 +591,7 @@ router.get(
   }
 );
 router.get("/get-live-matches/:adminId", adminController.getLiveMatches);
-router.get("/get-matchesdetails/:matchId", adminController.getMatchDetails);
+router.get("/get-match-details/:matchId", adminController.getMatchDetails);
 router.put("/set-man-of-the-match", adminController.setManOfTheMatch);
 
 // * Tournament matches * * * * * * * * * * * * * * * * * * *

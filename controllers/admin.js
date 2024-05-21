@@ -978,7 +978,8 @@ exports.getMatchDetails = async (req, res, next) => {
         "team1 team2 squad1 squad2 openingBowler striker nonStriker manOfTheMatch currentOver.balls overs.balls playerStats.player bowlerStats.player",
         "name image Image runsScored isExtra ballTo description extraType wicketType isWicket age role"
       )
-      .populate("lastWicket.player", "name -_id");
+      .populate("lastWicket.player", "name -_id")
+      .populate("tournamentInfo.tournament", "seriesName seriesLocation");
 
     if (!matches || matches.length === 0) {
       const error = new Error("No matches found");
