@@ -1389,3 +1389,31 @@ exports.TournamentLiveMatches = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.postGroupToTournament = async (req, res, next) => {
+  try {
+    const { groupName } = req.body;
+    const tournament = await Tournament.findById(req.params.tournamentId);
+    if (!tournament) {
+      const error = new Error("No tournament found with that ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    tournament.groups.push({
+      name: groupName,
+      teams: [],
+    });
+
+    await tournament.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Successfully created a new group",
+      data: null,
+    });
+  } catch (err) {
+    next(err);
+  }
+};

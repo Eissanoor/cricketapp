@@ -634,4 +634,9 @@ router.get(
 
 router.get("/tournament-live/:id", adminController.TournamentLiveMatches);
 
+router.put(
+  "/group-to-tournament/:tournamentId",
+  adminController.postGroupToTournament
+);
+
 module.exports = router;

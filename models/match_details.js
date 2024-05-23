@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const matchTypes = ["series", "qualifier", "semiFinal", "final"];
+
 const matchDetailsSchema = new mongoose.Schema(
   {
     admin: {
@@ -126,7 +128,7 @@ const matchDetailsSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Tournament",
       },
-      matchType: { type: String },
+      matchType: { type: String, enum: matchTypes },
     },
     // Other fields related to match statistics
   },

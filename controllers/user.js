@@ -227,7 +227,7 @@ exports.getTournamentPointsTable = async (req, res, next) => {
   try {
     const tournament = req.params.id;
     const pointsTable = await PointsTable.find({ tournament: tournament })
-      .sort({ points: -1 }) // sort by points in descending order
+      .sort({ netRunRate: -1 })
       .populate("team", "name"); // assuming team is a reference to another collection
 
     if (!pointsTable || pointsTable.length === 0) {
@@ -239,8 +239,8 @@ exports.getTournamentPointsTable = async (req, res, next) => {
     res.status(200).json({
       status: 200,
       success: true,
+      message: "Points found for tournament",
       data: pointsTable,
-      message: "Tournaments are now available",
     });
   } catch (err) {
     next(err);
