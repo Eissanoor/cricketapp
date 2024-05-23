@@ -1393,16 +1393,23 @@ exports.TournamentLiveMatches = async (req, res, next) => {
 exports.postGroupToTournament = async (req, res, next) => {
   try {
     const { groupName } = req.body;
-    const tournament = await Tournament.findById(req.params.tournamentId);
+    const tournamentId = req.params.tournamentId;
+    const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
       const error = new Error("No tournament found with that ID");
       error.statusCode = 404;
       return next(error);
     }
 
+    const pointsTable = new PointsTable({
+      tournament: tournament._id,
+    });
+    const savedPointsTable = await pointsTable.save();
+
     tournament.groups.push({
       name: groupName,
       teams: [],
+      pointsTable: null,
     });
 
     await tournament.save();

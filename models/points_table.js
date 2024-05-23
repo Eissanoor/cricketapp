@@ -7,7 +7,7 @@ const PointsTableSchema = new mongoose.Schema({
   },
   team: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Team", // Assuming 'Team' is your Team model
+    ref: "Team",
   },
   matchesPlayed: {
     type: Number,
