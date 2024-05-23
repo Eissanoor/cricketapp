@@ -1332,7 +1332,7 @@ exports.addTournamentMatch = async (req, res, next) => {
   }
 };
 
-exports.TournamentUpcomingMatches = async (req, res, next) => {
+exports.tournamentUpcomingMatches = async (req, res, next) => {
   try {
     const tournamentId = req.params.id;
     const matches = await MatchDetails.find({
@@ -1359,7 +1359,7 @@ exports.TournamentUpcomingMatches = async (req, res, next) => {
   }
 };
 
-exports.TournamentLiveMatches = async (req, res, next) => {
+exports.tournamentLiveMatches = async (req, res, next) => {
   try {
     const tournamentId = req.params.id;
     const matches = await MatchDetails.find({
@@ -1390,7 +1390,7 @@ exports.TournamentLiveMatches = async (req, res, next) => {
   }
 };
 
-exports.postGroupToTournament = async (req, res, next) => {
+exports.putGroupToTournament = async (req, res, next) => {
   try {
     const { groupName } = req.body;
     const tournamentId = req.params.tournamentId;
@@ -1401,15 +1401,9 @@ exports.postGroupToTournament = async (req, res, next) => {
       return next(error);
     }
 
-    const pointsTable = new PointsTable({
-      tournament: tournament._id,
-    });
-    const savedPointsTable = await pointsTable.save();
-
     tournament.groups.push({
       name: groupName,
       teams: [],
-      pointsTable: savedPointsTable._id,
     });
 
     await tournament.save();
@@ -1422,5 +1416,107 @@ exports.postGroupToTournament = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+};
+
+exports.putTeamToTournamentGroup = async (req, res, next) => {
+  try {
+    const { tournamentId, groupId, teamId } = req.body;
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      const error = new Error("Invalid tournament");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const groupIndex = tournament.groups.findIndex(
+      (group) => group._id.toString() === groupId.toString()
+    );
+    if (groupIndex !== -1) {
+      const group = tournament.groups[groupIndex];
+      const teamAlreadyInGroup = group.teams.some(
+        (team) => team.toString() === teamId.toString()
+      );
+
+      if (teamAlreadyInGroup) {
+        const error = new Error("Team already in group");
+        error.statusCode = 400;
+        return next(error);
+      }
+
+      group.teams.push(teamId);
+
+      const pointsTable = new PointsTable({
+        tournament: tournament._id,
+        team: teamId,
+        group: groupId,
+      });
+
+      const savedPointsTable = await pointsTable.save();
+      await tournament.save();
+
+      res.status(200).json({
+        status: 200,
+        success: true,
+        message: "Team added to the tournament group successfully",
+        data: null,
+      });
+    } else {
+      const error = new Error("Invalid group index");
+      error.statusCode = 404;
+      return next(error);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteTeamFromTournamentGroup = async (req, res, next) => {
+  try {
+    const { tournamentId, groupId, teamId } = req.body;
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      const error = new Error("Invalid tournament");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const groupIndex = tournament.groups.findIndex(
+      (group) => group._id.toString() === groupId.toString()
+    );
+    if (groupIndex !== -1) {
+      const group = tournament.groups[groupIndex];
+      const teamIndex = group.teams.findIndex(
+        (team) => team.toString() === teamId.toString()
+      );
+
+      if (teamIndex === -1) {
+        const error = new Error("Team not in group");
+        error.statusCode = 400;
+        return next(error);
+      }
+
+      group.teams.splice(teamIndex, 1);
+
+      const pointsTable = await PointsTable.findOneAndDelete({
+        tournament: tournament._id,
+        team: teamId,
+        group: groupId,
+      });
+
+      await tournament.save();
+
+      res.status(200).json({
+        status: "success",
+        message: "Team removed from the tournament group successfully",
+        data: null,
+      });
+    } else {
+      const error = new Error("Invalid group index");
+      error.statusCode = 404;
+      return next(error);
+    }
+  } catch (error) {
+    next(error);
   }
 };

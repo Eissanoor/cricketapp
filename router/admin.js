@@ -627,16 +627,23 @@ router.post(
   adminController.addTournamentMatch
 );
 
-router.get(
-  "/tournament-upcoming/:id",
-  adminController.TournamentUpcomingMatches
-);
+router.get("/tournament-upcoming/:id", adminController.tournamentLiveMatches);
 
-router.get("/tournament-live/:id", adminController.TournamentLiveMatches);
+router.get("/tournament-live/:id", adminController.tournamentLiveMatches);
 
 router.put(
   "/group-to-tournament/:tournamentId",
   adminController.postGroupToTournament
+);
+
+router.put(
+  "/team-to-tournament-group",
+  adminController.putTeamToTournamentGroup
+);
+
+router.delete(
+  "/team-from-tournament-group",
+  adminController.deleteTeamFromTournamentGroup
 );
 
 module.exports = router;

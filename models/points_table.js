@@ -9,6 +9,9 @@ const PointsTableSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Team",
   },
+  group: {
+    type: mongoose.Schema.Types.ObjectId,
+  },
   matchesPlayed: {
     type: Number,
     default: 0,
