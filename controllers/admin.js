@@ -1409,7 +1409,7 @@ exports.postGroupToTournament = async (req, res, next) => {
     tournament.groups.push({
       name: groupName,
       teams: [],
-      pointsTable: null,
+      pointsTable: savedPointsTable._id,
     });
 
     await tournament.save();
