@@ -633,7 +633,7 @@ router.get("/tournament-live/:id", adminController.tournamentLiveMatches);
 
 router.put(
   "/group-to-tournament/:tournamentId",
-  adminController.postGroupToTournament
+  adminController.putGroupToTournament
 );
 
 router.put(
@@ -645,5 +645,7 @@ router.delete(
   "/team-from-tournament-group",
   adminController.deleteTeamFromTournamentGroup
 );
+
+// router.get("/api/get/groupPointsTable", adminController.getGroupPointsTable);
 
 module.exports = router;

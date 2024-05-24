@@ -1131,10 +1131,9 @@ exports.getTournaments = async (req, res, next) => {
 exports.getTournament = async (req, res, next) => {
   try {
     const { tournamentId } = req.params;
-    const tournament = await Tournament.findById(tournamentId).populate(
-      "teams.team",
-      "name image"
-    );
+    const tournament = await Tournament.findById(tournamentId)
+      .populate("teams.team", "name image")
+      .populate("groups.pointsTable");
     if (!tournament) {
       const error = new Error("No tournament found");
       error.statusCode = 404;
