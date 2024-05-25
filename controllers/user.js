@@ -226,11 +226,22 @@ exports.getLastFiveTournaments = async (req, res, next) => {
 exports.getTournamentPointsTable = async (req, res, next) => {
   try {
     const tournament = req.params.id;
-    const pointsTable = await PointsTable.find({ tournament: tournament })
+    const group = req.query.group;
+
+    let pointsTables;
+    if (group != null || group != undefined) {
+      pointsTables = await PointsTable.find({
+        tournament: tournament,
+        group: group,
+      })
+        .sort({ netRunRate: -1 })
+        .populate("team", "name");
+    }
+    pointsTables = await PointsTable.find({ tournament: tournament })
       .sort({ netRunRate: -1 })
       .populate("team", "name"); // assuming team is a reference to another collection
 
-    if (!pointsTable || pointsTable.length === 0) {
+    if (!pointsTables || pointsTables.length === 0) {
       const error = new Error("No points found for tournament");
       error.statusCode = 404;
       return next(error);
@@ -240,7 +251,7 @@ exports.getTournamentPointsTable = async (req, res, next) => {
       status: 200,
       success: true,
       message: "Points found for tournament",
-      data: pointsTable,
+      data: pointsTables,
     });
   } catch (err) {
     next(err);

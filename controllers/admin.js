@@ -1455,6 +1455,8 @@ exports.putTeamToTournamentGroup = async (req, res, next) => {
       const savedPointsTable = await pointsTable.save();
       await tournament.save();
 
+      // add points table into the group
+
       res.status(200).json({
         status: 200,
         success: true,
