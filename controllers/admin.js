@@ -1110,7 +1110,9 @@ exports.getTournaments = async (req, res, next) => {
     const adminId = req.query.adminId;
     let tournaments;
     if (adminId) {
-      tournaments = await Tournament.find({ admins: adminId }).select("-teams");
+      tournaments = await Tournament.find({ admins: adminId }).select(
+        "-teams -groups"
+      );
     } else {
       tournaments = await Tournament.find().select("-teams");
     }
@@ -1133,7 +1135,8 @@ exports.getTournament = async (req, res, next) => {
     const { tournamentId } = req.params;
     const tournament = await Tournament.findById(tournamentId)
       .populate("teams.team", "name image")
-      .populate("groups.pointsTable", "-team");
+      .populate("groups.pointsTable")
+      .populate("groups.pointsTable.team");
     if (!tournament) {
       const error = new Error("No tournament found");
       error.statusCode = 404;
