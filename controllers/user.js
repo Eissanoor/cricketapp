@@ -232,14 +232,15 @@ exports.getTournamentPointsTable = async (req, res, next) => {
     if (group != null || group != undefined) {
       pointsTables = await PointsTable.find({
         tournament: tournament,
-        group: group,
+        group: group.toString(),
       })
         .sort({ netRunRate: -1 })
         .populate("team", "name");
+    } else {
+      pointsTables = await PointsTable.find({ tournament: tournament })
+        .sort({ netRunRate: -1 })
+        .populate("team", "name");
     }
-    pointsTables = await PointsTable.find({ tournament: tournament })
-      .sort({ netRunRate: -1 })
-      .populate("team", "name"); // assuming team is a reference to another collection
 
     if (!pointsTables || pointsTables.length === 0) {
       const error = new Error("No points found for tournament");
