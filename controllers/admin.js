@@ -1469,8 +1469,6 @@ exports.putTeamToTournamentGroup = async (req, res, next) => {
 
       await tournament.save();
 
-      // add points table into the group
-
       res.status(200).json({
         status: 200,
         success: true,
@@ -1514,13 +1512,21 @@ exports.deleteTeamFromTournamentGroup = async (req, res, next) => {
 
       group.teams.splice(teamIndex, 1);
 
+      const pointsTableIndex = group.pointsTable.findIndex(
+        (pointsTable) => pointsTable.team.toString() === teamId.toString()
+      );
+
+      if (pointsTableIndex !== -1) {
+        group.pointsTable.splice(pointsTableIndex, 1);
+      }
+
+      await tournament.save();
+
       const pointsTable = await PointsTable.findOneAndDelete({
         tournament: tournament._id,
         team: teamId,
         group: groupId,
       });
-
-      await tournament.save();
 
       res.status(200).json({
         status: "success",
