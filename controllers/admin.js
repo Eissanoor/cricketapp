@@ -1453,6 +1453,9 @@ exports.putTeamToTournamentGroup = async (req, res, next) => {
       });
 
       const savedPointsTable = await pointsTable.save();
+      group.pointsTable.push(savedPointsTable);
+      group.pointsTable.sort((a, b) => b.netRunRate - a.netRunRate);
+
       await tournament.save();
 
       // add points table into the group
