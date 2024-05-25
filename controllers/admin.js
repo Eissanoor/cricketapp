@@ -1542,3 +1542,61 @@ exports.deleteTeamFromTournamentGroup = async (req, res, next) => {
     next(error);
   }
 };
+
+// exports.deleteTeamFromTournamentGroup = async (req, res, next) => {
+//   try {
+//     const { tournamentId, groupId, teamId } = req.body;
+//     const tournament = await Tournament.findById(tournamentId);
+//     if (!tournament) {
+//       const error = new Error("Invalid tournament");
+//       error.statusCode = 404;
+//       return next(error);
+//     }
+
+//     const groupIndex = tournament.groups.findIndex(
+//       (group) => group._id.toString() === groupId.toString()
+//     );
+//     if (groupIndex !== -1) {
+//       const group = tournament.groups[groupIndex];
+//       const teamIndex = group.teams.findIndex(
+//         (team) => team.toString() === teamId.toString()
+//       );
+
+//       if (teamIndex === -1) {
+//         const error = new Error("Team not in group");
+//         error.statusCode = 400;
+//         return next(error);
+//       }
+
+//       group.teams.splice(teamIndex, 1);
+
+//       const pointsTableIndex = group.pointsTable.findIndex(
+//         (pointsTable) => pointsTable.team.toString() === teamId.toString()
+//       );
+
+//       if (pointsTableIndex !== -1) {
+//         group.pointsTable.splice(pointsTableIndex, 1);
+//       }
+
+//       await tournament.save();
+
+//       const pointsTable = await PointsTable.findOneAndDelete({
+//         tournament: tournament._id,
+//         team: teamId,
+//         group: groupId,
+//       });
+
+//       res.status(200).json({
+//         status: "success",
+//         message: "Team removed from the tournament group successfully",
+//         data: null,
+//       });
+//     } else {
+//       const error = new Error("Invalid group index");
+//       error.statusCode = 404;
+//       return next(error);
+//     }
+//   } catch (error) {
+//     next(error);
+//   }
+// };
