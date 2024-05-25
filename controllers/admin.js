@@ -1510,15 +1510,15 @@ exports.deleteTeamFromTournamentGroup = async (req, res, next) => {
         return next(error);
       }
 
+      group.teams.splice(teamIndex, 1);
+
       const pointsTableIndex = group.pointsTable.findIndex(
-        (pointsTable) => pointsTable.team.toString() === teamId.toString()
+        (pointsTableId) => pointsTableId.toString() === teamId.toString()
       );
 
       if (pointsTableIndex !== -1) {
         group.pointsTable.splice(pointsTableIndex, 1);
       }
-
-      group.teams.splice(teamIndex, 1);
 
       await tournament.save();
 
