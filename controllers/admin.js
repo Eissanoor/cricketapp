@@ -1529,7 +1529,8 @@ exports.deleteTeamFromTournamentGroup = async (req, res, next) => {
       });
 
       res.status(200).json({
-        status: "success",
+        status: 200,
+        success: true,
         message: "Team removed from the tournament group successfully",
         data: null,
       });
