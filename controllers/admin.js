@@ -1141,6 +1141,7 @@ exports.getTournament = async (req, res, next) => {
         populate: {
           path: "team",
           model: "Team",
+          select: "name",
         },
       });
     //   .populate("groups.pointsTable", "-team");
