@@ -641,7 +641,7 @@ router.put(
   adminController.putTeamToTournamentGroup
 );
 
-router.delete(
+router.put(
   "/team-from-tournament-group",
   adminController.deleteTeamFromTournamentGroup
 );
