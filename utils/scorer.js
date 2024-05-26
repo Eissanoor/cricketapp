@@ -5,6 +5,7 @@ const Player = require("../models/player");
 const Over = require("../models/over");
 const Team = require("../models/team");
 const PointsTable = require("../models/points_table");
+const Tournament = require("../models/tournament");
 
 const calculateCurrentRunRate = (totalRuns, totalOvers) => {
   if (totalRuns === 0 && totalOvers === 0) {
@@ -693,15 +694,33 @@ const createPointsTable = async function (match) {
   if (match.tournamentInfo) {
     // Winning case
     if (!match.draw) {
-      let pointsTableTeam1 = await PointsTable.findOne({
-        tournament: match.tournamentInfo.tournament,
-        team: match.team1,
-      });
+      let pointsTableTeam1;
+      let pointsTableTeam2;
 
-      let pointsTableTeam2 = await PointsTable.findOne({
-        tournament: match.tournamentInfo.tournament,
-        team: match.team2,
-      });
+      // TODO check if match is group match or team match
+      if (match.tournamentInfo.group) {
+        pointsTableTeam1 = await PointsTable.findOne({
+          tournament: match.tournamentInfo.tournament,
+          team: match.team1,
+          group: match.tournamentInfo.group,
+        });
+
+        pointsTableTeam2 = await PointsTable.findOne({
+          tournament: match.tournamentInfo.tournament,
+          team: match.team2,
+          group: match.tournamentInfo.group,
+        });
+      } else {
+        pointsTableTeam1 = await PointsTable.findOne({
+          tournament: match.tournamentInfo.tournament,
+          team: match.team1,
+        });
+
+        pointsTableTeam2 = await PointsTable.findOne({
+          tournament: match.tournamentInfo.tournament,
+          team: match.team2,
+        });
+      }
 
       // Update team1 points table
       if (pointsTableTeam1) {
@@ -772,19 +791,38 @@ const createPointsTable = async function (match) {
         pointsTableTeam2.calculateNRR();
         await pointsTableTeam2.save();
       }
+
+      // TODO 1: Sort points table
+      // TODO 2: Qualify teams to the next round if it is last match of the tournament group
     }
 
     // Draw case
     else {
-      const pointsTableTeam1 = await PointsTable.findOne({
-        tournament: match.tournamentInfo.tournament,
-        team: match.team1,
-      });
+      let pointsTableTeam1;
+      let pointsTableTeam2;
+      if (match.tournamentInfo.group) {
+        pointsTableTeam1 = await PointsTable.findOne({
+          tournament: match.tournamentInfo.tournament,
+          team: match.team1,
+          group: match.tournamentInfo.group,
+        });
 
-      const pointsTableTeam2 = await PointsTable.findOne({
-        tournament: match.tournamentInfo.tournament,
-        team: match.team2,
-      });
+        pointsTableTeam2 = await PointsTable.findOne({
+          tournament: match.tournamentInfo.tournament,
+          team: match.team2,
+          group: match.tournamentInfo.group,
+        });
+      } else {
+        pointsTableTeam1 = await PointsTable.findOne({
+          tournament: match.tournamentInfo.tournament,
+          team: match.team1,
+        });
+
+        pointsTableTeam2 = await PointsTable.findOne({
+          tournament: match.tournamentInfo.tournament,
+          team: match.team2,
+        });
+      }
 
       // Update team1 points table
       if (pointsTableTeam1) {

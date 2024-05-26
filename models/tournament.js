@@ -31,6 +31,8 @@ const tournamentSchema = new mongoose.Schema({
       pointsTable: [
         { type: mongoose.Schema.Types.ObjectId, ref: "PointsTable" },
       ],
+      totalMatches: Number,
+      qualifiersNumber: Number,
     },
   ],
   //   matches: [

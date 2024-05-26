@@ -1403,7 +1403,7 @@ exports.tournamentLiveMatches = async (req, res, next) => {
 
 exports.putGroupToTournament = async (req, res, next) => {
   try {
-    const { groupName } = req.body;
+    const { groupName, totalMatches, qualifiersNumber } = req.body;
     const tournamentId = req.params.tournamentId;
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
@@ -1414,6 +1414,8 @@ exports.putGroupToTournament = async (req, res, next) => {
 
     tournament.groups.push({
       name: groupName,
+      totalMatches: totalMatches,
+      qualifiersNumber: qualifiersNumber,
       teams: [],
     });
 
