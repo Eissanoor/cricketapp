@@ -46,7 +46,8 @@ exports.validateTournamentMatch = [
   body("cityOrTown").notEmpty().withMessage("City or town is required"),
   body("ground").notEmpty().withMessage("Ground is required"),
   body("matchDateTime")
-    .isISO8601()
+    // .isISO8601()
+    .isString()
     .withMessage("Match date time must be a valid ISO 8601 date"),
   body("tournamentId").notEmpty().withMessage("Tournament ID is required"),
   body("tournamentMatchType")
