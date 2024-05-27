@@ -833,16 +833,16 @@ const createPointsTable = async function (match) {
             const pt1 = await PointsTable.findById(pointsTables[0]._id);
             const pt2 = await PointsTable.findById(pointsTables[1]._id);
 
-            // Move top two teams of the group to the qualifiers
-            const team1 = tournament.teams.findIndex(
-              (t) => t.team.toString() === pt1.team.toString()
-            );
-            const team2 = tournament.teams.findIndex(
-              (t) => t.team.toString() === pt2.team.toString()
-            );
+            // // Move top two teams of the group to the qualifiers
+            // const team1 = tournament.teams.findIndex(
+            //   (t) => t.team.toString() === pt1.team.toString()
+            // );
+            // const team2 = tournament.teams.findIndex(
+            //   (t) => t.team.toString() === pt2.team.toString()
+            // );
 
-            tournament.teams[team1].qualified = true;
-            tournament.teams[team2].qualified = true;
+            // tournament.teams[team1].qualified = true;
+            // tournament.teams[team2].qualified = true;
 
             tournament.qualifiers.push(pt1.team);
             tournament.qualifiers.push(pt2.team);
