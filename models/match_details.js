@@ -129,6 +129,7 @@ const matchDetailsSchema = new mongoose.Schema(
         ref: "Tournament",
       },
       matchType: { type: String, enum: matchTypes },
+      group: { type: mongoose.Schema.Types.ObjectId },
     },
     // Other fields related to match statistics
   },
