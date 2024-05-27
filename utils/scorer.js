@@ -824,16 +824,16 @@ const createPointsTable = async function (match) {
         if (groupIndex != -1) {
           tournament.groups[groupIndex].totalMatches--;
           if (tournament.groups[groupIndex].totalMatches <= 0) {
-            // Move top two teams of the group to the qualifiers
-            const team1 = tournament.teams.findIndex(
-              (t) => t.team.toString() === pointsTables[0].team.toString()
-            );
-            const team2 = tournament.teams.findIndex(
-              (t) => t.team.toString() === pointsTables[1].team.toString()
-            );
+            // // Move top two teams of the group to the qualifiers
+            // const team1 = tournament.teams.findIndex(
+            //   (t) => t.team.toString() === pointsTables[0].team.toString()
+            // );
+            // const team2 = tournament.teams.findIndex(
+            //   (t) => t.team.toString() === pointsTables[1].team.toString()
+            // );
 
-            tournament.teams[team1].qualified = true;
-            tournament.teams[team2].qualified = true;
+            // tournament.teams[team1].qualified = true;
+            // tournament.teams[team2].qualified = true;
 
             tournament.qualifiers.push(pointsTables[0].team);
             tournament.qualifiers.push(pointsTables[1].team);
