@@ -627,7 +627,10 @@ router.post(
   adminController.addTournamentMatch
 );
 
-router.get("/tournament/upcoming/:id", adminController.tournamentLiveMatches);
+router.get(
+  "/tournament/upcoming/:id",
+  adminController.tournamentUpcomingMatches
+);
 
 router.get("/tournament/live/:id", adminController.tournamentLiveMatches);
 
