@@ -834,9 +834,11 @@ const createPointsTable = async function (match) {
 
             // tournament.teams[team1].qualified = true;
             // tournament.teams[team2].qualified = true;
+            const pt1 = await PointsTable.findById(pointsTables[0]);
+            const pt2 = await PointsTable.findById(pointsTables[1]);
 
-            tournament.qualifiers.push(pointsTables[0].team);
-            tournament.qualifiers.push(pointsTables[1].team);
+            tournament.qualifiers.push(pt1.team);
+            tournament.qualifiers.push(pt2.team);
 
             let qualifierGroup = tournament.groups.find(
               (group) => group.name == "qualifier"
@@ -844,16 +846,13 @@ const createPointsTable = async function (match) {
 
             if (qualifierGroup) {
               // Append the teams and points tables to the existing group
-              qualifierGroup.teams.push(
-                pointsTables[0].team,
-                pointsTables[1].team
-              );
+              qualifierGroup.teams.push(pt1.team, pt2.team);
               qualifierGroup.pointsTable.push(pointsTables[0], pointsTables[1]);
             } else {
               // Create a new group
               tournament.groups.push({
                 name: "qualifier",
-                teams: [pointsTables[0].team, pointsTables[1].team],
+                teams: [pt1.team, pt2.team],
                 pointsTable: [pointsTables[0], pointsTables[1]],
                 totalMatches: 2,
                 qualifiersNumber: 2,
