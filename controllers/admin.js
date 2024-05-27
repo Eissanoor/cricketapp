@@ -1350,7 +1350,7 @@ exports.tournamentUpcomingMatches = async (req, res, next) => {
   try {
     const tournamentId = req.params.id;
     const matches = await MatchDetails.find({
-      "tournamentInfo.tournament": mongoose.Types.ObjectId(tournamentId),
+      "tournamentInfo.tournament": tournamentId,
       matchStatus: 0,
     })
       .populate("team1 team2 squad1 squad2", "name image Image")
