@@ -1270,6 +1270,7 @@ exports.addTournamentMatch = async (req, res, next) => {
       matchDateTime,
       tournamentId,
       tournamentMatchType,
+      groupId,
     } = req.body;
 
     const MatchDetailsObj = {
@@ -1306,6 +1307,7 @@ exports.addTournamentMatch = async (req, res, next) => {
       tournamentInfo: {
         tournament: tournamentId,
         matchType: tournamentMatchType,
+        group: groupId,
       },
     };
 
@@ -1414,7 +1416,7 @@ exports.putGroupToTournament = async (req, res, next) => {
 
     tournament.groups.push({
       name: groupName,
-      totalMatches: totalMatches,
+      totalMatches: totalMatches, // we will change that number after each match
       qualifiersNumber: qualifiersNumber,
       teams: [],
     });

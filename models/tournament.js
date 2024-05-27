@@ -22,12 +22,7 @@ const tournamentSchema = new mongoose.Schema({
   groups: [
     {
       name: String,
-      teams: [
-        // {
-        //   team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
-        // },
-        { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
-      ],
+      teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
       pointsTable: [
         { type: mongoose.Schema.Types.ObjectId, ref: "PointsTable" },
       ],
@@ -35,6 +30,13 @@ const tournamentSchema = new mongoose.Schema({
       qualifiersNumber: Number,
     },
   ],
+  qualifiedGroup: {
+    name: { type: String, default: "qualified" },
+    teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
+    pointsTable: [{ type: mongoose.Schema.Types.ObjectId, ref: "PointsTable" }],
+    totalMatches: Number,
+    qualifiersNumber: Number,
+  },
   //   matches: [
   //     {
   //       match: { type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" },

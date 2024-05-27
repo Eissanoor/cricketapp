@@ -696,6 +696,7 @@ const createPointsTable = async function (match) {
     if (!match.draw) {
       let pointsTableTeam1;
       let pointsTableTeam2;
+      let tournament;
 
       // TODO check if match is group match or team match
       if (match.tournamentInfo.group) {
@@ -721,7 +722,6 @@ const createPointsTable = async function (match) {
           team: match.team2,
         });
       }
-
       // Update team1 points table
       if (pointsTableTeam1) {
         pointsTableTeam1.matchesPlayed += 1;
@@ -793,7 +793,76 @@ const createPointsTable = async function (match) {
       }
 
       // TODO 1: Sort points table
+      // Find all points table entries with the same tournament id and group id
+      let pointsTables = await PointsTable.find({
+        tournament: match.tournamentInfo.tournament,
+        group: match.groupId,
+      });
+
+      // Sort the points table entries based on the net run rate
+      pointsTables.sort((a, b) => b.netRunRate - a.netRunRate);
+
+      // Save the sorted points table entries
+      for (let pointsTable of pointsTables) {
+        await pointsTable.save();
+      }
+
       // TODO 2: Qualify teams to the next round if it is last match of the tournament group
+      if (match.tournamentInfo.group) {
+        tournament = await Tournament.findById(match.tournamentInfo.tournament);
+        if (!tournament) {
+          const error = new Error(`Couldn't find tournament`);
+          error.statusCode = 404;
+          return next(error);
+        }
+
+        // find specific group
+        const groupIndex = tournament.groups.findIndex(
+          (g) => g._id.toString() === match.tournamentInfo.group.toString()
+        );
+
+        if (groupIndex != -1) {
+          tournament.groups[groupIndex].totalMatches--;
+          if (tournament.groups[groupIndex].totalMatches <= 0) {
+            // Move top two teams of the group to the qualifiers
+            const team1 = tournament.teams.findIndex(
+              (t) => t.team.toString() === pointsTables[0].team.toString()
+            );
+            const team2 = tournament.teams.findIndex(
+              (t) => t.team.toString() === pointsTables[1].team.toString()
+            );
+
+            tournament.teams[team1].qualified = true;
+            tournament.teams[team2].qualified = true;
+
+            tournament.qualifiers.push(pointsTables[0].team);
+            tournament.qualifiers.push(pointsTables[1].team);
+
+            let qualifierGroup = tournament.groups.find(
+              (group) => group.name === "qualifier"
+            );
+
+            if (qualifierGroup) {
+              // Append the teams and points tables to the existing group
+              qualifierGroup.teams.push(
+                pointsTables[0].team,
+                pointsTables[1].team
+              );
+              qualifierGroup.pointsTable.push(pointsTables[0], pointsTables[1]);
+            } else {
+              // Create a new group
+              tournament.groups.push({
+                name: "qualifier",
+                teams: [pointsTables[0].team, pointsTables[1].team],
+                pointsTable: [pointsTables[0], pointsTables[1]],
+                totalMatches: 2,
+                qualifiersNumber: 2,
+              });
+            }
+            await tournament.save();
+          }
+        }
+      }
     }
 
     // Draw case
