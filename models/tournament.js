@@ -19,6 +19,7 @@ const tournamentSchema = new mongoose.Schema({
       eliminated: { type: Boolean, default: false },
     },
   ],
+  qualifiers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
   groups: [
     {
       name: String,

@@ -839,7 +839,7 @@ const createPointsTable = async function (match) {
             tournament.qualifiers.push(pointsTables[1].team);
 
             let qualifierGroup = tournament.groups.find(
-              (group) => group.name === "qualifier"
+              (group) => group.name == "qualifier"
             );
 
             if (qualifierGroup) {
