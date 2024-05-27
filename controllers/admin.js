@@ -1144,7 +1144,7 @@ exports.getTournament = async (req, res, next) => {
           select: "name",
         },
       })
-      .populate("groups.teams", "name image");
+      .populate("groups.teams.team", "name image");
     //   .populate("groups.pointsTable", "-team");
     //   .populate("groups.pointsTable.team");
     if (!tournament) {
@@ -1450,8 +1450,11 @@ exports.putTeamToTournamentGroup = async (req, res, next) => {
     );
     if (groupIndex !== -1) {
       const group = tournament.groups[groupIndex];
+      //   const teamAlreadyInGroup = group.teams.some(
+      //     (team) => team.toString() === teamId.toString()
+      //   );
       const teamAlreadyInGroup = group.teams.some(
-        (team) => team.toString() === teamId.toString()
+        (team) => team.team.toString() === teamId.toString()
       );
 
       if (teamAlreadyInGroup) {
@@ -1460,7 +1463,8 @@ exports.putTeamToTournamentGroup = async (req, res, next) => {
         return next(error);
       }
 
-      group.teams.push(teamId);
+      //   group.teams.push(teamId);
+      group.teams.push({ team: teamId });
 
       const pointsTable = new PointsTable({
         tournament: tournament._id,

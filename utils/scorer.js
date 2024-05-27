@@ -792,35 +792,110 @@ const createPointsTable = async function (match) {
         await pointsTableTeam2.save();
       }
 
-      // TODO 1: Sort points table
-      // Find all points table entries with the same tournament id and group id
-      console.log(match.tournamentInfo.tournament);
-      console.log(match.group);
-      let pointsTables = await PointsTable.find({
-        tournament: match.tournamentInfo.tournament,
-        group: match.tournamentInfo.group,
-      });
-
-      console.log("1...." + pointsTables);
-
-      // Sort the points table entries based on the net run rate
-      pointsTables.sort((a, b) => b.netRunRate - a.netRunRate);
-
-      // Save the sorted points table entries
-      for (let pointsTable of pointsTables) {
-        await pointsTable.save();
-      }
-
-      console.log("2...." + pointsTables);
-
-      // TODO 2: Qualify teams to the next round if it is last match of the tournament group
       if (match.tournamentInfo.group) {
+        // TODO 1: Sort points table
+        // TODO 2: Qualify teams to the next round if it is last match of the tournament group
+        // Find all points table entries with the same tournament id and group id
+        let pointsTables = await PointsTable.find({
+          tournament: match.tournamentInfo.tournament,
+          group: match.tournamentInfo.group,
+        });
+        // Sort the points table entries based on the net run rate
+        pointsTables.sort((a, b) => b.netRunRate - a.netRunRate);
+        // Save the sorted points table entries
+        for (let pointsTable of pointsTables) {
+          await pointsTable.save();
+        }
+
         tournament = await Tournament.findById(match.tournamentInfo.tournament);
         if (!tournament) {
           const error = new Error(`Couldn't find tournament`);
           error.statusCode = 404;
           return next(error);
         }
+
+        // find specific group
+        const groupIndex = tournament.groups.findIndex(
+          (g) => g._id.toString() === match.tournamentInfo.group.toString()
+        );
+
+        if (groupIndex != -1) {
+          tournament.groups[groupIndex].totalMatches--;
+          if (tournament.groups[groupIndex].totalMatches <= 0) {
+            const pt1 = await PointsTable.findById(pointsTables[0]._id);
+            const pt2 = await PointsTable.findById(pointsTables[1]._id);
+
+            // // Move top two teams of the group to the qualifiers
+            // const team1 = tournament.teams.findIndex(
+            //   (t) => t.team.toString() === pt1.team.toString()
+            // );
+            // const team2 = tournament.teams.findIndex(
+            //   (t) => t.team.toString() === pt2.team.toString()
+            // );
+
+            // tournament.teams[team1].qualified = true;
+            // tournament.teams[team2].qualified = true;
+
+            const team1 = tournament.groups[groupIndex].teams.indIndex(
+              (t) => t.team.toString() === pt1.team.toString()
+            );
+            const team2 = tournament.groups[groupIndex].teams.findIndex(
+              (t) => t.team.toString() === pt2.team.toString()
+            );
+
+            tournament.groups[groupIndex].teams[team1].qualified = true;
+            tournament.groups[groupIndex].teams[team2].qualified = true;
+
+            tournament.qualifiers.push(pt1.team);
+            tournament.qualifiers.push(pt2.team);
+
+            let qualifierGroup = tournament.groups.find(
+              (group) => group.name == "qualifier"
+            );
+
+            if (qualifierGroup) {
+              // Append the teams and points tables to the existing group
+              qualifierGroup.teams.push(pt1.team, pt2.team);
+              qualifierGroup.pointsTable.push(
+                pointsTables[0]._id,
+                pointsTables[1]._id
+              );
+            } else {
+              // Create a new group
+              tournament.groups.push({
+                name: "qualifier",
+                teams: [pt1.team, pt2.team],
+                pointsTable: [pointsTables[0]._id, pointsTables[1]._id],
+                totalMatches: 2,
+                qualifiersNumber: 2,
+              });
+            }
+          }
+          await tournament.save();
+        }
+      } else {
+        if (match.tournamentInfo.matchType === "qualifier") {
+        } else if (match.tournamentInfo.matchType === "qualifier") {
+        } else if (match.tournamentInfo.matchType === "qualifier") {
+        }
+        let pointsTables = await PointsTable.find({
+          tournament: match.tournamentInfo.tournament,
+        });
+        // Sort the points table entries based on the net run rate
+        pointsTables.sort((a, b) => b.netRunRate - a.netRunRate);
+        // Save the sorted points table entries
+        for (let pointsTable of pointsTables) {
+          await pointsTable.save();
+        }
+
+        tournament = await Tournament.findById(match.tournamentInfo.tournament);
+        if (!tournament) {
+          const error = new Error(`Couldn't find tournament`);
+          error.statusCode = 404;
+          return next(error);
+        }
+
+        // TODO: move the teams to the other round
 
         // find specific group
         const groupIndex = tournament.groups.findIndex(

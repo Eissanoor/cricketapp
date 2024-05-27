@@ -15,15 +15,25 @@ const tournamentSchema = new mongoose.Schema({
   teams: [
     {
       team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
-      qualified: { type: Boolean, default: false },
-      eliminated: { type: Boolean, default: false },
+      qualified: { type: Boolean },
+      eliminated: { type: Boolean },
     },
   ],
   qualifiers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
+  semiFinalTeams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
+  finalTeams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
+
   groups: [
     {
       name: String,
-      teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
+      //   teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
+      teams: [
+        {
+          team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
+          qualified: { type: Boolean },
+          eliminated: { type: Boolean },
+        },
+      ],
       pointsTable: [
         { type: mongoose.Schema.Types.ObjectId, ref: "PointsTable" },
       ],
