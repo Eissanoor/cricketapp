@@ -627,9 +627,9 @@ router.post(
   adminController.addTournamentMatch
 );
 
-router.get("/tournament-upcoming/:id", adminController.tournamentLiveMatches);
+router.get("/tournament/upcoming/:id", adminController.tournamentLiveMatches);
 
-router.get("/tournament-live/:id", adminController.tournamentLiveMatches);
+router.get("/tournament/live/:id", adminController.tournamentLiveMatches);
 
 router.put(
   "/group-to-tournament/:tournamentId",
