@@ -859,8 +859,8 @@ const createPointsTable = async function (match) {
                 qualifiersNumber: 2,
               });
             }
-            await tournament.save();
           }
+          await tournament.save();
         }
       }
     }
