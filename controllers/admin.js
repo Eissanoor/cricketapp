@@ -1144,7 +1144,7 @@ exports.getTournament = async (req, res, next) => {
           select: "name",
         },
       })
-      .populate("groups.teams", "name, image");
+      .populate("groups.teams", "name image");
     //   .populate("groups.pointsTable", "-team");
     //   .populate("groups.pointsTable.team");
     if (!tournament) {
