@@ -961,7 +961,7 @@ const handleSeriesGroupMatch = async function (match) {
               name: "qualifier",
               teams: [pt.team],
               pointsTable: [pointsTables[i]._id],
-              totalMatches: 1,
+              totalMatches: qualifiersNumber,
               qualifiersNumber: 2,
             });
           }
