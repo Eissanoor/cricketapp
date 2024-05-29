@@ -1283,8 +1283,11 @@ exports.addTournamentMatch = async (req, res, next) => {
         error.statusCode = 404;
         return next(error);
       }
-      if (!tournament.groups[groupId].totalMatches) {
-        tournament.groups[groupId].totalMatches = totalMatches;
+      const groupIndex = tournament.groups.findIndex(
+        (g) => g._id.toString() === groupId.toString()
+      );
+      if (!tournament.groups[groupIndex].totalMatches) {
+        tournament.groups[groupIndex].totalMatches = totalMatches;
         await tournament.save();
       }
     }
