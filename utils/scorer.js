@@ -953,15 +953,23 @@ const handleSeriesGroupMatch = async function (match) {
 
           if (qualifierGroup) {
             // Append the team and points table to the existing group
-            qualifierGroup.teams.push(pt.team);
+            qualifierGroup.teams.push({
+              team: pt.team,
+            });
             qualifierGroup.pointsTable.push(pointsTables[i]._id);
           } else {
             // Create a new group
             tournament.groups.push({
               name: "qualifier",
-              teams: [pt.team],
+              teams: [
+                {
+                  team: pt.team,
+                  qualified: null,
+                  eliminated: null,
+                },
+              ],
               pointsTable: [pointsTables[i]._id],
-              //   totalMatches: qualifiersNumber,
+              // totalMatches: qualifiersNumber,
               qualifiersNumber: 2, // two of the teams will go into the Semi-final
             });
           }
