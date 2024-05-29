@@ -1077,9 +1077,6 @@ const handleQualifierGroupMatch = async function (match) {
           tournament.groups[groupIndex].teams[teamIndex].qualified = true;
           tournament.groups[groupIndex].teams[teamIndex].eliminated = false;
 
-          // Add the team to the qualifiers
-          tournament.qualifiers.push(pt.team);
-
           let semiFinalGroup = tournament.groups.find(
             (group) => group.name.toString() === "semiFinal"
           );
@@ -1106,6 +1103,7 @@ const handleQualifierGroupMatch = async function (match) {
               qualifiersNumber: 2, // two of the teams will go into the final
             });
           }
+          await tournament.save();
         }
       }
     }
