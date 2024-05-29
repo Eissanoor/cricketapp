@@ -795,7 +795,7 @@ const createPointsTable = async function (match) {
         if (match.tournamentInfo.matchType === "series") {
           handleSeriesGroupMatch(match);
         } else if (match.tournamentInfo.matchType === "qualifier") {
-          handleSemiFinalGroupMatch(match);
+          handleQualifierGroupMatch(match);
         } else if (match.tournamentInfo.matchType === "semiFinal") {
         } else if (match.tournamentInfo.matchType === "final") {
         }
