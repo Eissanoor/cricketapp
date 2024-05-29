@@ -1031,7 +1031,8 @@ const handleQualifierGroupMatch = async function (match) {
   // Find all points table entries with the same tournament id and group id
   let pointsTables = await PointsTable.find({
     tournament: match.tournamentInfo.tournament,
-    group: match.tournamentInfo.group,
+    // group: match.tournamentInfo.group,
+    groupName: "qualifier",
   });
   console.log(match.tournamentInfo.tournament, match.tournamentInfo.group);
   console.log(pointsTables);
