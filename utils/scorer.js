@@ -1032,6 +1032,7 @@ const handleQualifierGroupMatch = async function (match) {
     tournament: match.tournamentInfo.tournament,
     group: match.tournamentInfo.group,
   });
+  console.log(pointsTables);
 
   // Sort the points table entries based on the net run rate
   pointsTables.sort((a, b) => b.netRunRate - a.netRunRate);
@@ -1065,6 +1066,8 @@ const handleQualifierGroupMatch = async function (match) {
   // TODO 2: Qualify teams to the next round if it is the last match of the tournament group
   if (tournament.groups[groupIndex].totalMatches <= 0) {
     let qualifiersNumber = 2; // Can be adjusted or taken from group if needed
+    console.log("Our total matches > 0");
+    console.log(qualifiersNumber);
 
     // Reset all teams in the group
     tournament.groups[groupIndex].teams.forEach((team) => {
