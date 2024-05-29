@@ -961,8 +961,8 @@ const handleSeriesGroupMatch = async function (match) {
               name: "qualifier",
               teams: [pt.team],
               pointsTable: [pointsTables[i]._id],
-              totalMatches: qualifiersNumber,
-              qualifiersNumber: 2,
+              //   totalMatches: qualifiersNumber,
+              qualifiersNumber: 2, // two of the teams will go into the Semi-final
             });
           }
         }

@@ -1272,7 +1272,22 @@ exports.addTournamentMatch = async (req, res, next) => {
       tournamentId,
       tournamentMatchType,
       groupId,
+      totalMatches,
     } = req.body;
+
+    // When a new Qualifier group is created, we need to assign total number of matches
+    if (totalMatches) {
+      const tournament = await Tournament.findById(tournamentId);
+      if (!tournament) {
+        const error = new Error("No tournament found for " + tournamentId);
+        error.statusCode = 404;
+        return next(error);
+      }
+      if (!tournament.groups[groupId].totalMatches) {
+        tournament.groups[groupId].totalMatches = totalMatches;
+        await tournament.save();
+      }
+    }
 
     const MatchDetailsObj = {
       admin,
