@@ -799,6 +799,7 @@ const createPointsTable = async function (match) {
         } else if (match.tournamentInfo.matchType === "semiFinal") {
           handleSemiFinalGroupMatch(match);
         } else if (match.tournamentInfo.matchType === "final") {
+          handleFinalGroupMatch(match);
         }
       } else {
         // if (match.tournamentInfo.matchType === "qualifier") {
@@ -1110,7 +1111,6 @@ const handleQualifierGroupMatch = async function (match) {
           // Create a new group
           tournament.groups.push({
             name: "semiFinal",
-
             teams: [
               {
                 team: pt.team,
@@ -1219,6 +1219,62 @@ const handleSemiFinalGroupMatch = async function (match) {
             qualifiersNumber: 1, // one of the teams will win the tournament
           });
         }
+      }
+    }
+  }
+
+  await tournament.save();
+};
+
+const handleFinalGroupMatch = async function (match) {
+  let tournament;
+  // Find all points table entries with the same tournament id and group name "final"
+  let pointsTables = await PointsTable.find({
+    tournament: match.tournamentInfo.tournament,
+    final: true,
+  });
+
+  // Sort the points table entries based on the net run rate
+  pointsTables.sort((a, b) => b.netRunRate - a.netRunRate);
+
+  // Save the sorted points table entries
+  for (let pointsTable of pointsTables) {
+    await pointsTable.save();
+  }
+
+  tournament = await Tournament.findById(match.tournamentInfo.tournament);
+  if (!tournament) {
+    const error = new Error(`Couldn't find tournament`);
+    error.statusCode = 404;
+    return next(error);
+  }
+
+  // find specific group
+  const groupIndex = tournament.groups.findIndex(
+    (g) => g.name.toString() === "final"
+  );
+
+  if (groupIndex === -1) {
+    const error = new Error(`Group not found`);
+    error.statusCode = 404;
+    return next(error);
+  }
+
+  // Decrease total matches for the group
+  tournament.groups[groupIndex].totalMatches--;
+
+  // Assign the winner if it is the last match of the final group
+  if (tournament.groups[groupIndex].totalMatches <= 0) {
+    if (pointsTables[0]) {
+      const pt = await PointsTable.findById(pointsTables[0]._id);
+
+      const teamIndex = tournament.groups[groupIndex].teams.findIndex(
+        (t) => t.team.toString() === pt.team.toString()
+      );
+
+      if (teamIndex !== -1) {
+        // Mark the team as the winner
+        tournament.winner = tournament.groups[groupIndex].teams[teamIndex].team;
       }
     }
   }
