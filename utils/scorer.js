@@ -906,6 +906,7 @@ const handleSeriesGroupMatch = async function (match) {
   pointsTables.sort((a, b) => b.netRunRate - a.netRunRate);
   // Save the sorted points table entries
   for (let pointsTable of pointsTables) {
+    pointsTable.groupName = "qualifier";
     await pointsTable.save();
   }
 

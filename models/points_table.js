@@ -12,6 +12,7 @@ const PointsTableSchema = new mongoose.Schema({
   group: {
     type: mongoose.Schema.Types.ObjectId,
   },
+  groupName: String,
   matchesPlayed: {
     type: Number,
     default: 0,
