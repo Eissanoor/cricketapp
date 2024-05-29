@@ -1032,8 +1032,10 @@ const handleQualifierGroupMatch = async function (match) {
     tournament: match.tournamentInfo.tournament,
     group: match.tournamentInfo.group,
   });
+
   // Sort the points table entries based on the net run rate
   pointsTables.sort((a, b) => b.netRunRate - a.netRunRate);
+
   // Save the sorted points table entries
   for (let pointsTable of pointsTables) {
     await pointsTable.save();
@@ -1048,67 +1050,73 @@ const handleQualifierGroupMatch = async function (match) {
 
   // find specific group
   const groupIndex = tournament.groups.findIndex(
-    (g) =>
-      g._id.toString() === match.tournamentInfo.group.toString() ||
-      g.name.toString() == "qualifier"
+    (g) => g._id.toString() === match.tournamentInfo.group.toString()
   );
 
-  if (groupIndex != -1) {
-    tournament.groups[groupIndex].totalMatches--;
-    // TODO 2: Qualify teams to the next round if it is last match of the tournament group
-    if (tournament.groups[groupIndex].totalMatches <= 0) {
-      let qualifiersNumber = 2; //tournament.groups[groupIndex].qualifiersNumber;
+  if (groupIndex === -1) {
+    const error = new Error(`Group not found`);
+    error.statusCode = 404;
+    return next(error);
+  }
 
-      // Reset all teams in the group
-      tournament.groups[groupIndex].teams.forEach((team) => {
-        team.qualified = false;
-        team.eliminated = true;
-      });
+  // Decrease total matches for the group
+  tournament.groups[groupIndex].totalMatches--;
 
-      for (let i = 0; i < qualifiersNumber; i++) {
-        if (pointsTables[i]) {
-          const pt = await PointsTable.findById(pointsTables[i]._id);
+  // TODO 2: Qualify teams to the next round if it is the last match of the tournament group
+  if (tournament.groups[groupIndex].totalMatches <= 0) {
+    let qualifiersNumber = 2; // Can be adjusted or taken from group if needed
 
-          const teamIndex = tournament.groups[groupIndex].teams.findIndex(
-            (t) => t.team.toString() === pt.team.toString()
-          );
+    // Reset all teams in the group
+    tournament.groups[groupIndex].teams.forEach((team) => {
+      team.qualified = false;
+      team.eliminated = true;
+    });
 
+    for (let i = 0; i < qualifiersNumber; i++) {
+      if (pointsTables[i]) {
+        const pt = await PointsTable.findById(pointsTables[i]._id);
+
+        const teamIndex = tournament.groups[groupIndex].teams.findIndex(
+          (t) => t.team.toString() === pt.team.toString()
+        );
+
+        if (teamIndex !== -1) {
           // Mark the team as qualified
           tournament.groups[groupIndex].teams[teamIndex].qualified = true;
           tournament.groups[groupIndex].teams[teamIndex].eliminated = false;
+        }
 
-          let semiFinalGroup = tournament.groups.find(
-            (group) => group.name.toString() === "semiFinal"
-          );
+        let semiFinalGroup = tournament.groups.find(
+          (group) => group.name.toString() === "semiFinal"
+        );
 
-          if (semiFinalGroup) {
-            // Append the team and points table to the existing group
-            semiFinalGroup.teams.push({
-              team: pt.team,
-            });
-            semiFinalGroup.pointsTable.push(pointsTables[i]._id);
-          } else {
-            // Create a new group
-            tournament.groups.push({
-              name: "semiFinal",
-              teams: [
-                {
-                  team: pt.team,
-                  qualified: null,
-                  eliminated: null,
-                },
-              ],
-              pointsTable: [pointsTables[i]._id],
-              totalMatches: 2,
-              qualifiersNumber: 2, // two of the teams will go into the final
-            });
-          }
-          await tournament.save();
+        if (semiFinalGroup) {
+          // Append the team and points table to the existing group
+          semiFinalGroup.teams.push({
+            team: pt.team,
+          });
+          semiFinalGroup.pointsTable.push(pointsTables[i]._id);
+        } else {
+          // Create a new group
+          tournament.groups.push({
+            name: "semiFinal",
+            teams: [
+              {
+                team: pt.team,
+                qualified: null,
+                eliminated: null,
+              },
+            ],
+            pointsTable: [pointsTables[i]._id],
+            totalMatches: 2,
+            qualifiersNumber: 2, // two of the teams will go into the final
+          });
         }
       }
     }
-    await tournament.save();
   }
+
+  await tournament.save();
 };
 
 exports.calculateCurrentRunRate = calculateCurrentRunRate;
