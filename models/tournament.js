@@ -48,6 +48,7 @@ const tournamentSchema = new mongoose.Schema({
     totalMatches: Number,
     qualifiersNumber: Number,
   },
+  winner: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
   //   matches: [
   //     {
   //       match: { type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" },
