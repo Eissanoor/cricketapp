@@ -1032,6 +1032,7 @@ const handleQualifierGroupMatch = async function (match) {
     tournament: match.tournamentInfo.tournament,
     group: match.tournamentInfo.group,
   });
+  console.log(match.tournamentInfo.tournament, match.tournamentInfo.group);
   console.log(pointsTables);
 
   // Sort the points table entries based on the net run rate
