@@ -1080,16 +1080,16 @@ const handleQualifierGroupMatch = async function (match) {
           // Add the team to the qualifiers
           tournament.qualifiers.push(pt.team);
 
-          let qualifierGroup = tournament.groups.find(
-            (group) => group.name == "semiFinal"
+          let semiFinalGroup = tournament.groups.find(
+            (group) => group.name.toString() === "semiFinal"
           );
 
-          if (qualifierGroup) {
+          if (semiFinalGroup) {
             // Append the team and points table to the existing group
-            qualifierGroup.teams.push({
+            semiFinalGroup.teams.push({
               team: pt.team,
             });
-            qualifierGroup.pointsTable.push(pointsTables[i]._id);
+            semiFinalGroup.pointsTable.push(pointsTables[i]._id);
           } else {
             // Create a new group
             tournament.groups.push({
