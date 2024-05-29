@@ -1048,14 +1048,16 @@ const handleQualifierGroupMatch = async function (match) {
 
   // find specific group
   const groupIndex = tournament.groups.findIndex(
-    (g) => g._id.toString() === match.tournamentInfo.group.toString()
+    (g) =>
+      g._id.toString() === match.tournamentInfo.group.toString() ||
+      g.name.toString() == "qualifier"
   );
 
   if (groupIndex != -1) {
     tournament.groups[groupIndex].totalMatches--;
     // TODO 2: Qualify teams to the next round if it is last match of the tournament group
     if (tournament.groups[groupIndex].totalMatches <= 0) {
-      let qualifiersNumber = tournament.groups[groupIndex].qualifiersNumber;
+      let qualifiersNumber = 2; //tournament.groups[groupIndex].qualifiersNumber;
 
       // Reset all teams in the group
       tournament.groups[groupIndex].teams.forEach((team) => {

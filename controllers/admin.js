@@ -1332,12 +1332,12 @@ exports.addTournamentMatch = async (req, res, next) => {
 
     const savedMatchDetails = await newMatchDetails.save();
 
-    const tournament = await Tournament.findById(tournamentId);
-    if (!tournament) {
-      const error = new Error(`Couldn't find tournament`);
-      error.statusCode = 404;
-      return next(error);
-    }
+    // const tournament = await Tournament.findById(tournamentId);
+    // if (!tournament) {
+    //   const error = new Error(`Couldn't find tournament`);
+    //   error.statusCode = 404;
+    //   return next(error);
+    // }
 
     // const matchIndex = tournament.matches.findIndex(
     //   (m) => m.match.toString() === savedMatchDetails._id.toString()
