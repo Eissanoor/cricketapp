@@ -1074,6 +1074,7 @@ const handleQualifierGroupMatch = async function (match) {
 
     for (let i = 0; i < qualifiersNumber; i++) {
       if (pointsTables[i]) {
+        console.log("inside points table if check");
         const pt = await PointsTable.findById(pointsTables[i]._id);
 
         const teamIndex = tournament.groups[groupIndex].teams.findIndex(
@@ -1081,6 +1082,7 @@ const handleQualifierGroupMatch = async function (match) {
         );
 
         if (teamIndex !== -1) {
+          console.log("Found team at index " + teamIndex);
           // Mark the team as qualified
           tournament.groups[groupIndex].teams[teamIndex].qualified = true;
           tournament.groups[groupIndex].teams[teamIndex].eliminated = false;
@@ -1112,6 +1114,7 @@ const handleQualifierGroupMatch = async function (match) {
             qualifiersNumber: 2, // two of the teams will go into the final
           });
         }
+        console.log(tournament.groups);
       }
     }
   }
