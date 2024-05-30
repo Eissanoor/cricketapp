@@ -1285,9 +1285,11 @@ exports.addTournamentMatch = async (req, res, next) => {
     const groupIndex = trmnt.groups.findIndex(
       (g) => g._id.toString() === groupId.toString()
     );
-    if (!trmnt.groups[groupIndex].totalMatches) {
-      trmnt.groups[groupIndex].totalMatches = totalMatches;
-      await trmnt.save();
+    if (totalMatches) {
+      if (!trmnt.groups[groupIndex].totalMatches) {
+        trmnt.groups[groupIndex].totalMatches = totalMatches;
+        await trmnt.save();
+      }
     }
 
     const MatchDetailsObj = {

@@ -802,10 +802,11 @@ const createPointsTable = async function (match) {
           handleFinalGroupMatch(match);
         }
       } else {
-        // if (match.tournamentInfo.matchType === "qualifier") {
-        // } else if (match.tournamentInfo.matchType === "qualifier") {
-        // } else if (match.tournamentInfo.matchType === "qualifier") {
-        // }
+        if (match.tournamentInfo.matchType === "series") {
+        } else if (match.tournamentInfo.matchType === "qualifier") {
+        } else if (match.tournamentInfo.matchType === "semiFinal") {
+        } else if (match.tournamentInfo.matchType === "final") {
+        }
       }
     }
 
