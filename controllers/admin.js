@@ -1114,7 +1114,7 @@ exports.getTournaments = async (req, res, next) => {
         "-teams -groups -winner"
       );
     } else {
-      tournaments = await Tournament.find().select("-teams -groups");
+      tournaments = await Tournament.find().select("-teams -groups -winner");
     }
     if (tournaments.length < 1)
       return next(new Error("No tournament found for the admin"));
