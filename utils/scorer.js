@@ -820,6 +820,9 @@ const createPointsTable = async function (match) {
           );
           if (teamIndex != -1) tournament.teams[teamIndex].qualified = true;
           await tournament.save();
+          const pt = await PointsTable.findOne({ team: match.winningTeam });
+          pt.qualifier = true;
+          await pt.save();
         } else if (match.tournamentInfo.matchType === "semiFinal") {
         } else if (match.tournamentInfo.matchType === "final") {
         }
