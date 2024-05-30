@@ -815,6 +815,10 @@ const createPointsTable = async function (match) {
             return next(error);
           }
           tournament.semiFinalTeams.push(match.winningTeam);
+          const teamIndex = tournament.teams.findIndex(
+            (team) => team._id.toString() === match.winningTeam.toString()
+          );
+          if (teamIndex != -1) tournament.teams[teamIndex].qualified = true;
           await tournament.save();
         } else if (match.tournamentInfo.matchType === "semiFinal") {
         } else if (match.tournamentInfo.matchType === "final") {

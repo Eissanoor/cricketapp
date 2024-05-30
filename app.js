@@ -39,7 +39,9 @@ app.use(userRouter);
 
 app.use((error, req, res, next) => {
   const status = error.statusCode || 500;
-  const message = error.message || "Internal server error";
+  const message =
+    error.message ||
+    "An error occurred while trying to process your request. Please try again later.";
   const data = null;
   const success = false;
   res
