@@ -823,6 +823,9 @@ const createPointsTable = async function (match) {
           await tournament.save();
           const pt = await PointsTable.findOne({
             team: mongoose.Types.ObjectId(match.winningTeam),
+            tournament: mongoose.Types.ObjectId(
+              match.tournamentInfo.tournament
+            ),
           });
           pt.qualifier = true;
           await pt.save();
