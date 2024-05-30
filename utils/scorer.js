@@ -804,6 +804,18 @@ const createPointsTable = async function (match) {
       } else {
         if (match.tournamentInfo.matchType === "series") {
         } else if (match.tournamentInfo.matchType === "qualifier") {
+          let tournament;
+
+          tournament = await Tournament.findById(
+            match.tournamentInfo.tournament
+          );
+          if (!tournament) {
+            const error = new Error(`Couldn't find tournament`);
+            error.statusCode = 404;
+            return next(error);
+          }
+          tournament.semiFinalTeams.push(match.winningTeam);
+          await tournament.save();
         } else if (match.tournamentInfo.matchType === "semiFinal") {
         } else if (match.tournamentInfo.matchType === "final") {
         }

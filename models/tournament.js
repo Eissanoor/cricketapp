@@ -19,10 +19,8 @@ const tournamentSchema = new mongoose.Schema({
       eliminated: { type: Boolean },
     },
   ],
-  qualifiers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
   semiFinalTeams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
   finalTeams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
-
   groups: [
     {
       name: String,
@@ -41,36 +39,8 @@ const tournamentSchema = new mongoose.Schema({
       qualifiersNumber: Number,
     },
   ],
-  qualifiedGroup: {
-    name: { type: String, default: "qualified" },
-    teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "Team" }],
-    pointsTable: [{ type: mongoose.Schema.Types.ObjectId, ref: "PointsTable" }],
-    totalMatches: Number,
-    qualifiersNumber: Number,
-  },
+
   winner: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
-  //   matches: [
-  //     {
-  //       match: { type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" },
-  //       matchType: { type: String, enum: matchTypes, required: true },
-  //     },
-  //   ],
-  //   useGroups: { type: Boolean, required: true },
-  //   groups: [
-  //     {
-  //       groupName: { type: String, required: true },
-  //       matches: [{ type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" }],
-  //     },
-  //   ],
-  //   matches: [{ type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" }],
-  //   stages: {
-  //     group: [{ type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" }],
-  //     quarterFinals: [
-  //       { type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" },
-  //     ],
-  //     semiFinals: [{ type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" }],
-  //     finals: [{ type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" }],
-  //   },
 });
 
 const Tournament = mongoose.model("Tournament", tournamentSchema);
