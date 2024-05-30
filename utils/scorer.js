@@ -827,7 +827,7 @@ const createPointsTable = async function (match) {
               match.tournamentInfo.tournament
             ),
           });
-          pt.qualifier = true;
+          pt.semiQualifier = true;
           await pt.save();
         } else if (match.tournamentInfo.matchType === "semiFinal") {
         } else if (match.tournamentInfo.matchType === "final") {

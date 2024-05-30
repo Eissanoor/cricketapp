@@ -9,7 +9,8 @@ const PointsTableSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Team",
   },
-  qualifier: { type: Boolean },
+  semiQualifier: { type: Boolean },
+  finalQualifier: { type: Boolean },
   group: {
     type: mongoose.Schema.Types.ObjectId,
   },
