@@ -1110,9 +1110,9 @@ exports.getTournaments = async (req, res, next) => {
     const adminId = req.query.adminId;
     let tournaments;
     if (adminId) {
-      tournaments = await Tournament.find({ admins: adminId }).select(
-        "-teams -groups -winner"
-      );
+      tournaments = await Tournament.find({ admins: adminId })
+        .select("-teams -groups")
+        .populate("winner", "name image");
     } else {
       tournaments = await Tournament.find().select("-teams -groups -winner");
     }
