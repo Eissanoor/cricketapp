@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const Ball = require("../models/ball");
 const MatchDetails = require("../models/match_details");
 const ScoreCard = require("../models/score_card");
@@ -805,7 +807,6 @@ const createPointsTable = async function (match) {
         if (match.tournamentInfo.matchType === "series") {
         } else if (match.tournamentInfo.matchType === "qualifier") {
           let tournament;
-
           tournament = await Tournament.findById(
             match.tournamentInfo.tournament
           );
@@ -820,7 +821,9 @@ const createPointsTable = async function (match) {
           );
           if (teamIndex != -1) tournament.teams[teamIndex].qualified = true;
           await tournament.save();
-          const pt = await PointsTable.findOne({ team: match.winningTeam });
+          const pt = await PointsTable.findOne({
+            team: mongoose.Types.ObjectId(match.winningTeam),
+          });
           pt.qualifier = true;
           await pt.save();
         } else if (match.tournamentInfo.matchType === "semiFinal") {

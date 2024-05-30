@@ -9,7 +9,7 @@ const PointsTableSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Team",
   },
-  qualifier: Boolean,
+  qualifier: { type: Boolean },
   group: {
     type: mongoose.Schema.Types.ObjectId,
   },
