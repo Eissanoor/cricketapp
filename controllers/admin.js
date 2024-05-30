@@ -1111,7 +1111,7 @@ exports.getTournaments = async (req, res, next) => {
     let tournaments;
     if (adminId) {
       tournaments = await Tournament.find({ admins: adminId }).select(
-        "-teams -groups"
+        "-teams -groups -winner"
       );
     } else {
       tournaments = await Tournament.find().select("-teams -groups");
