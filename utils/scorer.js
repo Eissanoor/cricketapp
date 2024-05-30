@@ -806,31 +806,11 @@ const createPointsTable = async function (match) {
       } else {
         if (match.tournamentInfo.matchType === "series") {
         } else if (match.tournamentInfo.matchType === "qualifier") {
-          let tournament;
-          tournament = await Tournament.findById(
-            match.tournamentInfo.tournament
-          );
-          if (!tournament) {
-            const error = new Error(`Couldn't find tournament`);
-            error.statusCode = 404;
-            return next(error);
-          }
-          tournament.semiFinalTeams.push(match.winningTeam);
-          const teamIndex = tournament.teams.findIndex(
-            (team) => team._id.toString() === match.winningTeam.toString()
-          );
-          if (teamIndex != -1) tournament.teams[teamIndex].qualified = true;
-          await tournament.save();
-          const pt = await PointsTable.findOne({
-            team: mongoose.Types.ObjectId(match.winningTeam),
-            tournament: mongoose.Types.ObjectId(
-              match.tournamentInfo.tournament
-            ),
-          });
-          pt.semiQualifier = true;
-          await pt.save();
+          handleQualifierMatch(match);
         } else if (match.tournamentInfo.matchType === "semiFinal") {
+          handleSemiFinalMatch(match);
         } else if (match.tournamentInfo.matchType === "final") {
+          handleFinalMatch(match);
         }
       }
     }
@@ -1306,6 +1286,72 @@ const handleFinalGroupMatch = async function (match) {
   }
 
   await tournament.save();
+};
+
+const handleQualifierMatch = async function (match) {
+  let tournament;
+  tournament = await Tournament.findById(match.tournamentInfo.tournament);
+  if (!tournament) {
+    const error = new Error(`Couldn't find tournament`);
+    error.statusCode = 404;
+    return next(error);
+  }
+  tournament.semiFinalTeams.push(match.winningTeam);
+  const teamIndex = tournament.teams.findIndex(
+    (team) => team._id.toString() === match.winningTeam.toString()
+  );
+  if (teamIndex != -1) tournament.teams[teamIndex].qualified = true;
+  await tournament.save();
+  const pt = await PointsTable.findOne({
+    team: mongoose.Types.ObjectId(match.winningTeam),
+    tournament: mongoose.Types.ObjectId(match.tournamentInfo.tournament),
+  });
+  pt.semiQualifier = true;
+  await pt.save();
+};
+
+const handleSemiFinalMatch = async function (match) {
+  let tournament;
+  tournament = await Tournament.findById(match.tournamentInfo.tournament);
+  if (!tournament) {
+    const error = new Error(`Couldn't find tournament`);
+    error.statusCode = 404;
+    return next(error);
+  }
+  tournament.finalTeams.push(match.winningTeam);
+  const teamIndex = tournament.teams.findIndex(
+    (team) => team._id.toString() === match.winningTeam.toString()
+  );
+  if (teamIndex != -1) tournament.teams[teamIndex].qualified = true;
+  await tournament.save();
+  const pt = await PointsTable.findOne({
+    team: mongoose.Types.ObjectId(match.winningTeam),
+    tournament: mongoose.Types.ObjectId(match.tournamentInfo.tournament),
+  });
+  pt.finalQualifier = true;
+  await pt.save();
+};
+
+const handleFinalMatch = async function (match) {
+  let tournament;
+  tournament = await Tournament.findById(match.tournamentInfo.tournament);
+  if (!tournament) {
+    const error = new Error(`Couldn't find tournament`);
+    error.statusCode = 404;
+    return next(error);
+  }
+  tournament.winner = match.winningTeam;
+  const teamIndex = tournament.teams.findIndex(
+    (team) => team._id.toString() === match.winningTeam.toString()
+  );
+  if (teamIndex != -1) tournament.teams[teamIndex].won = true;
+  await tournament.save();
+  const pt = await PointsTable.findOne({
+    team: mongoose.Types.ObjectId(match.winningTeam),
+    tournament: mongoose.Types.ObjectId(match.tournamentInfo.tournament),
+  });
+  pt.winner = true;
+  await pt.save();
 };
 
 exports.calculateCurrentRunRate = calculateCurrentRunRate;
