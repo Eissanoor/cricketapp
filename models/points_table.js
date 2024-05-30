@@ -11,6 +11,7 @@ const PointsTableSchema = new mongoose.Schema({
   },
   semiQualifier: { type: Boolean },
   finalQualifier: { type: Boolean },
+  winner: { type: Boolean },
   group: {
     type: mongoose.Schema.Types.ObjectId,
   },
