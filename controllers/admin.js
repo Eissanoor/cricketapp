@@ -1134,7 +1134,7 @@ exports.getTournament = async (req, res, next) => {
   try {
     const { tournamentId } = req.params;
     const tournament = await Tournament.findById(tournamentId)
-      .populate("teams.team", "name image")
+      .populate("teams.team winner", "name image")
       .populate({
         path: "groups.pointsTable",
         model: "PointsTable",
