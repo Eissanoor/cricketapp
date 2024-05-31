@@ -913,7 +913,11 @@ exports.setManOfTheMatch = async (req, res, next) => {
 exports.getUpcomingMatches = async (req, res, next) => {
   try {
     const adminId = req.params.adminId;
-    const matches = await MatchDetails.find({ admin: adminId, matchStatus: 0 })
+    const matches = await MatchDetails.find({
+      admin: adminId,
+      matchStatus: 0,
+      "tournamentInfo.tournament": null,
+    })
       .sort({ matchDate: -1 })
       .populate(
         "team1 team2 squad1 squad2",
