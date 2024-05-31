@@ -38,7 +38,7 @@ app.use(adminRouter);
 app.use(userRouter);
 
 app.use((req, res, next) => {
-  const error = new Error("Not found");
+  const error = new Error(`No route found for ${req.originalUrl}`);
   error.statusCode = 404;
   next(error);
 });
