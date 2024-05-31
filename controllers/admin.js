@@ -1114,9 +1114,9 @@ exports.getTournaments = async (req, res, next) => {
         .select("-teams -groups")
         .populate("winner", "name image");
     } else {
-      tournaments = await Tournament.find().select(
-        "seriesName seriesLocation image startDate endDate"
-      );
+      tournaments = await Tournament.find()
+        .select("seriesName seriesLocation image startDate endDate winner")
+        .populate("winner", "name image");
     }
     if (tournaments.length < 1)
       return next(new Error("No tournament found for the admin"));
