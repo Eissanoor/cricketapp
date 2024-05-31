@@ -37,6 +37,12 @@ app.use(scorerRouter);
 app.use(adminRouter);
 app.use(userRouter);
 
+app.use((req, res, next) => {
+  const error = new Error("Not found");
+  error.statusCode = 404;
+  next(error);
+});
+
 app.use((error, req, res, next) => {
   const status = error.statusCode || 500;
   const message =
