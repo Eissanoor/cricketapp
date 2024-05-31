@@ -200,9 +200,11 @@ exports.getPlayerDetails = async function (req, res, next) {
 exports.getLastFiveTournaments = async (req, res, next) => {
   try {
     // Find the last 5 tournaments
-    const tournaments = await Tournament.find()
-      .sort({ _id: -1 }) // Sort by _id in descending order to get the latest tournaments
-      .limit(5) // Limit to 5 tournaments
+    const tournaments = await Tournament.find({
+      $or: [{ winner: { $exists: false } }, { winner: null }],
+    })
+      .sort({ _id: -1 })
+      .limit(5)
       .select("-teams -groups -winner");
 
     if (!tournaments || tournaments.length < 1) {
