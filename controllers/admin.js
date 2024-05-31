@@ -948,6 +948,7 @@ exports.getLiveMatches = async (req, res, next) => {
     const matches = await MatchDetails.find({
       admin: adminId,
       matchStatus: 1,
+      "tournamentInfo.tournament": null,
     })
       .select(
         "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs -tournamentInfo"
