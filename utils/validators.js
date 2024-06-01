@@ -127,7 +127,7 @@ exports.validateTeam = [
   body("name").notEmpty().withMessage("Team name is required"),
   body("location").notEmpty().withMessage("Location is required"),
   body("admins").isArray().withMessage("Admins must be an array"),
-  body("players").isArray().withMessage("Players must be an array"),
+  //   body("players").isArray().withMessage("Players must be an array"),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
