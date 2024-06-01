@@ -545,9 +545,9 @@ exports.postAddPlayer = async (req, res, next, cloudinary) => {
 exports.playerDetailsByAdminId = async (req, res, next) => {
   try {
     const adminId = req.params.admin;
-    const players = await Player.find({ admins: adminId }).select(
-      "-latestPerformance"
-    );
+    const players = await Player.find({ admins: adminId })
+      .sort({ _id: -1 })
+      .select("-latestPerformance");
 
     if (!players) {
       return res.status(404).json({
