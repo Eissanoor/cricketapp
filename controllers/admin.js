@@ -12,6 +12,44 @@ const PointsTable = require("../models/points_table");
 const scorerHelper = require("../utils/scorer");
 
 // * ADMIN ************************************************
+
+exports.getAdminDetails = async (req, res, next) => {
+  try {
+    const adminId = req.params.id;
+
+    console.log(adminId);
+
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      const error = new Error("No admin found with that ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const totalPlayers = await Player.countDocuments({ admin: adminId });
+    const totalTeams = await Team.countDocuments({ admin: adminId });
+    const totalTournaments = await Tournament.countDocuments({
+      admin: adminId,
+    });
+    const totalMatches = await MatchDetails.countDocuments({ admin: adminId });
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Admin details retrieved successfully",
+      data: {
+        adminStatus: admin.status,
+        totalPlayers: totalPlayers,
+        totalTeams: totalTeams,
+        totalTournaments: totalTournaments,
+        totalMatches: totalMatches,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.putAccess = async (req, res, next) => {
   try {
     const { adminId, id, type } = req.body;

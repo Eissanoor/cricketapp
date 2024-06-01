@@ -30,6 +30,33 @@ exports.validateTournament = [
 ];
 
 // * MATCH ***
+exports.validateStartMatch = [
+  body("whoWinsTheToss")
+    .notEmpty()
+    .withMessage("Who wins the toss is required"),
+  body("tossDetails").notEmpty().withMessage("Toss details are required"),
+  body("matchStatus").isInt().withMessage("Match status must be an integer"),
+  body("squad1").notEmpty().withMessage("Squad1 is required"),
+  body("squad2").notEmpty().withMessage("Squad2 is required"),
+  body("team1Batting")
+    .isBoolean()
+    .withMessage("Team1 batting must be a boolean"),
+  body("team2Batting")
+    .isBoolean()
+    .withMessage("Team2 batting must be a boolean"),
+  body("team1toss").isBoolean().withMessage("Team1 toss must be a boolean"),
+  body("team2toss").isBoolean().withMessage("Team2 toss must be a boolean"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const message = errors.array()[0].msg;
+      const error = new Error(message);
+      error.statusCode = 422;
+      return next(error);
+    }
+    next();
+  },
+];
 exports.validateTournamentMatch = [
   body("admin").notEmpty().withMessage("Admin is required"),
   body("team1").notEmpty().withMessage("Team1 is required"),

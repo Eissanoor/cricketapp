@@ -416,6 +416,8 @@ cron.schedule("59 23 */1 * *", async () => {
 
 // * ADMIN RELATED ACTIVITIES ************************************************************
 
+router.get("/admin/details/:id", adminController.getAdminDetails);
+
 router.get("/admin/invitations/:adminId", adminController.getAdminInvitations);
 
 router.put("/access", adminController.putAccess);
@@ -481,7 +483,11 @@ router.post(
   validators.validateMatch,
   adminController.postAddMatch
 );
-router.put("/start-match/:matchId", adminController.postStartMatch);
+router.put(
+  "/start-match/:matchId",
+  validators.validateStartMatch,
+  adminController.postStartMatch
+);
 router.get(
   "/get-upcoming-matches/:adminId",
   adminController.getUpcomingMatches

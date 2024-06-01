@@ -29,7 +29,10 @@ const empoleeSchema = new mongoose.Schema(
     token: {
       type: String,
     },
-    status: Number,
+    status: {
+      type: String,
+      default: 1, // 1 means active, 0 means blocked
+    },
     password: String,
     Phone: String,
     address: String,
