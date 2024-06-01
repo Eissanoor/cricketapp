@@ -237,6 +237,7 @@ exports.getTeams = async (req, res, next) => {
 
     // Find teams where admin matches adminId
     const teams = await Team.find({ admins: adminId })
+      .sort({ _id: -1 })
       .populate("players", "-latestPerformance")
       .populate("admins");
 
