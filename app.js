@@ -1,6 +1,7 @@
 var express = require("express");
 const multer = require("multer");
 const cors = require("cors");
+const bcrypt = require("bcrypt");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("./database/db");
@@ -13,6 +14,10 @@ const adminController = require("./controllers/admin");
 const adminRouter = require("./router/admin");
 const userRouter = require("./router/user");
 const scorerRouter = require("./router/scorer");
+const superAdminRouter = require("./router/super_admin");
+
+// Schemas
+const SuperAdmin = require("./models/super_admin");
 
 // Assignments
 var app = express();
@@ -23,6 +28,25 @@ const upload = multer({ storage: storage });
 app.use(cors());
 
 // Middlewares
+app.use(async (req, res, next) => {
+  const email = "lalkhan@superadmin.com";
+  const superAdminExists = await SuperAdmin.findOne({
+    email: email,
+  });
+  if (!superAdminExists) {
+    const password = await bcrypt.hash("lalkhan123", 12);
+
+    const superAdmin = new SuperAdmin({
+      name: "Lal Khan",
+      email: email,
+      password: password,
+    });
+
+    await superAdmin.save();
+  }
+  next();
+});
+
 app.post("/set-openings", async (req, res, next) => {
   adminController.postSetOpenings(req, res, next, socketIo);
 });
@@ -36,6 +60,7 @@ app.put("/start-stop-match", (req, res, next) => {
 app.use(scorerRouter);
 app.use(adminRouter);
 app.use(userRouter);
+app.use("/superadmin/api/", superAdminRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`No route found for ${req.originalUrl}`);
