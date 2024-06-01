@@ -640,6 +640,11 @@ router.put(
 );
 
 router.put(
+  "/group/from/tournament/:tournamentId",
+  adminController.deleteGroupFromTournament
+);
+
+router.put(
   "/team-to-tournament-group",
   adminController.putTeamToTournamentGroup
 );

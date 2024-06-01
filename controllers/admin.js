@@ -1463,6 +1463,45 @@ exports.putGroupToTournament = async (req, res, next) => {
   }
 };
 
+exports.deleteGroupFromTournament = async (req, res, next) => {
+  try {
+    const { groupId } = req.params;
+    const tournamentId = req.params.tournamentId;
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      const error = new Error("No tournament found with that ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    // Find the index of the group to be deleted
+    const groupIndex = tournament.groups.findIndex(
+      (group) => group._id.toString() === groupId
+    );
+    if (groupIndex === -1) {
+      const error = new Error(
+        "No group found with that ID in the specified tournament"
+      );
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    // Remove the group from the groups array
+    tournament.groups.splice(groupIndex, 1);
+
+    await tournament.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Successfully deleted the group",
+      data: null,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.putTeamToTournamentGroup = async (req, res, next) => {
   try {
     const { tournamentId, groupId, teamId } = req.body;
