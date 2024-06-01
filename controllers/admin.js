@@ -1465,8 +1465,7 @@ exports.putGroupToTournament = async (req, res, next) => {
 
 exports.deleteGroupFromTournament = async (req, res, next) => {
   try {
-    const { groupId } = req.params;
-    const tournamentId = req.params.tournamentId;
+    const { groupId, tournamentId } = req.body;
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
       const error = new Error("No tournament found with that ID");
