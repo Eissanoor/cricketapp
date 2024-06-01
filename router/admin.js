@@ -639,10 +639,7 @@ router.put(
   adminController.putGroupToTournament
 );
 
-router.put(
-  "/group/from/tournament/:tournamentId",
-  adminController.deleteGroupFromTournament
-);
+router.put("/group/from/tournament", adminController.deleteGroupFromTournament);
 
 router.put(
   "/team-to-tournament-group",
