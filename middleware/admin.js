@@ -9,7 +9,9 @@ exports.checkAdminBlocked = async (req, res, next, adminId) => {
       return next(error);
     }
 
-    if (admin.status === 0) {
+    console.log(admin);
+
+    if (admin.status == 0) {
       const error = new Error(
         "This admin is not allowed to perform any new operations because they have been blocked by the super admin."
       );
