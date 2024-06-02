@@ -148,15 +148,15 @@ exports.validatePlayer = [
   //   body("age").isInt({ gt: 0 }).withMessage("Age must be a positive integer"),
   body("additionalInfo").notEmpty().withMessage("Additional info is required"),
   body("admins").isArray().withMessage("Admins must be an array"),
-  body("sixes")
-    .isInt({ gt: 0 })
-    .withMessage("Sixes must be a positive integer"),
-  body("fours")
-    .isInt({ gt: 0 })
-    .withMessage("Fours must be a positive integer"),
-  body("wickets")
-    .isInt({ gt: 0 })
-    .withMessage("Wickets must be a positive integer"),
+  //   body("sixes")
+  //     .isInt({ gt: 0 })
+  //     .withMessage("Sixes must be a positive integer"),
+  //   body("fours")
+  //     .isInt({ gt: 0 })
+  //     .withMessage("Fours must be a positive integer"),
+  //   body("wickets")
+  //     .isInt({ gt: 0 })
+  //     .withMessage("Wickets must be a positive integer"),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
