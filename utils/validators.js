@@ -145,7 +145,7 @@ exports.validatePlayer = [
   body("name").notEmpty().withMessage("Name is required"),
   body("location").notEmpty().withMessage("Location is required"),
   body("role").notEmpty().withMessage("Role is required"),
-  body("age").isInt({ gt: 0 }).withMessage("Age must be a positive integer"),
+  //   body("age").isInt({ gt: 0 }).withMessage("Age must be a positive integer"),
   body("additionalInfo").notEmpty().withMessage("Additional info is required"),
   body("admins").isArray().withMessage("Admins must be an array"),
   body("sixes")
@@ -173,7 +173,7 @@ exports.validateUpdatePlayer = [
   body("name").notEmpty().withMessage("Name is required"),
   body("location").notEmpty().withMessage("Location is required"),
   body("role").notEmpty().withMessage("Role is required"),
-  body("age").isInt({ gt: 0 }).withMessage("Age must be a positive integer"),
+  //   body("age").isInt({ gt: 0 }).withMessage("Age must be a positive integer"),
   body("additionalInfo").notEmpty().withMessage("Additional info is required"),
   body("admins").isArray().withMessage("Admins must be an array"),
   (req, res, next) => {
