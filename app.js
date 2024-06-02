@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 // Middlewares
 app.use(async (req, res, next) => {
