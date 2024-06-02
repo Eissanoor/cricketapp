@@ -17,7 +17,7 @@ exports.checkAdminBlocked = async (req, res, next, adminId) => {
       return next(error);
     }
 
-    next();
+    // next();
   } catch (err) {
     next(err);
   }
