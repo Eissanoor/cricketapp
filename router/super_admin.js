@@ -10,8 +10,8 @@ router.post("/login", superAdminController.login);
 router.get("/admins", superAdminController.getAdmins);
 
 router.put(
-  "/toggle-admin-status/:adminId",
-  superAdminController.toggleAdminStatus
+  "/change-admin-status/:adminId",
+  superAdminController.changeAdminStatus
 );
 
 module.exports = router;
