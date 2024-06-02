@@ -47,7 +47,10 @@ exports.getAdmins = async (req, res, next) => {
   const skip = (page - 1) * limit;
 
   try {
-    const admins = await Admin.find().skip(skip).limit(limit);
+    const admins = await Admin.find()
+      .skip(skip)
+      .limit(limit)
+      .select("email status Phone ProfileImage fullname");
     if (!admins || admins.length === 0) {
       const error = new Error("No Admins found");
       error.statusCode = 404;
