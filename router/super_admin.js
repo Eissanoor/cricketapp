@@ -9,6 +9,9 @@ router.post("/login", superAdminController.login);
 // * Admins section ***
 router.get("/admins", superAdminController.getAdmins);
 
-router.put("/toggle-admin-status", superAdminController.toggleAdminStatus);
+router.put(
+  "/toggle-admin-status/:adminId",
+  superAdminController.toggleAdminStatus
+);
 
 module.exports = router;
