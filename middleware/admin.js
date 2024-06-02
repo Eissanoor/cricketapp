@@ -18,7 +18,7 @@ exports.checkAdminBlocked = async (req, res, next, adminId) => {
       error.statusCode = 403;
       return next(error);
     }
-
+    return;
     // next();
   } catch (err) {
     next(err);
