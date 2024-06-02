@@ -54,7 +54,7 @@ exports.getAdminDetails = async (req, res, next) => {
 exports.putAccess = async (req, res, next) => {
   try {
     const { adminId, id, type } = req.body;
-    adminMiddleware.checkAdminBlocked(req, res, next, adminId);
+    await adminMiddleware.checkAdminBlocked(req, res, next, adminId);
     const existingNotifier = await Notifier.findOne({
       admin: adminId,
       [type]: id,
@@ -86,7 +86,7 @@ exports.putAccess = async (req, res, next) => {
 exports.invitationResponse = async (req, res, next) => {
   try {
     const { adminId, id, accept, type } = req.body;
-    adminMiddleware.checkAdminBlocked(req, res, next, adminId);
+    await adminMiddleware.checkAdminBlocked(req, res, next, adminId);
     const notifier = await Notifier.findOne({
       admin: adminId,
       [type]: id,
@@ -190,7 +190,7 @@ exports.getOtherAdmins = async (req, res, next) => {
 exports.postAddTeam = async (req, res, next, cloudinary) => {
   try {
     const { name, location, admins, players } = req.body;
-    adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
+    await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
 
     const playerID = Array.isArray(players)
       ? players.map((id) => mongoose.Types.ObjectId(id))
@@ -359,7 +359,7 @@ exports.putPlayerToTeam = async (req, res, next) => {
     const adminId = req.body.adminId;
     const newPlayers = req.body.newPlayers;
 
-    adminMiddleware.checkAdminBlocked(req, res, next, adminId);
+    await adminMiddleware.checkAdminBlocked(req, res, next, adminId);
 
     const team = await Team.findOne({ _id: teamID, admins: adminId });
 
@@ -403,7 +403,7 @@ exports.putShareTeam = async (req, res, next) => {
     const adminId = req.body.adminId;
     const newAdmins = req.body.newAdmins;
 
-    adminMiddleware.checkAdminBlocked(req, res, next, adminId);
+    await adminMiddleware.checkAdminBlocked(req, res, next, adminId);
 
     const team = await Team.findOne({ _id: teamID, admins: adminId });
 
@@ -491,7 +491,7 @@ exports.postAddPlayer = async (req, res, next, cloudinary) => {
       wickets,
     } = req.body;
 
-    adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
+    await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
 
     const adminObjectIds = Array.isArray(admins)
       ? admins.map((id) => mongoose.Types.ObjectId(id))
@@ -628,7 +628,7 @@ exports.updatePlayer = async (req, res, next) => {
     const playerId = req.body.playerId;
     const { name, location, role, age, additionalInfo, admins } = req.body;
 
-    adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
+    await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
 
     const player = await Player.findById(playerId);
     if (!player) {
@@ -688,7 +688,7 @@ exports.sharePlayer = async (req, res, next) => {
     const adminId = req.body.adminId;
     const newAdmins = req.body.newAdmins;
 
-    adminMiddleware.checkAdminBlocked(req, res, next, adminId);
+    await adminMiddleware.checkAdminBlocked(req, res, next, adminId);
 
     // Check if the requesting admin is not blocked
     const checkAdmin = await Admin.findOne({ _id: adminId });
@@ -752,7 +752,7 @@ exports.postAddMatch = async (req, res, next) => {
       matchDateTime,
     } = req.body;
 
-    adminMiddleware.checkAdminBlocked(req, res, next, admin);
+    await adminMiddleware.checkAdminBlocked(req, res, next, admin);
 
     const MatchDetailsObj = {
       admin,
@@ -1058,7 +1058,7 @@ exports.postTournament = async (req, res, next, cloudinary) => {
       endDate,
     } = req.body;
 
-    adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
+    await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
 
     const adminIds = Array.isArray(admins)
       ? admins.map((id) => mongoose.Types.ObjectId(id))
@@ -1113,7 +1113,7 @@ exports.updateTournament = async (req, res, next, cloudinary) => {
         : [];
     }
 
-    adminMiddleware.checkAdminBlocked(req, res, next, req.body.admins[0]);
+    await adminMiddleware.checkAdminBlocked(req, res, next, req.body.admins[0]);
 
     const tournament = await Tournament.findById(req.params.id);
     if (!tournament) {
@@ -1219,7 +1219,7 @@ exports.getTournament = async (req, res, next) => {
 exports.putTeamToTournament = async (req, res, next) => {
   try {
     const { tournamentId, teamId, adminId } = req.body;
-    adminMiddleware.checkAdminBlocked(req, res, next, adminId);
+    await adminMiddleware.checkAdminBlocked(req, res, next, adminId);
     const team = await Team.findById(teamId);
     if (!team) {
       const error = new Error("No team found");
@@ -1280,7 +1280,7 @@ exports.putTeamToTournament = async (req, res, next) => {
 exports.deleteTeamFromTournament = async (req, res, next) => {
   try {
     const { tournamentId, teamId, adminId } = req.body;
-    adminMiddleware.checkAdminBlocked(req, res, next, adminId);
+    await adminMiddleware.checkAdminBlocked(req, res, next, adminId);
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
       const error = new Error("No tournament found");
@@ -1330,7 +1330,7 @@ exports.addTournamentMatch = async (req, res, next) => {
       totalMatches,
     } = req.body;
 
-    adminMiddleware.checkAdminBlocked(req, res, next, admin);
+    await adminMiddleware.checkAdminBlocked(req, res, next, admin);
 
     // When a new Qualifier group is created, we need to assign total number of matches
     const trmnt = await Tournament.findById(tournamentId);
@@ -1482,7 +1482,7 @@ exports.tournamentLiveMatches = async (req, res, next) => {
 exports.putGroupToTournament = async (req, res, next) => {
   try {
     const { groupName, totalMatches, qualifiersNumber, adminId } = req.body;
-    adminMiddleware.checkAdminBlocked(req, res, next, adminId);
+    await adminMiddleware.checkAdminBlocked(req, res, next, adminId);
     const tournamentId = req.params.tournamentId;
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
@@ -1514,7 +1514,7 @@ exports.putGroupToTournament = async (req, res, next) => {
 exports.deleteGroupFromTournament = async (req, res, next) => {
   try {
     const { groupId, tournamentId, adminId } = req.body;
-    adminMiddleware.checkAdminBlocked(req, res, next, adminId);
+    await adminMiddleware.checkAdminBlocked(req, res, next, adminId);
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
       const error = new Error("No tournament found with that ID");
@@ -1553,7 +1553,7 @@ exports.deleteGroupFromTournament = async (req, res, next) => {
 exports.putTeamToTournamentGroup = async (req, res, next) => {
   try {
     const { tournamentId, groupId, teamId, adminId } = req.body;
-    adminMiddleware.checkAdminBlocked(req, res, next, adminId);
+    await adminMiddleware.checkAdminBlocked(req, res, next, adminId);
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
       const error = new Error("Invalid tournament");
@@ -1613,7 +1613,7 @@ exports.putTeamToTournamentGroup = async (req, res, next) => {
 exports.deleteTeamFromTournamentGroup = async (req, res, next) => {
   try {
     const { tournamentId, groupId, teamId, adminId } = req.body;
-    adminMiddleware.checkAdminBlocked(req, res, next, adminId);
+    await adminMiddleware.checkAdminBlocked(req, res, next, adminId);
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
       const error = new Error("Invalid tournament");
