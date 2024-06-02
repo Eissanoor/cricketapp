@@ -53,6 +53,7 @@ exports.getAdminDetails = async (req, res, next) => {
 exports.putAccess = async (req, res, next) => {
   try {
     const { adminId, id, type } = req.body;
+
     const existingNotifier = await Notifier.findOne({
       admin: adminId,
       [type]: id,

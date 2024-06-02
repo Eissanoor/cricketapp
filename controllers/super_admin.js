@@ -92,3 +92,35 @@ exports.toggleAdminStatus = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.changeAdminStatus = async (req, res, next) => {
+  const adminId = req.params.adminId;
+  const status = req.body.status;
+
+  if (![0, 1].includes(status)) {
+    const error = new Error("Invalid status");
+    error.statusCode = 400;
+    return next(error);
+  }
+
+  try {
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      const error = new Error("Admin not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    admin.status = status;
+    await admin.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Admin status updated successfully",
+      data: admin,
+    });
+  } catch (err) {
+    next(err);
+  }
+};

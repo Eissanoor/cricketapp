@@ -9,7 +9,7 @@ dotenv.config({ path: "./config.env" });
 
 const SECRET = process.env.SECRET;
 
-const empoleeSchema = new mongoose.Schema(
+const adminSchema = new mongoose.Schema(
   {
     email: {
       type: String,
@@ -46,7 +46,11 @@ const empoleeSchema = new mongoose.Schema(
   }
 );
 
-empoleeSchema.methods.generateAuthToken = async function () {
+adminSchema.methods.isBlocked = function () {
+  return this.status === 0;
+};
+
+adminSchema.methods.generateAuthToken = async function () {
   try {
     const token = jwt.sign({ _id: this._id.toString() }, SECRET, {
       expiresIn: "30d",
@@ -62,13 +66,13 @@ empoleeSchema.methods.generateAuthToken = async function () {
   }
 };
 
-empoleeSchema.pre("save", async function (next) {
+adminSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 10);
   }
   next();
 });
 
-const providerRegister = new mongoose.model("admin", empoleeSchema);
+const providerRegister = new mongoose.model("admin", adminSchema);
 
 module.exports = providerRegister;
