@@ -1163,6 +1163,8 @@ exports.getTournaments = async (req, res, next) => {
         .populate("winner", "name image");
     } else {
       tournaments = await Tournament.find()
+        .sort({ _id: -1 })
+
         .select("seriesName seriesLocation image startDate endDate winner")
         .populate("winner", "name image");
     }
