@@ -1,6 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
 const SuperAdmin = require("../models/super_admin");
+const Admin = require("../models/admin");
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -31,6 +33,57 @@ exports.login = async (req, res, next) => {
       success: true,
       message: "SuperAdmin logged in successfully",
       data: null,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// * Admins Section ***
+
+exports.getAdmins = async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  try {
+    const admins = await Admin.find().skip(skip).limit(limit);
+    if (!admins || admins.length === 0) {
+      const error = new Error("No Admins found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Admins fetched successfully",
+      data: admins,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.toggleAdminStatus = async (req, res, next) => {
+  const adminId = req.params.adminId;
+
+  try {
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      const error = new Error("Admin not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    admin.status = admin.status === 1 ? 0 : 1;
+    await admin.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Admin status toggled successfully",
+      data: admin,
     });
   } catch (err) {
     next(err);

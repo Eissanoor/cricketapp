@@ -6,4 +6,9 @@ const router = express.Router();
 
 router.post("/login", superAdminController.login);
 
+// * Admins section ***
+router.get("/admins", superAdminController.getAdmins);
+
+router.put("/toggle-admin-status", superAdminController.toggleAdminStatus);
+
 module.exports = router;
