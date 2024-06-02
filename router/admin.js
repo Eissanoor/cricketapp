@@ -14,7 +14,6 @@ const auth = require("../middleware/auth");
 const { profile } = require("console");
 const cloudinary = require("cloudinary").v2;
 const mongoose = require("mongoose");
-const { firebase_matchDetails, teamDetails } = require("../database/firebase");
 const EmailVarify = require("../models/varifyemail");
 const providerRegister = require("../models/admin");
 
