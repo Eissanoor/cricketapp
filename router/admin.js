@@ -96,9 +96,24 @@ router.post("/signup", async (req, res, next) => {
       var mailoption = {
         from: "wasimxaman13@gmail.com",
         to: email,
-        subject: "Varify Email",
-        text: `Varify Email OTP ${code}`,
+        subject: "Welcome! Verify Your Email Address",
+        text: `Dear User,
+
+Thank you for signing up! To complete your registration, please verify your email address using the OTP (One-Time Password) provided below:
+
+Your OTP: ${code}
+
+Simply enter this code in the verification field to activate your account.
+
+If you did not initiate this registration, please disregard this email.
+
+Welcome aboard!
+
+Best regards,
+The Support Team
+`,
       };
+
       transpoter.sendMail(mailoption, function (error, info) {
         if (error) {
           console.log(error);
@@ -290,9 +305,22 @@ router.post("/send-otp-forpassword-change", async (req, res, next) => {
       var mailoption = {
         from: "wasimxaman13@gmail.com",
         to: email,
-        subject: "sending email using nodejs",
-        text: `Varify Email OTP ${random}`,
+        subject: "Password Reset Request - Verify Your Email",
+        text: `Dear User,
+
+We received a request to reset your password. To complete the process, please use the OTP (One-Time Password) provided below:
+
+Your OTP: ${random}
+
+If you did not request a password reset, please ignore this email or contact our support team immediately.
+
+Thank you for helping us keep your account secure.
+
+Best regards,
+The Support Team
+`,
       };
+
       transpoter.sendMail(mailoption, function (error, info) {
         if (error) {
           console.log(error);
