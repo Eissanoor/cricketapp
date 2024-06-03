@@ -27,4 +27,14 @@ router.delete("/news/:newsId", sAdminController.deleteNews);
 
 // * Videos Section ***
 
+// * Social Link Section ***
+
+router.post("/sociallink", sAdminController.postSocialLink);
+
+router.get("/sociallinks", sAdminController.getSocialLinks);
+
+router.put("/sociallink/:id", sAdminController.putSocialLink);
+
+router.delete("/sociallink/:id", sAdminController.deleteSocialLink);
+
 module.exports = router;

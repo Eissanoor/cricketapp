@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const SuperAdmin = require("../models/super_admin");
 const Admin = require("../models/admin");
 const News = require("../models/news");
+const SocialLink = require("../models/social_link");
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -205,6 +206,101 @@ exports.deleteNews = async (req, res, next) => {
       success: true,
       message: "News article deleted successfully",
       data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// * Social link Section ***
+
+exports.postSocialLink = async (req, res, next) => {
+  const { mediaType, link } = req.body;
+
+  try {
+    const socialLink = new SocialLink({ mediaType, link });
+
+    await socialLink.save();
+
+    res.status(201).json({
+      status: 201,
+      success: true,
+      message: "Social link created successfully",
+      data: socialLink,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getSocialLinks = async (req, res, next) => {
+  try {
+    const socialLinks = await SocialLink.find();
+
+    if (!socialLinks || socialLinks.length === 0) {
+      const error = new Error("No social links found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Social links retrieved successfully",
+      data: socialLinks,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.putSocialLink = async (req, res, next) => {
+  const { mediaType, link } = req.body;
+  const { id } = req.params;
+
+  try {
+    const socialLink = await SocialLink.findById(id);
+
+    if (!socialLink) {
+      const error = new Error("No social link found with this ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    socialLink.mediaType = mediaType;
+    socialLink.link = link;
+
+    await socialLink.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Social link updated successfully",
+      data: socialLink,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteSocialLink = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const socialLink = await SocialLink.findById(id);
+
+    if (!socialLink) {
+      const error = new Error("No social link found with this ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    await SocialLink.findByIdAndRemove(id);
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Social link deleted successfully",
     });
   } catch (error) {
     next(error);
