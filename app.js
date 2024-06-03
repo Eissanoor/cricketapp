@@ -1,10 +1,14 @@
 var express = require("express");
 const multer = require("multer");
 const cors = require("cors");
+const bodyparser = require("body-parser");
 const bcrypt = require("bcrypt");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("./database/db");
+
+// Cloudinary configuration
+const { cloudinary, storage } = require("./config/cloudinary");
 
 // Controllers
 const scorerController = require("./controllers/scorer");
@@ -23,11 +27,11 @@ const SuperAdmin = require("./models/super_admin");
 var app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-const storage = multer.memoryStorage();
+app.use(bodyparser.urlencoded({ extended: true }));
 const upload = multer({ storage: storage });
 app.use(cors({ origin: "*" }));
 
-// Middlewares
+// Middleware to ensure super admin exists
 app.use(async (req, res, next) => {
   const email = "lalkhan@superadmin.com";
   const superAdminExists = await SuperAdmin.findOne({
@@ -35,16 +39,23 @@ app.use(async (req, res, next) => {
   });
   if (!superAdminExists) {
     const password = await bcrypt.hash("lalkhan123", 12);
-
     const superAdmin = new SuperAdmin({
       name: "Lal Khan",
       email: email,
       password: password,
     });
-
     await superAdmin.save();
   }
   next();
+});
+
+// Example route for file upload (images and videos)
+app.post("/upload", upload.single("media"), (req, res) => {
+  if (req.file) {
+    res.json({ mediaUrl: req.file.path });
+  } else {
+    res.status(400).json({ error: "File upload failed" });
+  }
 });
 
 app.post("/set-openings", async (req, res, next) => {

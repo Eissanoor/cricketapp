@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 
 const SuperAdmin = require("../models/super_admin");
 const Admin = require("../models/admin");
+const News = require("../models/news");
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -97,5 +98,115 @@ exports.changeAdminStatus = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+};
+
+// * News Section ***
+
+exports.postNews = async (req, res, next) => {
+  try {
+    const { title, description } = req.body;
+    const imageUrl = req.file ? req.file.path : null;
+
+    const news = new News({
+      title: title,
+      description: description,
+      image: imageUrl,
+    });
+
+    await news.save();
+
+    res.status(201).json({
+      status: 201,
+      success: true,
+      message: "News article created successfully",
+      data: news,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getNews = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const news = await News.find()
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    if (!news || news.length === 0) {
+      const error = new Error("No news articles found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "News articles fetched successfully",
+      data: news,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.putNews = async (req, res, next) => {
+  const newsId = req.params.newsId;
+  const { title, description } = req.body;
+  const imageUrl = req.file ? req.file.path : null;
+
+  try {
+    const news = await News.findById(newsId);
+    if (!news) {
+      const error = new Error("News article not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    news.title = title;
+    news.description = description;
+    if (imageUrl) {
+      news.image = imageUrl;
+    }
+
+    await news.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "News article updated successfully",
+      data: news,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteNews = async (req, res, next) => {
+  const newsId = req.params.newsId;
+
+  try {
+    const news = await News.findById(newsId);
+    if (!news) {
+      const error = new Error("News article not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    await news.remove();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "News article deleted successfully",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
   }
 };
