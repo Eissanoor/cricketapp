@@ -112,6 +112,10 @@ exports.getMatchOvers = async (req, res, next) => {
 };
 
 exports.getCompletedMatches = async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
   try {
     const matches = await MatchDetails.find({ matchStatus: 2 })
       .sort({ _id: -1 })
@@ -119,7 +123,12 @@ exports.getCompletedMatches = async (req, res, next) => {
         "-striker -nonStriker -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
       )
       .populate("team1 team2 squad1 squad2 manOfTheMatch", "name image Image")
-      .populate("tournamentInfo.tournament", "seriesName seriesLocation");
+      .populate("tournamentInfo.tournament", "seriesName seriesLocation")
+      .skip(skip)
+      .limit(limit);
+
+    const totalMatches = await MatchDetails.countDocuments({ matchStatus: 2 });
+
     if (!matches || matches.length === 0) {
       return next(new Error("No matches found"));
     }
@@ -129,6 +138,8 @@ exports.getCompletedMatches = async (req, res, next) => {
       success: true,
       message: "Completed matches found successfully",
       data: matches,
+      totalPages: Math.ceil(totalMatches / limit),
+      currentPage: page,
     });
   } catch (error) {
     next(error);
