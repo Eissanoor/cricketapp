@@ -496,16 +496,15 @@ exports.postAddPlayer = async (req, res, next, cloudinary) => {
     const adminObjectIds = Array.isArray(admins)
       ? admins.map((id) => mongoose.Types.ObjectId(id))
       : [];
-    // let ManuImage = null;
-    const ManuImage = req.file ? req.file.path : null;
+    let ManuImage = null;
 
-    // const file = req.file;
-    // if (file) {
-    //   ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
+    const file = req.file;
+    if (file) {
+      ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
 
-    //   const result = await cloudinary.uploader.upload(ManuImage);
-    //   ManuImage = result.url;
-    // }
+      const result = await cloudinary.uploader.upload(ManuImage);
+      ManuImage = result.url;
+    }
 
     const player = new Player({
       name: name,
