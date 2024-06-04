@@ -5,6 +5,7 @@ const SuperAdmin = require("../models/super_admin");
 const Admin = require("../models/admin");
 const News = require("../models/news");
 const SocialLink = require("../models/social_link");
+const Report = require("../models/report");
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
