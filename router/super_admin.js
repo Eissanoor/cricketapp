@@ -25,6 +25,8 @@ router.put("/news/:newsId", upload.single("image"), sAdminController.putNews);
 
 router.delete("/news/:newsId", sAdminController.deleteNews);
 
+router.put("/view-news/:newsId", sAdminController.putViewNews);
+
 // * Videos Section ***
 
 // * Social Link Section ***

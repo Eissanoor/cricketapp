@@ -212,6 +212,39 @@ exports.deleteNews = async (req, res, next) => {
   }
 };
 
+exports.putViewNews = async (req, res, next) => {
+  const { id } = req.query;
+
+  try {
+    if (id == null || id == undefined) {
+      const error = new Error("News ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const news = await News.findById(id);
+    if (!news) {
+      const error = new Error("No news found with this ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    if (!news.viewers.includes(req.user.id)) {
+      news.viewers.push(req.user.id);
+      await news.save();
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "News views increased successfully",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // * Social link Section ***
 
 exports.postSocialLink = async (req, res, next) => {
@@ -229,13 +262,14 @@ exports.postSocialLink = async (req, res, next) => {
       data: socialLink,
     });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
 
 exports.getSocialLinks = async (req, res, next) => {
   try {
-    const socialLinks = await SocialLink.find();
+    const socialLinks = await SocialLink.find().sort({ _id: -1 });
 
     if (!socialLinks || socialLinks.length === 0) {
       const error = new Error("No social links found");

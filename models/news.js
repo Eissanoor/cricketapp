@@ -14,6 +14,12 @@ const newsSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    viewers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "admin",
+      },
+    ],
   },
   {
     timestamps: true,
