@@ -40,6 +40,10 @@ router.delete("/sociallink/:id", sAdminController.deleteSocialLink);
 // * Reports Section ***
 router.post("/report", sAdminController.postReport);
 
+router.get("/reports", sAdminController.getReports);
+
+router.delete("/report/:id", sAdminController.deleteReport);
+
 // * Videos Section ***
 
 module.exports = router;

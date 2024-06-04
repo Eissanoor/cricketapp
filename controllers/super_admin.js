@@ -376,3 +376,50 @@ exports.postReport = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getReports = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const reports = await Report.find()
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Reports fetched successfully",
+      data: reports,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteReport = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const report = await Report.findById(id);
+
+    if (!report) {
+      const error = new Error("No report found with this ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    await Report.findByIdAndRemove(id);
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Report deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
