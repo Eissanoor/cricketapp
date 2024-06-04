@@ -222,6 +222,12 @@ exports.putViewNews = async (req, res, next) => {
       return next(error);
     }
 
+    if (adminId == null || adminId == undefined) {
+      const error = new Error("Admin ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
     const news = await News.findById(newsId);
     if (!news) {
       const error = new Error("No news found with this ID");
