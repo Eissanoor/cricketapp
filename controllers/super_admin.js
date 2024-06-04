@@ -350,3 +350,28 @@ exports.deleteSocialLink = async (req, res, next) => {
     next(error);
   }
 };
+
+// * Reports Section ***
+
+exports.postReport = async (req, res, next) => {
+  try {
+    const { name, contactNo, report } = req.body;
+
+    const newReport = new Report({
+      name,
+      contactNo,
+      report,
+    });
+
+    const savedReport = await newReport.save();
+
+    res.status(201).json({
+      status: 201,
+      success: true,
+      message: "Report submitted successfully",
+      data: savedReport,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -37,6 +37,9 @@ router.put("/sociallink/:id", sAdminController.putSocialLink);
 
 router.delete("/sociallink/:id", sAdminController.deleteSocialLink);
 
+// * Reports Section ***
+router.get("/report", sAdminController.postReport);
+
 // * Videos Section ***
 
 module.exports = router;
