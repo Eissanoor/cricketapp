@@ -968,8 +968,8 @@ const calculateNRR = function calculateSingleMatchNRR(
   oversBowled
 ) {
   // Calculate run rate scored and run rate conceded
-  const runRateScored = runsScored / oversFaced;
-  const runRateConceded = runsAgainst / oversBowled;
+  const runRateScored = runsScored / (oversFaced || 1);
+  const runRateConceded = runsAgainst / (oversBowled || 1);
 
   // Calculate net run rate
   const netRunRate = runRateScored - runRateConceded;
