@@ -6,6 +6,7 @@ const Admin = require("../models/admin");
 const News = require("../models/news");
 const SocialLink = require("../models/social_link");
 const Report = require("../models/report");
+const Video = require("../models/video");
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -418,6 +419,119 @@ exports.deleteReport = async (req, res, next) => {
       status: 200,
       success: true,
       message: "Report deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// * Videos Section ***
+
+exports.postVideo = async (req, res, next) => {
+  const { title, description } = req.body;
+  const videoFile = req.files.video[0];
+  const thumbnailFile = req.files.thumbnail[0];
+
+  try {
+    // assuming videoUrl is path where video is stored
+    const videoUrl = videoFile.path;
+    const thumbnail = thumbnailFile.path; // set this to wherever your thumbnail is
+
+    const video = new Video({
+      title,
+      description,
+      videoUrl,
+      thumbnail,
+      viewers: [], // initially no viewers
+    });
+
+    await video.save();
+
+    res.status(201).json({
+      status: 201,
+      success: true,
+      message: "Video uploaded successfully",
+      data: video,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getVideos = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const videos = await Video.find().sort({ _id: -1 }).skip(skip).limit(limit);
+
+    if (videos.length === 0) {
+      const error = new Error("No videos found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Videos fetched successfully",
+      data: videos,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.putVideo = async (req, res, next) => {
+  const { title, description } = req.body;
+  const { id } = req.params;
+
+  try {
+    const video = await Video.findById(id);
+
+    if (!video) {
+      const error = new Error("No video found with this ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    video.title = title;
+    video.description = description;
+
+    await video.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Video updated successfully",
+      data: video,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteVideo = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const video = await Video.findById(id);
+
+    if (!video) {
+      const error = new Error("No video found with this ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+    // delete video from cloudinary
+    await cloudinary.uploader.destroy(video.public_id);
+    await Video.findByIdAndRemove(id);
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Video deleted successfully",
     });
   } catch (error) {
     next(error);
