@@ -25,9 +25,7 @@ router.put("/news/:newsId", upload.single("image"), sAdminController.putNews);
 
 router.delete("/news/:newsId", sAdminController.deleteNews);
 
-router.put("/view-news/:newsId", sAdminController.putViewNews);
-
-// * Videos Section ***
+router.put("/view-news", sAdminController.putViewNews);
 
 // * Social Link Section ***
 
@@ -38,5 +36,7 @@ router.get("/sociallinks", sAdminController.getSocialLinks);
 router.put("/sociallink/:id", sAdminController.putSocialLink);
 
 router.delete("/sociallink/:id", sAdminController.deleteSocialLink);
+
+// * Videos Section ***
 
 module.exports = router;

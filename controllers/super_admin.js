@@ -213,16 +213,16 @@ exports.deleteNews = async (req, res, next) => {
 };
 
 exports.putViewNews = async (req, res, next) => {
-  const { id } = req.query;
+  const { id: newsId } = req.body;
 
   try {
-    if (id == null || id == undefined) {
+    if (newsId == null || newsId == undefined) {
       const error = new Error("News ID is required");
       error.statusCode = 400;
       return next(error);
     }
 
-    const news = await News.findById(id);
+    const news = await News.findById(newsId);
     if (!news) {
       const error = new Error("No news found with this ID");
       error.statusCode = 404;
