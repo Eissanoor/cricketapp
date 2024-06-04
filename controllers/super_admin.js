@@ -213,7 +213,7 @@ exports.deleteNews = async (req, res, next) => {
 };
 
 exports.putViewNews = async (req, res, next) => {
-  const { id: newsId } = req.body;
+  const { newsId, adminId } = req.body;
 
   try {
     if (newsId == null || newsId == undefined) {
@@ -229,9 +229,13 @@ exports.putViewNews = async (req, res, next) => {
       return next(error);
     }
 
-    if (!news.viewers.includes(req.user.id)) {
-      news.viewers.push(req.user.id);
+    if (!news.viewers.includes(adminId)) {
+      news.viewers.push(adminId);
       await news.save();
+    } else {
+      const error = new Error("You have already viewed this news");
+      error.statusCode = 400;
+      return next(error);
     }
 
     res.status(200).json({
