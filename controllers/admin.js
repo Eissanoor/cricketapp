@@ -1090,7 +1090,7 @@ exports.postTournament = async (req, res, next, cloudinary) => {
       status: 201,
       success: true,
       message: "Tournament saved successfully",
-      data: result,
+      data: null,
     });
   } catch (error) {
     next(error);

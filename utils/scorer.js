@@ -893,13 +893,31 @@ const createPointsTable = async function (match) {
           oversFaced: match.team1Overs,
           draws: 1,
           points: 1, // 1 point for a draw
+          //   netRunRate: calculateNRR(match.team2Score),
         });
 
-        pointsTableTeam2.calculateNRR();
+        // pointsTableTeam2.calculateNRR();
         await pointsTableTeam2.save();
       }
     }
   }
+};
+
+const calculateNRR = function calculateSingleMatchNRR(
+  runsScored,
+  oversFaced,
+  runsAgainst,
+  oversBowled
+) {
+  // Calculate run rate scored and run rate conceded
+  const runRateScored = runsScored / oversFaced;
+  const runRateConceded = runsAgainst / oversBowled;
+
+  // Calculate net run rate
+  const netRunRate = runRateScored - runRateConceded;
+
+  // Return the NRR rounded to two decimal places
+  return netRunRate.toFixed(2);
 };
 
 const handleSeriesGroupMatch = async function (match) {
