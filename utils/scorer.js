@@ -975,7 +975,7 @@ const calculateNRR = function calculateSingleMatchNRR(
   const netRunRate = runRateScored - runRateConceded;
 
   // Return the NRR rounded to two decimal places
-  return netRunRate.toFixed(2);
+  return parseFloat(netRunRate.toFixed(2));
 };
 
 const handleSeriesGroupMatch = async function (match) {
