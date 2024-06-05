@@ -1339,6 +1339,7 @@ exports.addTournamentMatch = async (req, res, next) => {
       error.statusCode = 404;
       return next(error);
     }
+
     const groupIndex = trmnt.groups.findIndex(
       (g) => g._id.toString() === groupId.toString()
     );
@@ -1479,6 +1480,37 @@ exports.tournamentLiveMatches = async (req, res, next) => {
   }
 };
 
+exports.tournamentCompletedMatches = async (req, res, next) => {
+  try {
+    const tournamentId = req.params.id;
+    const matches = await MatchDetails.find({
+      "tournamentInfo.tournament": mongoose.Types.ObjectId(tournamentId),
+      matchStatus: 2,
+    })
+      .select(
+        "-striker -nonStriker -manOfTheMatch -openingBowler -playerStats -bowlerStats -currentOver -lastWicket -overs"
+      )
+      .populate("team1 team2", "name image")
+      .populate("squad1 squad2", "name")
+      .populate("tournamentInfo.tournament", "seriesName seriesLocation");
+
+    if (!matches || matches.length === 0) {
+      const error = new Error("Tournament contains no matches");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Match details",
+      data: matches,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.putGroupToTournament = async (req, res, next) => {
   try {
     const { groupName, totalMatches, qualifiersNumber, adminId } = req.body;
@@ -1566,9 +1598,7 @@ exports.putTeamToTournamentGroup = async (req, res, next) => {
     );
     if (groupIndex !== -1) {
       const group = tournament.groups[groupIndex];
-      //   const teamAlreadyInGroup = group.teams.some(
-      //     (team) => team.toString() === teamId.toString()
-      //   );
+
       const teamAlreadyInGroup = group.teams.some(
         (team) => team.team.toString() === teamId.toString()
       );
@@ -1579,7 +1609,21 @@ exports.putTeamToTournamentGroup = async (req, res, next) => {
         return next(error);
       }
 
-      //   group.teams.push(teamId);
+      // Check if team is in any other group of the same tournament
+      const teamInOtherGroup = tournament.groups.some(
+        (group) =>
+          group._id.toString() !== groupId.toString() &&
+          group.teams.some((team) => team.team.toString() === teamId.toString())
+      );
+
+      if (teamInOtherGroup) {
+        const error = new Error(
+          "Team already in another group of the same tournament"
+        );
+        error.statusCode = 400;
+        return next(error);
+      }
+
       group.teams.push({ team: teamId });
 
       const pointsTable = new PointsTable({

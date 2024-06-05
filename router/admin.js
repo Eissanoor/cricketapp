@@ -667,6 +667,11 @@ router.get(
 
 router.get("/tournament/live/:id", adminController.tournamentLiveMatches);
 
+router.get(
+  "/tournament/completed/:id",
+  adminController.tournamentCompletedMatches
+);
+
 router.put(
   "/group-to-tournament/:tournamentId",
   adminController.putGroupToTournament
