@@ -46,23 +46,13 @@ router.delete("/report/:id", sAdminController.deleteReport);
 
 // * Videos Section ***
 
-router.post(
-  "/video",
-  upload.fields([
-    { name: "video", maxCount: 1 },
-    { name: "thumbnail", maxCount: 1 },
-  ]),
-  sAdminController.postVideo
-);
+router.post("/video", upload.single("video"), sAdminController.postVideo);
 
 router.get("/videos", sAdminController.getVideos);
 
 router.put(
   "/video/:videoId",
-  upload.fields([
-    { name: "video", maxCount: 1 },
-    { name: "thumbnail", maxCount: 1 },
-  ]),
+  upload.single("video"),
   sAdminController.putVideo
 );
 

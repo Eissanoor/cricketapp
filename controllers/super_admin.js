@@ -8,6 +8,8 @@ const SocialLink = require("../models/social_link");
 const Report = require("../models/report");
 const Video = require("../models/video");
 
+const { cloudinary } = require("../config/cloudinary");
+
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -174,6 +176,8 @@ exports.putNews = async (req, res, next) => {
     news.title = title;
     news.description = description;
     if (imageUrl) {
+      // delete old image stored in the cloudinary
+      await cloudinary.uploader.destroy(news.public_id);
       news.image = imageUrl;
     }
 
@@ -429,20 +433,17 @@ exports.deleteReport = async (req, res, next) => {
 
 exports.postVideo = async (req, res, next) => {
   const { title, description } = req.body;
-  const videoFile = req.files.video[0];
-  const thumbnailFile = req.files.thumbnail[0];
+  const videoFile = req.file;
 
   try {
     // assuming videoUrl is path where video is stored
     const videoUrl = videoFile.path;
-    const thumbnail = thumbnailFile.path; // set this to wherever your thumbnail is
 
     const video = new Video({
       title,
       description,
       videoUrl,
-      thumbnail,
-      viewers: [], // initially no viewers
+      viewers: [],
     });
 
     await video.save();
@@ -487,6 +488,7 @@ exports.getVideos = async (req, res, next) => {
 exports.putVideo = async (req, res, next) => {
   const { title, description } = req.body;
   const { id } = req.params;
+  const videoFile = req.file;
 
   try {
     const video = await Video.findById(id);
@@ -499,6 +501,27 @@ exports.putVideo = async (req, res, next) => {
 
     video.title = title;
     video.description = description;
+
+    // if a new video file is provided
+    if (videoFile) {
+      const videoUrl = videoFile.path;
+
+      // delete the old video file from Cloudinary
+      const publicId = video.videoUrl.split("/").pop().split(".")[0];
+      cloudinary.uploader.destroy(
+        publicId,
+        { resource_type: "video" },
+        (error, result) => {
+          if (error) {
+            console.error(error);
+            return;
+          }
+        }
+      );
+
+      // update with new video url
+      video.videoUrl = videoUrl;
+    }
 
     await video.save();
 
