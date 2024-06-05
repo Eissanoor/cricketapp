@@ -68,4 +68,6 @@ router.put(
 
 router.delete("/video/:videoId", sAdminController.deleteVideo);
 
+router.put("/view-video", sAdminController.putViewVideo);
+
 module.exports = router;

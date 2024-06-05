@@ -537,3 +537,46 @@ exports.deleteVideo = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.putViewVideo = async (req, res, next) => {
+  const { videoId, adminId } = req.body;
+
+  try {
+    if (videoId == null || videoId == undefined) {
+      const error = new Error("Video ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    if (adminId == null || adminId == undefined) {
+      const error = new Error("Admin ID is required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const video = await Video.findById(videoId);
+    if (!video) {
+      const error = new Error("No video found with this ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    if (!video.viewers.includes(adminId)) {
+      video.viewers.push(adminId);
+      await video.save();
+    } else {
+      const error = new Error("You have already viewed this video");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Video views increased successfully",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
