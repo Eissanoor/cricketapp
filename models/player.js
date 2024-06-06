@@ -1,66 +1,75 @@
 const mongoose = require("mongoose");
 
-const playerSchema = new mongoose.Schema({
-  name: String,
-  location: String,
-  role: String,
-  age: String,
-  Image: String,
-  additionalInfo: String,
-  admins: [{ type: mongoose.Schema.Types.ObjectId, ref: "admin" }],
-  t20Stats: {
-    sixes: { type: Number, default: 0 },
-    fours: { type: Number, default: 0 },
-    wickets: { type: Number, default: 0 },
-    catches: { type: Number, default: 0 },
-    runs: { type: Number, default: 0 },
-    balls: { type: Number, default: 0 },
-    fifties: { type: Number, default: 0 },
-    hundreds: { type: Number, default: 0 },
-    innings: { type: Number, default: 0 },
-    highestScore: { type: Number, default: 0 },
-    matches: { type: Number, default: 0 },
-    strikeRate: { type: Number, default: 0 },
-    // Add other T20-specific fields as needed
-  },
-  odiStats: {
-    sixes: { type: Number, default: 0 },
-    fours: { type: Number, default: 0 },
-    wickets: { type: Number, default: 0 },
-    catches: { type: Number, default: 0 },
-    runs: { type: Number, default: 0 },
-    balls: { type: Number, default: 0 },
-    fifties: { type: Number, default: 0 },
-    hundreds: { type: Number, default: 0 },
-    innings: { type: Number, default: 0 },
-    highestScore: { type: Number, default: 0 },
-    matches: { type: Number, default: 0 },
-    strikeRate: { type: Number, default: 0 },
-    // Add other ODI-specific fields as needed
-  },
-  stats: {
-    sixes: { type: Number, default: 0 },
-    fours: { type: Number, default: 0 },
-    wickets: { type: Number, default: 0 },
-    catches: { type: Number, default: 0 },
-    runs: { type: Number, default: 0 },
-    balls: { type: Number, default: 0 },
-    fifties: { type: Number, default: 0 },
-    hundreds: { type: Number, default: 0 },
-    innings: { type: Number, default: 0 },
-    highestScore: { type: Number, default: 0 },
-    matches: { type: Number, default: 0 },
-    strikeRate: { type: Number, default: 0 },
-    // Add other fields for last performance as needed
-  },
-  latestPerformance: [
-    {
-      team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
+const playerSchema = new mongoose.Schema(
+  {
+    name: String,
+    location: String,
+    role: String,
+    age: String,
+    Image: String,
+    additionalInfo: String,
+    admins: [{ type: mongoose.Schema.Types.ObjectId, ref: "admin" }],
+    t20Stats: {
+      sixes: { type: Number, default: 0 },
+      fours: { type: Number, default: 0 },
+      wickets: { type: Number, default: 0 },
+      catches: { type: Number, default: 0 },
       runs: { type: Number, default: 0 },
-      match: { type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" },
+      balls: { type: Number, default: 0 },
+      fifties: { type: Number, default: 0 },
+      hundreds: { type: Number, default: 0 },
+      innings: { type: Number, default: 0 },
+      highestScore: { type: Number, default: 0 },
+      matches: { type: Number, default: 0 },
+      strikeRate: { type: Number, default: 0 },
+      // Add other T20-specific fields as needed
     },
-  ],
-});
+    odiStats: {
+      sixes: { type: Number, default: 0 },
+      fours: { type: Number, default: 0 },
+      wickets: { type: Number, default: 0 },
+      catches: { type: Number, default: 0 },
+      runs: { type: Number, default: 0 },
+      balls: { type: Number, default: 0 },
+      fifties: { type: Number, default: 0 },
+      hundreds: { type: Number, default: 0 },
+      innings: { type: Number, default: 0 },
+      highestScore: { type: Number, default: 0 },
+      matches: { type: Number, default: 0 },
+      strikeRate: { type: Number, default: 0 },
+      // Add other ODI-specific fields as needed
+    },
+    stats: {
+      sixes: { type: Number, default: 0 },
+      fours: { type: Number, default: 0 },
+      wickets: { type: Number, default: 0 },
+      catches: { type: Number, default: 0 },
+      runs: { type: Number, default: 0 },
+      balls: { type: Number, default: 0 },
+      fifties: { type: Number, default: 0 },
+      hundreds: { type: Number, default: 0 },
+      innings: { type: Number, default: 0 },
+      highestScore: { type: Number, default: 0 },
+      matches: { type: Number, default: 0 },
+      strikeRate: { type: Number, default: 0 },
+      // Add other fields for last performance as needed
+    },
+    public_id: {
+      type: String,
+      required: false,
+    },
+    latestPerformance: [
+      {
+        team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
+        runs: { type: Number, default: 0 },
+        match: { type: mongoose.Schema.Types.ObjectId, ref: "MatchDetails" },
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  }
+);
 
 playerSchema.methods.setInnings = async function (format) {
   if (format === "t20") {

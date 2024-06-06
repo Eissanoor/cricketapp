@@ -7,6 +7,7 @@ const News = require("../models/news");
 const SocialLink = require("../models/social_link");
 const Report = require("../models/report");
 const Video = require("../models/video");
+const Player = require("../models/player");
 
 const { cloudinary } = require("../config/cloudinary");
 
@@ -636,6 +637,129 @@ exports.putViewVideo = async (req, res, next) => {
       status: 200,
       success: true,
       message: "Video views increased successfully",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// * Players Section ***
+
+exports.getPlayers = async (req, res, next) => {
+  try {
+    const players = await Player.find().sort({ _id: -1 });
+
+    if (!players || players.length === 0) {
+      const error = new Error("No players found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Players fetched successfully",
+      data: players,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.putPlayer = async (req, res, next) => {
+  try {
+    const { playerId } = req.params;
+    const {
+      name,
+      location,
+      role,
+      age,
+      additionalInfo,
+      admins,
+      sixes,
+      fours,
+      wickets,
+    } = req.body;
+
+    const player = await Player.findById(playerId);
+
+    if (!player) {
+      const error = new Error("No player found with this ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const adminObjectIds = Array.isArray(admins)
+      ? admins.map((id) => mongoose.Types.ObjectId(id))
+      : [];
+
+    if (req.file) {
+      // delete old image stored in the cloudinary
+      if (player.public_id) {
+        await cloudinary.uploader.destroy(player.public_id);
+      }
+
+      const imageUrl = req.file.path;
+      const publicId = req.file.filename;
+
+      // update image and public_id fields
+      player.image = imageUrl;
+      player.public_id = publicId;
+    }
+
+    if (name) player.name = name;
+    if (location) player.location = location;
+    if (role) player.role = role;
+    if (age) player.age = age;
+    if (additionalInfo) player.additionalInfo = additionalInfo;
+    if (admins) player.admins = adminObjectIds;
+    if (sixes || fours || wickets) {
+      player.stats = {
+        sixes: sixes,
+        fours: fours,
+        wickets: wickets,
+      };
+    }
+
+    const updatedPlayer = await player.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Player has been updated successfully",
+      data: updatedPlayer,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deletePlayer = async (req, res, next) => {
+  try {
+    const { playerId } = req.params;
+
+    const player = await Player.findById(playerId);
+
+    if (!player) {
+      const error = new Error("No player found with this ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    // If the player has an image, delete it from Cloudinary
+    if (player.public_id) {
+      await cloudinary.uploader.destroy(player.public_id, {
+        resource_type: "image",
+      });
+    }
+
+    await Player.findByIdAndRemove(playerId);
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Player has been deleted successfully",
       data: null,
     });
   } catch (error) {

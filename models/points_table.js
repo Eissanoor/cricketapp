@@ -1,58 +1,63 @@
 const mongoose = require("mongoose");
 
-const PointsTableSchema = new mongoose.Schema({
-  tournament: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Tournament",
+const PointsTableSchema = new mongoose.Schema(
+  {
+    tournament: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tournament",
+    },
+    team: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Team",
+    },
+    semiQualifier: { type: Boolean },
+    finalQualifier: { type: Boolean },
+    winner: { type: Boolean },
+    group: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
+    groupName: String,
+    matchesPlayed: {
+      type: Number,
+      default: 0,
+    },
+    wins: {
+      type: Number,
+      default: 0,
+    },
+    losses: {
+      type: Number,
+      default: 0,
+    },
+    draws: {
+      type: Number,
+      default: 0,
+    },
+    points: {
+      type: Number,
+      default: 0,
+    },
+    netRunRate: {
+      type: Number,
+      default: 0,
+    },
+    runsScored: {
+      type: Number,
+      default: 0,
+    },
+    runsAgainst: {
+      type: Number,
+      default: 0,
+    },
+    oversFaced: {
+      type: Number,
+      default: 0,
+    },
   },
-  team: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Team",
-  },
-  semiQualifier: { type: Boolean },
-  finalQualifier: { type: Boolean },
-  winner: { type: Boolean },
-  group: {
-    type: mongoose.Schema.Types.ObjectId,
-  },
-  groupName: String,
-  matchesPlayed: {
-    type: Number,
-    default: 0,
-  },
-  wins: {
-    type: Number,
-    default: 0,
-  },
-  losses: {
-    type: Number,
-    default: 0,
-  },
-  draws: {
-    type: Number,
-    default: 0,
-  },
-  points: {
-    type: Number,
-    default: 0,
-  },
-  netRunRate: {
-    type: Number,
-    default: 0,
-  },
-  runsScored: {
-    type: Number,
-    default: 0,
-  },
-  runsAgainst: {
-    type: Number,
-    default: 0,
-  },
-  oversFaced: {
-    type: Number,
-    default: 0,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 PointsTableSchema.methods.calculateNRR = function () {
   if (this.oversFaced > 0) {

@@ -60,4 +60,17 @@ router.delete("/video/:videoId", sAdminController.deleteVideo);
 
 router.put("/view-video", sAdminController.putViewVideo);
 
+// * Players Section ***
+// router.post("/player", upload.single("image"), sAdminController.postPlayer);
+
+router.get("/players", sAdminController.getPlayers);
+
+router.put(
+  "/player/:playerId",
+  upload.single("Image"),
+  sAdminController.putPlayer
+);
+
+router.delete("/player/:playerId", sAdminController.deletePlayer);
+
 module.exports = router;

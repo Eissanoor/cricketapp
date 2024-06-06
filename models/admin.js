@@ -40,6 +40,10 @@ const adminSchema = new mongoose.Schema(
 
     fullname: String,
     expireIn: Number,
+    public_id: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,

@@ -12,6 +12,8 @@ const PointsTable = require("../models/points_table");
 const scorerHelper = require("../utils/scorer");
 const adminMiddleware = require("../middleware/admin");
 
+const { cloudinary } = require("../config/cloudinary");
+
 // * ADMIN ************************************************
 
 exports.getAdminDetails = async (req, res, next) => {
@@ -187,33 +189,71 @@ exports.getOtherAdmins = async (req, res, next) => {
 };
 
 // * TEAM ***
-exports.postAddTeam = async (req, res, next, cloudinary) => {
+// exports.postAddTeam = async (req, res, next, cloudinary) => {
+//   try {
+//     const { name, location, admins, players } = req.body;
+//     await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
+
+//     const playerID = Array.isArray(players)
+//       ? players.map((id) => mongoose.Types.ObjectId(id))
+//       : [];
+
+//     const adminIDs = Array.isArray(admins)
+//       ? admins.map((id) => mongoose.Types.ObjectId(id))
+//       : [];
+//     let ManuImage = null;
+
+//     const file = req.file;
+//     if (file) {
+//       ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
+//       const result = await cloudinary.uploader.upload(ManuImage);
+//       ManuImage = result.url;
+//     }
+//     const team = new Team({
+//       name: name,
+//       location: location,
+//       admins: adminIDs,
+//       players: playerID,
+//       image: ManuImage,
+//     });
+//     const savedTeam = await team.save();
+
+//     res.status(201).json({
+//       status: 201,
+//       success: true,
+//       message: "Team has been added successfully",
+//       data: savedTeam,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+exports.postAddTeam = async (req, res, next) => {
   try {
     const { name, location, admins, players } = req.body;
+
     await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
 
-    const playerID = Array.isArray(players)
+    const playerIDs = Array.isArray(players)
       ? players.map((id) => mongoose.Types.ObjectId(id))
       : [];
 
     const adminIDs = Array.isArray(admins)
       ? admins.map((id) => mongoose.Types.ObjectId(id))
       : [];
-    let ManuImage = null;
 
-    const file = req.file;
-    if (file) {
-      ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
-      const result = await cloudinary.uploader.upload(ManuImage);
-      ManuImage = result.url;
-    }
+    const imageUrl = req.file ? req.file.path : null;
+    const publicId = req.file ? req.file.filename : null;
+
     const team = new Team({
       name: name,
       location: location,
       admins: adminIDs,
-      players: playerID,
-      image: ManuImage,
+      players: playerIDs,
+      image: imageUrl,
+      public_id: publicId,
     });
+
     const savedTeam = await team.save();
 
     res.status(201).json({
@@ -263,89 +303,157 @@ exports.getTeams = async (req, res, next) => {
   }
 };
 
-exports.putUpdateTeam = async (req, res, next, cloudinary) => {
+// exports.putUpdateTeam = async (req, res, next, cloudinary) => {
+//   try {
+//     const teamID = req.body.teamID;
+//     const { name, location } = req.body;
+//     const team = await Team.findById({ _id: teamID });
+
+//     if (!team) {
+//       const error = new Error("Team not found");
+//       error.statusCode = 404;
+//       return next(error);
+//     }
+
+//     // let ManuImage = null;
+//     // if (req.file) {
+//     //   ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
+//     //   const result = await cloudinary.uploader.upload(ManuImage);
+//     //   ManuImage = result.url;
+//     // } else {
+//     //   ManuImage = team.image;
+//     // }
+
+//     let ManuImage = null;
+//     if (req.file) {
+//       // If there's a previous image, delete it
+//       if (team.image) {
+//         const publicId = team.image.split("/").pop().split(".")[0];
+//         await cloudinary.uploader.destroy(publicId);
+//       }
+
+//       ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
+//       const result = await cloudinary.uploader.upload(ManuImage);
+//       ManuImage = result.url;
+//     } else {
+//       ManuImage = team.image;
+//     }
+
+//     team.name = name;
+//     team.location = location;
+//     team.image = ManuImage;
+//     const updatedProduct = await team.save();
+//     res.status(200).json({
+//       status: 200,
+//       success: true,
+//       message: "Team updated successfully",
+//       data: updatedProduct,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+exports.putUpdateTeam = async (req, res, next) => {
   try {
     const teamID = req.body.teamID;
     const { name, location } = req.body;
-    const team = await Team.findById({ _id: teamID });
 
+    const team = await Team.findById({ _id: teamID });
     if (!team) {
       const error = new Error("Team not found");
       error.statusCode = 404;
       return next(error);
     }
 
-    // let ManuImage = null;
-    // if (req.file) {
-    //   ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
-    //   const result = await cloudinary.uploader.upload(ManuImage);
-    //   ManuImage = result.url;
-    // } else {
-    //   ManuImage = team.image;
-    // }
-
-    let ManuImage = null;
     if (req.file) {
       // If there's a previous image, delete it
-      if (team.image) {
-        const publicId = team.image.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(publicId);
+      if (team.public_id) {
+        await cloudinary.uploader.destroy(team.public_id);
       }
 
-      ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
-      const result = await cloudinary.uploader.upload(ManuImage);
-      ManuImage = result.url;
-    } else {
-      ManuImage = team.image;
+      const imageUrl = req.file.path;
+      const publicId = req.file.filename;
+
+      // update image and public_id fields
+      team.image = imageUrl;
+      team.public_id = publicId;
     }
 
-    team.name = name;
-    team.location = location;
-    team.image = ManuImage;
-    const updatedProduct = await team.save();
+    if (name) team.name = name;
+    if (location) team.location = location;
+
+    const updatedTeam = await team.save();
     res.status(200).json({
       status: 200,
       success: true,
       message: "Team updated successfully",
-      data: updatedProduct,
+      data: updatedTeam,
     });
   } catch (error) {
     next(error);
   }
 };
 
-exports.deleteTeam = async (req, res, next, cloudinary) => {
+// exports.deleteTeam = async (req, res, next, cloudinary) => {
+//   try {
+//     const teamID = req.body.teamID;
+//     const deletedPlayer = await Team.findByIdAndDelete({ _id: teamID });
+
+//     if (!deletedPlayer) {
+//       const error = new Error(`Team ${teamID} is not deleted`);
+//       error.statusCode = 404;
+//       return next(error);
+//     }
+
+//     const image = deletedPlayer.image;
+
+//     if (image) {
+//       const parts = image.split("/");
+
+//       // Get the last part of the split array
+//       const lastPart = parts[parts.length - 1];
+
+//       // Split the last part by '.'
+//       const publicId = lastPart.split(".")[0];
+
+//       const result = await cloudinary.uploader.destroy(publicId, {
+//         resource_type: "image",
+//       });
+//       console.log(result);
+//     }
+
+//     res.status(200).json({
+//       status: 200,
+//       success: true,
+//       message: "team deleted successfully",
+//       data: null,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+exports.deleteTeam = async (req, res, next) => {
   try {
     const teamID = req.body.teamID;
-    const deletedPlayer = await Team.findByIdAndDelete({ _id: teamID });
+    const deletedTeam = await Team.findByIdAndDelete(teamID);
 
-    if (!deletedPlayer) {
+    if (!deletedTeam) {
       const error = new Error(`Team ${teamID} is not deleted`);
       error.statusCode = 404;
       return next(error);
     }
 
-    const image = deletedPlayer.image;
-
-    if (image) {
-      const parts = image.split("/");
-
-      // Get the last part of the split array
-      const lastPart = parts[parts.length - 1];
-
-      // Split the last part by '.'
-      const publicId = lastPart.split(".")[0];
-
-      const result = await cloudinary.uploader.destroy(publicId, {
-        resource_type: "image",
-      });
-      console.log(result);
+    // If there's an image, delete it
+    if (deletedTeam.public_id) {
+      await cloudinary.uploader.destroy(deletedTeam.public_id);
     }
 
     res.status(200).json({
       status: 200,
       success: true,
-      message: "team deleted successfully",
+      message: "Team deleted successfully",
       data: null,
     });
   } catch (error) {
@@ -477,7 +585,63 @@ exports.getTeamPlayers = async (req, res, next) => {
 };
 
 // * PLAYER ***
-exports.postAddPlayer = async (req, res, next, cloudinary) => {
+// exports.postAddPlayer = async (req, res, next, cloudinary) => {
+//   try {
+//     const {
+//       name,
+//       location,
+//       role,
+//       age,
+//       additionalInfo,
+//       admins,
+//       sixes,
+//       fours,
+//       wickets,
+//     } = req.body;
+
+//     await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
+
+//     const adminObjectIds = Array.isArray(admins)
+//       ? admins.map((id) => mongoose.Types.ObjectId(id))
+//       : [];
+//     let ManuImage = null;
+
+//     const file = req.file;
+//     if (file) {
+//       ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
+
+//       const result = await cloudinary.uploader.upload(ManuImage);
+//       ManuImage = result.url;
+//     }
+
+//     const player = new Player({
+//       name: name,
+//       location: location,
+//       role: role,
+//       age: age,
+//       additionalInfo: additionalInfo,
+//       admins: adminObjectIds,
+//       stats: {
+//         sixes: sixes,
+//         fours: fours,
+//         wickets: wickets,
+//       },
+//       Image: ManuImage,
+//     });
+//     const savedPlayer = await player.save();
+
+//     res.status(201).json({
+//       status: 201,
+//       success: true,
+//       message: "Player has been added successfully",
+//       data: savedPlayer,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     next(error);
+//   }
+// };
+exports.postAddPlayer = async (req, res, next) => {
   try {
     const {
       name,
@@ -491,20 +655,12 @@ exports.postAddPlayer = async (req, res, next, cloudinary) => {
       wickets,
     } = req.body;
 
-    await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
-
     const adminObjectIds = Array.isArray(admins)
       ? admins.map((id) => mongoose.Types.ObjectId(id))
       : [];
-    let ManuImage = null;
 
-    const file = req.file;
-    if (file) {
-      ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
-
-      const result = await cloudinary.uploader.upload(ManuImage);
-      ManuImage = result.url;
-    }
+    const imageUrl = req.file ? req.file.path : null;
+    const publicId = req.file ? req.file.filename : null;
 
     const player = new Player({
       name: name,
@@ -518,8 +674,10 @@ exports.postAddPlayer = async (req, res, next, cloudinary) => {
         fours: fours,
         wickets: wickets,
       },
-      Image: ManuImage,
+      image: imageUrl,
+      public_id: publicId,
     });
+
     const savedPlayer = await player.save();
 
     res.status(201).json({
@@ -529,7 +687,6 @@ exports.postAddPlayer = async (req, res, next, cloudinary) => {
       data: savedPlayer,
     });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -584,7 +741,46 @@ exports.playerDetailsByPlayerId = async (req, res, next) => {
   }
 };
 
-exports.deletePlayer = async (req, res, next, cloudinary) => {
+// exports.deletePlayer = async (req, res, next, cloudinary) => {
+//   try {
+//     const playerId = req.body.playerId;
+//     const deletedPlayer = await Player.findByIdAndDelete(playerId);
+
+//     if (!deletedPlayer) {
+//       const error = new Error("Player not found");
+//       error.statusCode = 404;
+//       return next(error);
+//     }
+
+//     const image = deletedPlayer.Image;
+
+//     if (image) {
+//       const parts = image.split("/");
+
+//       // Get the last part of the split array
+//       const lastPart = parts[parts.length - 1];
+
+//       // Split the last part by '.'
+//       const publicId = lastPart.split(".")[0];
+
+//       const result = await cloudinary.uploader.destroy(publicId, {
+//         resource_type: "image",
+//       });
+//     }
+
+//     res.status(200).json({
+//       status: 200,
+//       success: true,
+//       message: "Player deleted successfully",
+//       data: null,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     next(error);
+//   }
+// };
+
+exports.deletePlayer = async (req, res, next) => {
   try {
     const playerId = req.body.playerId;
     const deletedPlayer = await Player.findByIdAndDelete(playerId);
@@ -595,20 +791,9 @@ exports.deletePlayer = async (req, res, next, cloudinary) => {
       return next(error);
     }
 
-    const image = deletedPlayer.Image;
-
-    if (image) {
-      const parts = image.split("/");
-
-      // Get the last part of the split array
-      const lastPart = parts[parts.length - 1];
-
-      // Split the last part by '.'
-      const publicId = lastPart.split(".")[0];
-
-      const result = await cloudinary.uploader.destroy(publicId, {
-        resource_type: "image",
-      });
+    // If there's an image, delete it
+    if (deletedPlayer.public_id) {
+      await cloudinary.uploader.destroy(deletedPlayer.public_id);
     }
 
     res.status(200).json({
@@ -623,10 +808,78 @@ exports.deletePlayer = async (req, res, next, cloudinary) => {
   }
 };
 
+// exports.updatePlayer = async (req, res, next) => {
+//   try {
+//     const playerId = req.body.playerId;
+//     const { name, location, role, age, additionalInfo, admins } = req.body;
+
+//     await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
+
+//     const player = await Player.findById(playerId);
+//     if (!player) {
+//       const error = new Error("Player not found");
+//       error.statusCode = 404;
+//       return next(error);
+//     }
+
+//     // let ManuImage = null;
+//     // if (req.file) {
+//     //   ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
+//     //   const result = await cloudinary.uploader.upload(ManuImage);
+//     //   ManuImage = result.url;
+//     // } else {
+//     //   ManuImage = player.Image;
+//     // }
+
+//     let ManuImage = null;
+//     if (req.file) {
+//       // If there's a previous image, delete it
+//       if (player.Image) {
+//         const publicId = player.Image.split("/").pop().split(".")[0];
+//         await cloudinary.uploader.destroy(publicId);
+//       }
+
+//       ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
+//       const result = await cloudinary.uploader.upload(ManuImage);
+//       ManuImage = result.url;
+//     } else {
+//       ManuImage = player.Image;
+//     }
+
+//     player.name = name;
+//     player.location = location;
+//     player.role = role;
+//     player.age = age;
+//     player.additionalInfo = additionalInfo;
+//     player.admins = admins;
+//     player.Image = ManuImage;
+
+//     const updatedPlayer = await player.save();
+//     res.status(200).json({
+//       status: 200,
+//       success: true,
+//       message: "Player updated successfully",
+//       data: updatedPlayer,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     next(error);
+//   }
+// };
 exports.updatePlayer = async (req, res, next) => {
   try {
     const playerId = req.body.playerId;
-    const { name, location, role, age, additionalInfo, admins } = req.body;
+    const {
+      name,
+      location,
+      role,
+      age,
+      additionalInfo,
+      admins,
+      sixes,
+      fours,
+      wickets,
+    } = req.body;
 
     await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
 
@@ -637,37 +890,37 @@ exports.updatePlayer = async (req, res, next) => {
       return next(error);
     }
 
-    // let ManuImage = null;
-    // if (req.file) {
-    //   ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
-    //   const result = await cloudinary.uploader.upload(ManuImage);
-    //   ManuImage = result.url;
-    // } else {
-    //   ManuImage = player.Image;
-    // }
+    const adminObjectIds = Array.isArray(admins)
+      ? admins.map((id) => mongoose.Types.ObjectId(id))
+      : [];
 
-    let ManuImage = null;
     if (req.file) {
       // If there's a previous image, delete it
-      if (player.Image) {
-        const publicId = player.Image.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(publicId);
+      if (player.public_id) {
+        await cloudinary.uploader.destroy(player.public_id);
       }
 
-      ManuImage = `data:image/png;base64,${req.file.buffer.toString("base64")}`;
-      const result = await cloudinary.uploader.upload(ManuImage);
-      ManuImage = result.url;
-    } else {
-      ManuImage = player.Image;
+      const imageUrl = req.file.path;
+      const publicId = req.file.filename;
+
+      // update image and public_id fields
+      player.Image = imageUrl;
+      player.public_id = publicId;
     }
 
-    player.name = name;
-    player.location = location;
-    player.role = role;
-    player.age = age;
-    player.additionalInfo = additionalInfo;
-    player.admins = admins;
-    player.Image = ManuImage;
+    if (name) player.name = name;
+    if (location) player.location = location;
+    if (role) player.role = role;
+    if (age) player.age = age;
+    if (additionalInfo) player.additionalInfo = additionalInfo;
+    if (admins) player.admins = adminObjectIds;
+    if (sixes || fours || wickets) {
+      player.stats = {
+        sixes: sixes,
+        fours: fours,
+        wickets: wickets,
+      };
+    }
 
     const updatedPlayer = await player.save();
     res.status(200).json({
@@ -1045,7 +1298,59 @@ exports.getMatchDetails = async (req, res, next) => {
 
 // * TOURNAMENT ********************************
 
-exports.postTournament = async (req, res, next, cloudinary) => {
+// exports.postTournament = async (req, res, next, cloudinary) => {
+//   try {
+//     const {
+//       admins,
+//       seriesName,
+//       seriesLocation,
+//       tournamentType,
+//       numberOfOvers,
+//       numberOfTeams,
+//       startDate,
+//       endDate,
+//     } = req.body;
+
+//     await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
+
+//     const adminIds = Array.isArray(admins)
+//       ? admins.map((id) => mongoose.Types.ObjectId(id))
+//       : [];
+
+//     let imageFile = null;
+//     const file = req.file;
+//     if (file) {
+//       imageFile = `data:image/png;base64,${file.buffer.toString("base64")}`;
+
+//       const result = await cloudinary.uploader.upload(imageFile);
+//       imageFile = result.url;
+//     }
+
+//     const tournament = new Tournament({
+//       image: imageFile,
+//       admins: adminIds,
+//       seriesName: seriesName,
+//       seriesLocation: seriesLocation,
+//       tournamentType: tournamentType,
+//       numberOfOvers: numberOfOvers,
+//       numberOfTeams: numberOfTeams,
+//       startDate: startDate,
+//       endDate: endDate,
+//     });
+//     const result = await tournament.save();
+
+//     res.status(201).json({
+//       status: 201,
+//       success: true,
+//       message: "Tournament saved successfully",
+//       data: result,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+exports.postTournament = async (req, res, next) => {
   try {
     const {
       admins,
@@ -1064,17 +1369,12 @@ exports.postTournament = async (req, res, next, cloudinary) => {
       ? admins.map((id) => mongoose.Types.ObjectId(id))
       : [];
 
-    let imageFile = null;
-    const file = req.file;
-    if (file) {
-      imageFile = `data:image/png;base64,${file.buffer.toString("base64")}`;
-
-      const result = await cloudinary.uploader.upload(imageFile);
-      imageFile = result.url;
-    }
+    const imageUrl = req.file ? req.file.path : null;
+    const publicId = req.file ? req.file.filename : null;
 
     const tournament = new Tournament({
-      image: imageFile,
+      image: imageUrl,
+      public_id: publicId,
       admins: adminIds,
       seriesName: seriesName,
       seriesLocation: seriesLocation,
@@ -1097,56 +1397,116 @@ exports.postTournament = async (req, res, next, cloudinary) => {
   }
 };
 
-exports.updateTournament = async (req, res, next, cloudinary) => {
+// exports.updateTournament = async (req, res, next, cloudinary) => {
+//   try {
+//     const updateFields = Object.keys(req.body).reduce((acc, key) => {
+//       if (req.body[key] != null) {
+//         // check if the field is not null or undefined
+//         acc[key] = req.body[key];
+//       }
+//       return acc;
+//     }, {});
+
+//     if (req.body.admins) {
+//       updateFields.admins = Array.isArray(req.body.admins)
+//         ? req.body.admins.map((id) => mongoose.Types.ObjectId(id))
+//         : [];
+//     }
+
+//     await adminMiddleware.checkAdminBlocked(req, res, next, req.body.admins[0]);
+
+//     const tournament = await Tournament.findById(req.params.id);
+//     if (!tournament) {
+//       const error = new Error("No tournament found");
+//       error.statusCode = 404;
+//       return next(error);
+//     }
+
+//     let imageFile = null;
+//     const file = req.file;
+//     if (file) {
+//       imageFile = `data:image/png;base64,${file.buffer.toString("base64")}`;
+
+//       const result = await cloudinary.uploader.upload(imageFile);
+//       imageFile = result.url;
+//       updateFields.image = imageFile;
+
+//       // Delete the old image from Cloudinary
+//       const oldImagePublicId = tournament.image.split("/").pop().split(".")[0];
+//       await cloudinary.uploader.destroy(oldImagePublicId);
+//     }
+
+//     const updatedTournament = await Tournament.findByIdAndUpdate(
+//       req.params.id,
+//       updateFields,
+//       { new: true }
+//     );
+
+//     res.status(200).json({
+//       status: 200,
+//       success: true,
+//       message: "Tournament updated successfully",
+//       data: null,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+exports.updateTournament = async (req, res, next) => {
   try {
-    const updateFields = Object.keys(req.body).reduce((acc, key) => {
-      if (req.body[key] != null) {
-        // check if the field is not null or undefined
-        acc[key] = req.body[key];
-      }
-      return acc;
-    }, {});
+    const tournamentId = req.params.tournamentId;
+    const {
+      admins,
+      seriesName,
+      seriesLocation,
+      tournamentType,
+      numberOfOvers,
+      numberOfTeams,
+      startDate,
+      endDate,
+    } = req.body;
 
-    if (req.body.admins) {
-      updateFields.admins = Array.isArray(req.body.admins)
-        ? req.body.admins.map((id) => mongoose.Types.ObjectId(id))
-        : [];
-    }
-
-    await adminMiddleware.checkAdminBlocked(req, res, next, req.body.admins[0]);
-
-    const tournament = await Tournament.findById(req.params.id);
+    const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
-      const error = new Error("No tournament found");
+      const error = new Error("Tournament not found");
       error.statusCode = 404;
       return next(error);
     }
 
-    let imageFile = null;
-    const file = req.file;
-    if (file) {
-      imageFile = `data:image/png;base64,${file.buffer.toString("base64")}`;
-
-      const result = await cloudinary.uploader.upload(imageFile);
-      imageFile = result.url;
-      updateFields.image = imageFile;
-
-      // Delete the old image from Cloudinary
-      const oldImagePublicId = tournament.image.split("/").pop().split(".")[0];
-      await cloudinary.uploader.destroy(oldImagePublicId);
+    if (admins) {
+      await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
+      tournament.admins = admins.map((id) => mongoose.Types.ObjectId(id));
     }
 
-    const updatedTournament = await Tournament.findByIdAndUpdate(
-      req.params.id,
-      updateFields,
-      { new: true }
-    );
+    if (req.file) {
+      // If there's a previous image, delete it
+      if (tournament.public_id) {
+        await cloudinary.uploader.destroy(tournament.public_id);
+      }
 
+      const imageUrl = req.file.path;
+      const publicId = req.file.filename;
+
+      // update image and public_id fields
+      tournament.image = imageUrl;
+      tournament.public_id = publicId;
+    }
+
+    if (seriesName) tournament.seriesName = seriesName;
+    if (seriesLocation) tournament.seriesLocation = seriesLocation;
+    if (tournamentType) tournament.tournamentType = tournamentType;
+    if (numberOfOvers) tournament.numberOfOvers = numberOfOvers;
+    if (numberOfTeams) tournament.numberOfTeams = numberOfTeams;
+    if (startDate) tournament.startDate = startDate;
+    if (endDate) tournament.endDate = endDate;
+
+    const updatedTournament = await tournament.save();
     res.status(200).json({
       status: 200,
       success: true,
       message: "Tournament updated successfully",
-      data: null,
+      data: updatedTournament,
     });
   } catch (error) {
     next(error);

@@ -9,7 +9,7 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookieparser = require("cookie-parser");
-const multer = require("multer");
+// const multer = require("multer");
 const auth = require("../middleware/auth");
 const { profile } = require("console");
 const cloudinary = require("cloudinary").v2;
@@ -25,6 +25,11 @@ const Tournament = require("../models/tournament");
 
 const validators = require("../utils/validators");
 
+const multer = require("multer");
+const { storage } = require("../config/cloudinary");
+
+const upload = multer({ storage: storage });
+
 // const cors = require("cors");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
@@ -38,17 +43,17 @@ const mailgun = require("mailgun-js");
 const mailGun = process.env.mailGun;
 const DOMAIN = mailGun;
 const Email_otp_pass = process.env.Email_otp_pass;
-const C_cloud_name = process.env.C_cloud_name;
-const C_api_key = process.env.C_api_key;
-const C_api_secret = process.env.C_api_secret;
-const MailGun_api_key = process.env.MailGun_api_key;
-cloudinary.config({
-  cloud_name: C_cloud_name,
-  api_key: C_api_key,
-  api_secret: C_api_secret,
-});
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+// const C_cloud_name = process.env.C_cloud_name;
+// const C_api_key = process.env.C_api_key;
+// const C_api_secret = process.env.C_api_secret;
+// const MailGun_api_key = process.env.MailGun_api_key;
+// cloudinary.config({
+//   cloud_name: C_cloud_name,
+//   api_key: C_api_key,
+//   api_secret: C_api_secret,
+// });
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage: storage });
 router.use("/ProfileImage", express.static("public/upload"));
 router.use("/Image", express.static("public/upload"));
 router.use("/categoryThumbnail", express.static("public/upload"));
@@ -459,9 +464,10 @@ router.post(
   "/add-players",
   upload.single("Image"),
   validators.validatePlayer,
-  async (req, res, next) => {
-    await adminController.postAddPlayer(req, res, next, cloudinary);
-  }
+  adminController.postAddPlayer
+  //   async (req, res, next) => {
+  //     await adminController.postAddPlayer(req, res, next, cloudinary);
+  //   }
 );
 router.get(
   "/get-player-detail-by-adminid/:admin",
@@ -471,16 +477,21 @@ router.post(
   "/get-player-detail-by-playerid",
   adminController.playerDetailsByPlayerId
 );
-router.delete("/delete-player-byid", async (req, res, next) => {
-  await adminController.deletePlayer(req, res, next, cloudinary);
-});
+router.delete(
+  "/delete-player-byid",
+  adminController.deletePlayer
+  // async (req, res, next) => {
+  //   await adminController.deletePlayer(req, res, next, cloudinary);
+  // },
+);
 router.put(
   "/update-player",
   upload.single("Image"),
   validators.validateUpdatePlayer,
-  async (req, res, next) => {
-    await adminController.updatePlayer(req, res, next, cloudinary);
-  }
+  adminController.updatePlayer
+  //   async (req, res, next) => {
+  //     await adminController.updatePlayer(req, res, next, cloudinary);
+  //   }
 );
 router.put("/share-player", adminController.sharePlayer);
 
@@ -489,17 +500,28 @@ router.post(
   "/add-team",
   upload.single("image"),
   validators.validateTeam,
-  async (req, res, next) => {
-    await adminController.postAddTeam(req, res, next, cloudinary);
-  }
+  adminController.postAddTeam
+  //   async (req, res, next) => {
+  //     await adminController.postAddTeam(req, res, next, cloudinary);
+  //   }
 );
 router.post("/get-teams", adminController.getTeams);
-router.put("/update-team", upload.single("image"), async (req, res, next) => {
-  await adminController.putUpdateTeam(req, res, next, cloudinary);
-});
-router.delete("/delete-team-byid", async (req, res, next) => {
-  await adminController.deleteTeam(res, res, next, cloudinary);
-});
+
+router.put(
+  "/update-team",
+  upload.single("image"),
+  adminController.putUpdateTeam
+  // async (req, res, next) => {
+  //   await adminController.putUpdateTeam(req, res, next, cloudinary);
+  // },
+);
+router.delete(
+  "/delete-team-byid",
+  adminController.deleteTeam
+  // async (req, res, next) => {
+  //   await adminController.deleteTeam(res, res, next, cloudinary);
+  // },
+);
 router.put("/in-team-add-player", adminController.putPlayerToTeam);
 router.put("/share-team", adminController.putShareTeam);
 router.get("/get-players-by-teamId/:teamID", adminController.getTeamPlayers);
@@ -632,18 +654,20 @@ router.post(
   "/tournament",
   upload.single("image"),
   validators.validateTournament,
-  async (req, res, next) => {
-    await adminController.postTournament(req, res, next, cloudinary);
-  }
+  adminController.postTournament
+  //   async (req, res, next) => {
+  //     await adminController.postTournament(req, res, next, cloudinary);
+  //   }
 );
 
 router.put(
-  "/tournament/:id",
+  "/tournament/:tournamentId",
   upload.single("image"),
   validators.validateTournament,
-  (req, res, next) => {
-    adminController.updateTournament(req, res, next, cloudinary);
-  }
+  adminController.updateTournament
+  //   (req, res, next) => {
+  //     adminController.updateTournament(req, res, next, cloudinary);
+  //   }
 );
 
 router.get("/tournaments", adminController.getTournaments);
