@@ -704,7 +704,7 @@ exports.putPlayer = async (req, res, next) => {
       const publicId = req.file.filename;
 
       // update image and public_id fields
-      player.image = imageUrl;
+      player.Image = imageUrl;
       player.public_id = publicId;
     }
 
