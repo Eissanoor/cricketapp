@@ -165,7 +165,7 @@ exports.getNews = async (req, res, next) => {
 exports.putNews = async (req, res, next) => {
   const newsId = req.params.newsId;
   const { title, description } = req.body;
-  const imageUrl = req.file ? req.file.path : null;
+  const imageFile = req.file;
 
   try {
     const news = await News.findById(newsId);
@@ -175,12 +175,26 @@ exports.putNews = async (req, res, next) => {
       return next(error);
     }
 
-    news.title = title;
-    news.description = description;
-    if (imageUrl) {
+    if (title) {
+      news.title = title;
+    }
+
+    if (description) {
+      news.description = description;
+    }
+
+    if (imageFile) {
       // delete old image stored in the cloudinary
-      await cloudinary.uploader.destroy(news.public_id);
+      if (news.public_id) {
+        await cloudinary.uploader.destroy(news.public_id);
+      }
+
+      const imageUrl = req.file ? req.file.path : null;
+      const publicId = req.file ? req.file.filename : null;
+
+      // update image and public_id fields
       news.image = imageUrl;
+      news.public_id = publicId;
     }
 
     await news.save();
@@ -500,11 +514,11 @@ exports.getVideos = async (req, res, next) => {
 
 exports.putVideo = async (req, res, next) => {
   const { title, description } = req.body;
-  const { id } = req.params;
+  const { videoId } = req.params;
   const videoFile = req.file;
 
   try {
-    const video = await Video.findById(id);
+    const video = await Video.findById(videoId);
 
     if (!video) {
       const error = new Error("No video found with this ID");
@@ -512,29 +526,29 @@ exports.putVideo = async (req, res, next) => {
       return next(error);
     }
 
-    video.title = title;
-    video.description = description;
+    if (title) {
+      video.title = title;
+    }
+
+    if (description) {
+      video.description = description;
+    }
 
     // if a new video file is provided
     if (videoFile) {
-      const videoUrl = videoFile.path;
-      const publicId = videoFile.filename; // Get the public_id from videoFile
-
       // delete the old video file from Cloudinary
-      cloudinary.uploader.destroy(
-        video.public_id, // Use the public_id from the Video model
-        { resource_type: "video" },
-        (error, result) => {
-          if (error) {
-            console.error(error);
-            return;
-          }
-        }
-      );
+      if (video.public_id) {
+        await cloudinary.uploader.destroy(video.public_id, {
+          resource_type: "video",
+        });
+      }
+
+      const videoUrl = videoFile.path;
+      const publicId = videoFile.filename;
 
       // update with new video url and public_id
       video.videoUrl = videoUrl;
-      video.public_id = publicId; // Update the public_id
+      video.public_id = publicId;
     }
 
     await video.save();
