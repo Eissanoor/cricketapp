@@ -659,14 +659,8 @@ exports.postAddPlayer = async (req, res, next) => {
       ? admins.map((id) => mongoose.Types.ObjectId(id))
       : [];
 
-    let imageUrl = null;
-    let publicId = null;
-
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path);
-      imageUrl = result.url;
-      publicId = result.public_id;
-    }
+    let imageUrl = req.file ? req.file.path : null;
+    let publicId = req.file ? req.file.filename : null;
 
     const player = new Player({
       name: name,
