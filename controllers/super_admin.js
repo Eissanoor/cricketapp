@@ -112,11 +112,13 @@ exports.postNews = async (req, res, next) => {
   try {
     const { title, description } = req.body;
     const imageUrl = req.file ? req.file.path : null;
+    const publicId = req.file ? req.file.filename : null; // Get the public_id from req.file
 
     const news = new News({
       title: title,
       description: description,
       image: imageUrl,
+      public_id: publicId,
     });
 
     await news.save();
@@ -204,6 +206,15 @@ exports.deleteNews = async (req, res, next) => {
       error.statusCode = 404;
       return next(error);
     }
+
+    // delete file from cloudinary
+    const publicId = news.public_id; // Replace with the appropriate field name
+    cloudinary.uploader.destroy(publicId, (error, result) => {
+      if (error) {
+        console.error(error);
+        return;
+      }
+    });
 
     await news.remove();
 
@@ -438,11 +449,13 @@ exports.postVideo = async (req, res, next) => {
   try {
     // assuming videoUrl is path where video is stored
     const videoUrl = videoFile.path;
+    const publicId = videoFile.filename; // Get the public_id from videoFile.filename
 
     const video = new Video({
       title,
       description,
       videoUrl,
+      public_id: publicId,
       viewers: [],
     });
 
@@ -451,7 +464,7 @@ exports.postVideo = async (req, res, next) => {
     res.status(201).json({
       status: 201,
       success: true,
-      message: "Video uploaded successfully",
+      message: "Video successfully uploaded",
       data: video,
     });
   } catch (error) {
@@ -505,11 +518,11 @@ exports.putVideo = async (req, res, next) => {
     // if a new video file is provided
     if (videoFile) {
       const videoUrl = videoFile.path;
+      const publicId = videoFile.filename; // Get the public_id from videoFile
 
       // delete the old video file from Cloudinary
-      const publicId = video.videoUrl.split("/").pop().split(".")[0];
       cloudinary.uploader.destroy(
-        publicId,
+        video.public_id, // Use the public_id from the Video model
         { resource_type: "video" },
         (error, result) => {
           if (error) {
@@ -519,8 +532,9 @@ exports.putVideo = async (req, res, next) => {
         }
       );
 
-      // update with new video url
+      // update with new video url and public_id
       video.videoUrl = videoUrl;
+      video.public_id = publicId; // Update the public_id
     }
 
     await video.save();
@@ -537,19 +551,30 @@ exports.putVideo = async (req, res, next) => {
 };
 
 exports.deleteVideo = async (req, res, next) => {
-  const { id } = req.params;
+  const { videoId } = req.params;
 
   try {
-    const video = await Video.findById(id);
+    const video = await Video.findById(videoId);
 
     if (!video) {
       const error = new Error("No video found with this ID");
       error.statusCode = 404;
       return next(error);
     }
+
     // delete video from cloudinary
-    await cloudinary.uploader.destroy(video.public_id);
-    await Video.findByIdAndRemove(id);
+    cloudinary.uploader.destroy(
+      video.public_id, // Use the public_id from the Video model
+      { resource_type: "video" },
+      (error, result) => {
+        if (error) {
+          console.error(error);
+          return;
+        }
+      }
+    );
+
+    await Video.findByIdAndRemove(videoId);
 
     res.status(200).json({
       status: 200,

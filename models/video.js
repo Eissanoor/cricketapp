@@ -18,6 +18,10 @@ const videoSchema = new mongoose.Schema(
     //   type: String,
     //   required: true,
     // },
+    public_id: {
+      type: String,
+      required: false,
+    },
     viewers: [
       {
         type: mongoose.Schema.Types.ObjectId,

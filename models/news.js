@@ -14,6 +14,10 @@ const newsSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    public_id: {
+      type: String,
+      required: false,
+    },
     viewers: [
       {
         type: mongoose.Schema.Types.ObjectId,
