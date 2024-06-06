@@ -9,6 +9,7 @@ const Report = require("../models/report");
 const Video = require("../models/video");
 const Player = require("../models/player");
 const Team = require("../models/team");
+const Tournament = require("../models/tournament");
 
 const { cloudinary } = require("../config/cloudinary");
 
@@ -876,3 +877,114 @@ exports.deleteTeam = async (req, res, next) => {
     next(error);
   }
 };
+
+// * Tournament Section ***
+
+exports.getTournaments = async (req, res, next) => {
+  try {
+    const tournaments = await Tournament.find().sort({ _id: -1 });
+
+    if (tournaments.length === 0) {
+      const error = new Error("No tournaments found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Fetched tournaments successfully",
+      data: tournaments,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.putTournament = async (req, res, next) => {
+  try {
+    const { tournamentId } = req.params;
+    const {
+      seriesName,
+      seriesLocation,
+      tournamentType,
+      numberOfOvers,
+      numberOfTeams,
+      startDate,
+      endDate,
+    } = req.body;
+
+    const imageUrl = req.file ? req.file.path : null;
+    const publicId = req.file ? req.file.filename : null;
+
+    const tournament = await Tournament.findById(tournamentId);
+
+    if (!tournament) {
+      const error = new Error("No tournament found with this ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    // If a new image is being provided and the tournament already has an image, delete the old image from Cloudinary
+    if (imageUrl && tournament.public_id) {
+      await cloudinary.uploader.destroy(tournament.public_id, {
+        resource_type: "image",
+      });
+    }
+
+    tournament.image = imageUrl || tournament.image;
+    tournament.public_id = publicId || tournament.public_id;
+    tournament.seriesName = seriesName || tournament.seriesName;
+    tournament.seriesLocation = seriesLocation || tournament.seriesLocation;
+    tournament.tournamentType = tournamentType || tournament.tournamentType;
+    tournament.numberOfOvers = numberOfOvers || tournament.numberOfOvers;
+    tournament.numberOfTeams = numberOfTeams || tournament.numberOfTeams;
+    tournament.startDate = startDate || tournament.startDate;
+    tournament.endDate = endDate || tournament.endDate;
+
+    const result = await tournament.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Tournament updated successfully",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteTournament = async (req, res, next) => {
+  try {
+    const { tournamentId } = req.params;
+
+    const tournament = await Tournament.findById(tournamentId);
+
+    if (!tournament) {
+      const error = new Error("No tournament found with this ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    // If the tournament has an image, delete it from Cloudinary
+    if (tournament.public_id) {
+      await cloudinary.uploader.destroy(tournament.public_id, {
+        resource_type: "image",
+      });
+    }
+
+    await Tournament.findByIdAndRemove(tournamentId);
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Tournament has been deleted successfully",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// * Matches Section ***

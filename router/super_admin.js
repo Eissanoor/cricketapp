@@ -80,4 +80,16 @@ router.put("/team/:teamId", upload.single("image"), sAdminController.putTeam);
 
 router.delete("/team/:teamId", sAdminController.deleteTeam);
 
+// * Tournament Section ***
+
+router.get("/tournaments", sAdminController.getTournaments);
+
+router.put(
+  "/tournament/:tournamentId",
+  upload.single("image"),
+  sAdminController.putTournament
+);
+
+router.delete("/tournament/:tournamentId", sAdminController.deleteTournament);
+
 module.exports = router;
