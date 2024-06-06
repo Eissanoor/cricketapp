@@ -674,7 +674,7 @@ exports.postAddPlayer = async (req, res, next) => {
         fours: fours,
         wickets: wickets,
       },
-      image: imageUrl,
+      Image: imageUrl,
       public_id: publicId,
     });
 
