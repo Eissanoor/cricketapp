@@ -61,7 +61,6 @@ router.delete("/video/:videoId", sAdminController.deleteVideo);
 router.put("/view-video", sAdminController.putViewVideo);
 
 // * Players Section ***
-// router.post("/player", upload.single("image"), sAdminController.postPlayer);
 
 router.get("/players", sAdminController.getPlayers);
 
@@ -72,5 +71,13 @@ router.put(
 );
 
 router.delete("/player/:playerId", sAdminController.deletePlayer);
+
+// * Teams Section ***
+
+router.get("/teams", sAdminController.getTeams);
+
+router.put("/team/:teamId", upload.single("image"), sAdminController.putTeam);
+
+router.delete("/team/:teamId", sAdminController.deleteTeam);
 
 module.exports = router;

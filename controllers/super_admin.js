@@ -8,6 +8,7 @@ const SocialLink = require("../models/social_link");
 const Report = require("../models/report");
 const Video = require("../models/video");
 const Player = require("../models/player");
+const Team = require("../models/team");
 
 const { cloudinary } = require("../config/cloudinary");
 
@@ -648,7 +649,15 @@ exports.putViewVideo = async (req, res, next) => {
 
 exports.getPlayers = async (req, res, next) => {
   try {
-    const players = await Player.find().sort({ _id: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const players = await Player.find()
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit);
 
     if (!players || players.length === 0) {
       const error = new Error("No players found");
@@ -760,6 +769,107 @@ exports.deletePlayer = async (req, res, next) => {
       status: 200,
       success: true,
       message: "Player has been deleted successfully",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// * Teams Section ***
+
+exports.getTeams = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const teams = await Team.find().sort({ _id: -1 }).skip(skip).limit(limit);
+
+    if (!teams || teams.length === 0) {
+      const error = new Error("No teams found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Fetched teams successfully",
+      data: teams,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.putTeam = async (req, res, next) => {
+  try {
+    const teamId = req.params.teamId;
+    const { name, location } = req.body;
+
+    const team = await Team.findById({ _id: teamId });
+    if (!team) {
+      const error = new Error("Team not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    if (req.file) {
+      // If there's a previous image, delete it
+      if (team.public_id) {
+        await cloudinary.uploader.destroy(team.public_id);
+      }
+
+      const imageUrl = req.file.path;
+      const publicId = req.file.filename;
+
+      // update image and public_id fields
+      team.image = imageUrl;
+      team.public_id = publicId;
+    }
+
+    if (name) team.name = name;
+    if (location) team.location = location;
+
+    const updatedTeam = await team.save();
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Team updated successfully",
+      data: updatedTeam,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteTeam = async (req, res, next) => {
+  try {
+    const { teamId } = req.params;
+
+    const team = await Team.findById(teamId);
+
+    if (!team) {
+      const error = new Error("No team found with this ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    // If the team has an image, delete it from Cloudinary
+    if (team.public_id) {
+      await cloudinary.uploader.destroy(team.public_id, {
+        resource_type: "image",
+      });
+    }
+
+    await Team.findByIdAndRemove(teamId);
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Team has been deleted successfully",
       data: null,
     });
   } catch (error) {
