@@ -15,6 +15,8 @@ router.get("/admins", sAdminController.getAdmins);
 
 router.put("/change-admin-status/:adminId", sAdminController.changeAdminStatus);
 
+router.delete("/admin/:adminId", sAdminController.deleteAdmin);
+
 // * News Section ***
 
 router.post("/news", upload.single("image"), sAdminController.postNews);

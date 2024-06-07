@@ -109,6 +109,45 @@ exports.changeAdminStatus = async (req, res, next) => {
   }
 };
 
+exports.deleteAdmin = async (req, res, next) => {
+  const adminId = req.params.adminId;
+
+  try {
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      const error = new Error("Admin not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    // Before we actually remove the admin, i want to remove all the things related to this admin
+    // 1. Remove all the players
+    // 2. Remove all the teams
+    // 3. Remove all the tournaments
+
+    // 1. Remove all the players
+    await Player.deleteAllPlayersByAdmin(adminId);
+
+    // 2. Remove all the teams
+    await Team.deleteAllTeamsByAdmin(adminId);
+
+    // 3. Remove all the tournaments
+    await Tournament.deleteAllTournamentsByAdmin(adminId);
+
+    // Now we can remove the admin
+    await admin.remove();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Admin deleted successfully",
+      data: null,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // * News Section ***
 
 exports.postNews = async (req, res, next) => {

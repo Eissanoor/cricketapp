@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const { cloudinary } = require("../config/cloudinary");
+
 const playerSchema = new mongoose.Schema(
   {
     name: String,
@@ -111,6 +113,20 @@ playerSchema.methods.updateLatestPerformanceScore = async function (
     this.markModified("latestPerformance");
   }
   await this.save();
+};
+
+playerSchema.statics.deleteAllPlayersByAdmin = async function (adminId) {
+  const players = await this.find({ admins: adminId });
+
+  for (let player of players) {
+    if (player.public_id) {
+      await cloudinary.uploader.destroy(player.public_id, {
+        resource_type: "image",
+      });
+    }
+  }
+
+  await this.deleteMany({ admins: adminId });
 };
 
 const Player = mongoose.model("Player", playerSchema);

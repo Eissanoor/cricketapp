@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const { cloudinary } = require("../config/cloudinary");
+
 const teamSchema = new mongoose.Schema(
   {
     name: String,
@@ -34,6 +36,21 @@ const teamSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+teamSchema.statics.deleteAllTeamsByAdmin = async function (adminId) {
+  const teams = await this.find({ admins: adminId });
+
+  for (let team of teams) {
+    // If the team has an image, delete it from Cloudinary
+    if (team.public_id) {
+      await cloudinary.uploader.destroy(team.public_id, {
+        resource_type: "image",
+      });
+    }
+  }
+
+  await this.deleteMany({ admins: adminId });
+};
 
 const Team = mongoose.model("Team", teamSchema);
 

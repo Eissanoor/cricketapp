@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const matchTypes = ["series", "qualifier", "semiFinal", "final"];
+const { cloudinary } = require("../config/cloudinary");
 
 const tournamentSchema = new mongoose.Schema(
   {
@@ -50,6 +51,23 @@ const tournamentSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+tournamentSchema.statics.deleteAllTournamentsByAdmin = async function (
+  adminId
+) {
+  const tournaments = await this.find({ admins: adminId });
+
+  for (let tournament of tournaments) {
+    // If the tournament has an image, delete it from Cloudinary
+    if (tournament.public_id) {
+      await cloudinary.uploader.destroy(tournament.public_id, {
+        resource_type: "image",
+      });
+    }
+  }
+
+  await this.deleteMany({ admins: adminId });
+};
 
 const Tournament = mongoose.model("Tournament", tournamentSchema);
 
