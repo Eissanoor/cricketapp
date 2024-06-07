@@ -93,12 +93,12 @@ router.post("/signup", async (req, res, next) => {
       var transpoter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: "cricmedia2024@gmail.com",
+          user: "wasimxaman13@gmail.com",
           pass: Email_otp_pass,
         },
       });
       var mailoption = {
-        from: "cricmedia2024@gmail.com",
+        from: "wasimxaman13@gmail.com",
         to: email,
         subject: "Welcome! Verify Your Email Address",
         text: `Dear User,
@@ -302,12 +302,12 @@ router.post("/send-otp-forpassword-change", async (req, res, next) => {
       var transpoter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: "cricmedia2024@gmail.com",
+          user: "wasimxaman13@gmail.com",
           pass: Email_otp_pass,
         },
       });
       var mailoption = {
-        from: "cricmedia2024@gmail.com",
+        from: "wasimxaman13@gmail.com",
         to: email,
         subject: "Password Reset Request - Verify Your Email",
         text: `Dear User,
