@@ -42,7 +42,7 @@ router.use(express.json());
 const mailgun = require("mailgun-js");
 const mailGun = process.env.mailGun;
 const DOMAIN = mailGun;
-const Email_otp_pass = process.env.Email_otp_pass;
+
 // const C_cloud_name = process.env.C_cloud_name;
 // const C_api_key = process.env.C_api_key;
 // const C_api_secret = process.env.C_api_secret;
@@ -61,6 +61,9 @@ router.use("/categoryThumbnail", express.static("public/upload"));
 require("../database/db");
 
 const adminController = require("../controllers/admin");
+
+const EMAIL = process.env.EMAIL;
+const Email_otp_pass = process.env.Email_otp_pass;
 
 function generateOTP() {
   const digits = "0123456789";
@@ -93,12 +96,12 @@ router.post("/signup", async (req, res, next) => {
       var transpoter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: "wasimxaman13@gmail.com",
+          user: EMAIL,
           pass: Email_otp_pass,
         },
       });
       var mailoption = {
-        from: "wasimxaman13@gmail.com",
+        from: EMAIL,
         to: email,
         subject: "Welcome! Verify Your Email Address",
         text: `Dear User,
@@ -285,12 +288,9 @@ router.post("/send-otp-forpassword-change", async (req, res, next) => {
     let email = req.body.email;
     const mail = await providerRegister.findOne({ email: email });
     if (!mail) {
-      res.status(404).json({
-        status: 400,
-        success: false,
-        message: "This email not exist",
-        data: null,
-      });
+      const error = new Error("Email not found");
+      error.statusCode = 404;
+      return next(error);
     } else {
       const random = generateOTP();
       console.log(random);
@@ -302,12 +302,12 @@ router.post("/send-otp-forpassword-change", async (req, res, next) => {
       var transpoter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: "wasimxaman13@gmail.com",
+          user: EMAIL,
           pass: Email_otp_pass,
         },
       });
       var mailoption = {
-        from: "wasimxaman13@gmail.com",
+        from: EMAIL,
         to: email,
         subject: "Password Reset Request - Verify Your Email",
         text: `Dear User,
@@ -334,32 +334,18 @@ The Support Team
             message: "Failed to send OTP email",
             data: null,
           });
-        } else {
-          console.log("Email sent: " + info.response);
-          res.status(201).json({
-            status: 201,
-            success: true,
-            message: "Send OTP successfully",
-            data: null,
-          });
         }
       });
       const varifyemail = await otpData.save();
       res.status(201).json({
         status: 201,
         success: true,
-        message: "Send otp successfully",
+        message: "OTP send successfully",
         data: { Otp: random },
       });
     }
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "internel Server error",
-      data: null,
-    });
+    next(error);
   }
 });
 router.post("/password-otp-varify", async (req, res, next) => {
