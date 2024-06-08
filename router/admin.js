@@ -117,7 +117,7 @@ If you did not initiate this registration, please disregard this email.
 Welcome aboard!
 
 Best regards,
-The Support Team
+Cric Media Team
 `,
       };
 
@@ -130,25 +130,17 @@ The Support Team
             message: "Failed to send OTP email",
             data: null,
           });
-        } else {
-          console.log("Email sent: " + info.response);
-          res.status(201).json({
-            status: 201,
-            success: true,
-            message: "please check your email",
-            data: null,
-          });
         }
+      });
+      res.status(201).json({
+        status: 201,
+        success: true,
+        message: "OTP send successfully",
+        data: null,
       });
     }
   } catch (error) {
-    // console.log(error);
-    // res
-    //   .status(400)
-    //   .json({ status: 400, success: false, message: "not found", data: null });
-    const err = new Error(error);
-    err.status = 500;
-    next(err);
+    next(error);
   }
 });
 router.post("/emailVrifyOtp", async (req, res, next) => {
@@ -321,7 +313,7 @@ If you did not request a password reset, please ignore this email or contact our
 Thank you for helping us keep your account secure.
 
 Best regards,
-The Support Team
+Cric Media Team
 `,
       };
 

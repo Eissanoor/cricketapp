@@ -20,8 +20,6 @@ exports.getAdminDetails = async (req, res, next) => {
   try {
     const adminId = req.params.id;
 
-    console.log(adminId);
-
     const admin = await Admin.findById(adminId);
     if (!admin) {
       const error = new Error("No admin found with that ID");
