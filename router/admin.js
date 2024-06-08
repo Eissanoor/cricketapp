@@ -15,7 +15,7 @@ const { profile } = require("console");
 const cloudinary = require("cloudinary").v2;
 const mongoose = require("mongoose");
 const EmailVarify = require("../models/varifyemail");
-const providerRegister = require("../models/admin");
+const Admin = require("../models/admin");
 
 // Schemas
 const Player = require("../models/player");
@@ -78,7 +78,7 @@ router.post("/signup", async (req, res, next) => {
   try {
     const email = req.body.email;
     const code = generateOTP();
-    const useremail = await providerRegister.findOne({ email: email });
+    const useremail = await Admin.findOne({ email: email });
     if (useremail) {
       res.status(400).json({
         status: 400,
@@ -158,7 +158,7 @@ router.post("/emailVrifyOtp", async (req, res, next) => {
           data: null,
         });
       } else {
-        const registerEmp = new providerRegister({
+        const registerEmp = new Admin({
           password: req.body.password,
           email: email,
           fullname: req.body.fullname,
@@ -201,7 +201,7 @@ router.post("/Login", async (req, res, next) => {
     const password = req.body.password;
     const oneMonthInMillis = 30 * 24 * 60 * 60 * 1000;
     const expirationTime = new Date().getTime() + oneMonthInMillis;
-    const useremail = await providerRegister.findOne({ email: email });
+    const useremail = await Admin.findOne({ email: email });
     const ismatch = await bcrypt.compare(password, useremail.password);
 
     if (!useremail || !password) {
@@ -211,7 +211,7 @@ router.post("/Login", async (req, res, next) => {
         data: null,
       });
     } else if (ismatch) {
-      const getmens = await providerRegister.findOneAndUpdate(
+      const getmens = await Admin.findOneAndUpdate(
         { email: email },
         { $set: { expireIn: expirationTime } },
         { new: true }
@@ -250,7 +250,7 @@ router.post("/Login", async (req, res, next) => {
 router.get("/get-user-detail/:_id", async (req, res, next) => {
   try {
     const _id = req.params._id;
-    const data = await providerRegister.findOne({ _id: _id }).select({
+    const data = await Admin.findOne({ _id: _id }).select({
       _id: 1,
       email: 1,
       Phone: 1,
@@ -278,7 +278,7 @@ router.get("/get-user-detail/:_id", async (req, res, next) => {
 router.post("/send-otp-forpassword-change", async (req, res, next) => {
   try {
     let email = req.body.email;
-    const mail = await providerRegister.findOne({ email: email });
+    const mail = await Admin.findOne({ email: email });
     if (!mail) {
       const error = new Error("Email not found");
       error.statusCode = 404;
@@ -384,7 +384,7 @@ router.post("/password-otp-varify", async (req, res, next) => {
 router.post("/changePassword", async (req, res, next) => {
   try {
     const email = req.body.email;
-    const mailVarify = await providerRegister.findOne({ email: email });
+    const mailVarify = await Admin.findOne({ email: email });
     const password = req.body.password;
     const ismatch = await bcrypt.compare(password, mailVarify.password);
     console.log(ismatch);
