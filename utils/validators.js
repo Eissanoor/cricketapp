@@ -108,7 +108,8 @@ exports.validateMatch = [
   body("cityOrTown").notEmpty().withMessage("City or town is required"),
   body("ground").notEmpty().withMessage("Ground is required"),
   body("matchDateTime")
-    .isISO8601()
+    // .isISO8601()
+    .notEmpty()
     .withMessage("Match date time must be a valid ISO 8601 date"),
   (req, res, next) => {
     const errors = validationResult(req);
