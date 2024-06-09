@@ -826,7 +826,11 @@ exports.getTeams = async (req, res, next) => {
 
     const skip = (page - 1) * limit;
 
-    const teams = await Team.find().sort({ _id: -1 }).skip(skip).limit(limit);
+    const teams = await Team.find()
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("players", "name location role age additionalInfo");
 
     if (!teams || teams.length === 0) {
       const error = new Error("No teams found");
@@ -922,10 +926,7 @@ exports.deleteTeam = async (req, res, next) => {
 
 exports.getTournaments = async (req, res, next) => {
   try {
-    const tournaments = await Tournament.find()
-      .sort({ _id: -1 })
-      .populate("players", "name location role age additionalInfo");
-
+    const tournaments = await Tournament.find().sort({ _id: -1 });
     if (tournaments.length === 0) {
       const error = new Error("No tournaments found");
       error.statusCode = 404;
