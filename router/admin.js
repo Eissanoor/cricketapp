@@ -96,49 +96,40 @@ router.post("/signup", async (req, res, next) => {
       });
       const registered = await emailvarifyadd.save();
       console.log(registered);
-      var transpoter = nodemailer.createTransport({
+
+      const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: EMAIL,
-          pass: Email_otp_pass,
+          user: process.env.EMAIL,
+          pass: process.env.EMAIL_OTP_PASS,
         },
       });
-      var mailoption = {
-        from: EMAIL,
+
+      const templatePath = path.join(
+        __dirname,
+        "..",
+        "views",
+        "signupEmail.ejs"
+      );
+      const template = fs.readFileSync(templatePath, "utf8");
+      const html = ejs.render(template, {
+        code: code,
+        logoPath: `${process.env.HOST}/images/logo.png`,
+      });
+
+      const mailOptions = {
+        from: process.env.EMAIL,
         to: email,
         subject: "Welcome! Verify Your Email Address",
-        text: `Dear User,
-
-Thank you for signing up! To complete your registration, please verify your email address using the OTP (One-Time Password) provided below:
-
-Your OTP: ${code}
-
-Simply enter this code in the verification field to activate your account.
-
-If you did not initiate this registration, please disregard this email.
-
-Welcome aboard!
-
-Best regards,
-Cric Media Team
-`,
+        html: html,
       };
 
-      transpoter.sendMail(mailoption, function (error, info) {
-        if (error) {
-          console.log(error);
-          res.status(500).json({
-            status: 500,
-            success: false,
-            message: "Failed to send OTP email",
-            data: null,
-          });
-        }
-      });
+      await transporter.sendMail(mailOptions);
+
       res.status(201).json({
         status: 201,
         success: true,
-        message: "OTP send successfully",
+        message: "OTP sent successfully",
         data: null,
       });
     }
@@ -311,7 +302,7 @@ router.post("/send-otp-forpassword-change", async (req, res, next) => {
       const template = fs.readFileSync(templatePath, "utf8");
       const html = ejs.render(template, {
         random: random,
-        logoPath: "http://161.97.139.96:3002/public/images/logo.png", // Adjust to your server URL and port
+        logoPath: `${process.env.HOST}/images/logo.png`,
       });
 
       const mailOptions = {
