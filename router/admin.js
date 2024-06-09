@@ -67,6 +67,7 @@ const adminController = require("../controllers/admin");
 
 const EMAIL = process.env.EMAIL;
 const Email_otp_pass = process.env.Email_otp_pass;
+const domain = process.env.HOST + ":" + process.env.PORT;
 
 function generateOTP() {
   const digits = "0123456789";
@@ -114,7 +115,7 @@ router.post("/signup", async (req, res, next) => {
       const template = fs.readFileSync(templatePath, "utf8");
       const html = ejs.render(template, {
         code: code,
-        logoPath: `${process.env.HOST}:${process.env.PORT}/images/logo.png`,
+        logoPath: `${domain}/images/logo.png`,
       });
 
       const mailOptions = {
@@ -302,7 +303,7 @@ router.post("/send-otp-forpassword-change", async (req, res, next) => {
       const template = fs.readFileSync(templatePath, "utf8");
       const html = ejs.render(template, {
         random: random,
-        logoPath: `${process.env.HOST}:${process.env.PORT}/images/logo.png`,
+        logoPath: `${domain}/images/logo.png`,
       });
 
       const mailOptions = {
