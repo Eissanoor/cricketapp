@@ -830,7 +830,7 @@ exports.getTeams = async (req, res, next) => {
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("players", "name location role age additionalInfo");
+      .populate("players", "name location role age additionalInfo Image");
 
     if (!teams || teams.length === 0) {
       const error = new Error("No teams found");
