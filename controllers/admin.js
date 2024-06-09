@@ -2029,7 +2029,7 @@ exports.deleteTeamFromTournamentGroup = async (req, res, next) => {
     if (groupIndex !== -1) {
       const group = tournament.groups[groupIndex];
       const teamIndex = group.teams.findIndex(
-        (team) => team.toString() === teamId.toString()
+        (team) => team.team.toString() === teamId.toString()
       );
 
       if (teamIndex === -1) {

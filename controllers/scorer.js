@@ -174,7 +174,7 @@ exports.postAction = async (req, res, next, socketIo) => {
         });
 
       case "dropMatch":
-        await exports.handleStopMatch(matchId, data);
+        await exports.handleDropMatch(matchId, data);
         socketIo.emit("match-" + matchId);
         return res.status(200).json({
           success: true,
@@ -779,7 +779,7 @@ exports.handleFinishInning = async (matchId, data) => {
   }
 };
 
-exports.handleStopMatch = async (matchId, data) => {
+exports.handleDropMatch = async (matchId, data) => {
   const { droppedReason } = data;
 
   const match = await MatchDetails.findById(matchId);
@@ -801,5 +801,7 @@ exports.handleStopMatch = async (matchId, data) => {
   }
 
   match.matchStatus = 2;
+  match.draw = true;
   const updatedMatch = await match.save();
+  scorerHelper.createPointsTable(updatedMatch);
 };

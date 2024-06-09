@@ -10,6 +10,7 @@ const Video = require("../models/video");
 const Player = require("../models/player");
 const Team = require("../models/team");
 const Tournament = require("../models/tournament");
+const MatchDetails = require("../models/match_details");
 
 const { cloudinary } = require("../config/cloudinary");
 
@@ -1012,6 +1013,11 @@ exports.deleteTournament = async (req, res, next) => {
         resource_type: "image",
       });
     }
+
+    // Delete all the matches belonging to that tournament
+    await MatchDetails.deleteMany({
+      "tournamentInfo.tournament": tournamentId,
+    });
 
     await Tournament.findByIdAndRemove(tournamentId);
 
