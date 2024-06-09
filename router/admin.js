@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 const express = require("express");
 const router = new express.Router();
 const { ObjectId } = require("mongodb");
@@ -5,7 +8,6 @@ const bodyparser = require("body-parser");
 const nodemailer = require("nodemailer");
 const validator = require("validator");
 const cron = require("node-cron");
-const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookieparser = require("cookie-parser");
@@ -16,6 +18,7 @@ const cloudinary = require("cloudinary").v2;
 const mongoose = require("mongoose");
 const EmailVarify = require("../models/varifyemail");
 const Admin = require("../models/admin");
+const ejs = require("ejs");
 
 // Schemas
 const Player = require("../models/player");
@@ -285,58 +288,50 @@ router.post("/send-otp-forpassword-change", async (req, res, next) => {
       return next(error);
     } else {
       const random = generateOTP();
-      console.log(random);
       const otpData = new EmailVarify({
-        email: req.body.email,
+        email: email,
         code: random,
         expireIn: new Date().getTime() + 60 * 10000,
       });
-      var transpoter = nodemailer.createTransport({
+
+      const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: EMAIL,
-          pass: Email_otp_pass,
+          user: process.env.EMAIL,
+          pass: process.env.EMAIL_OTP_PASS,
         },
       });
-      var mailoption = {
-        from: EMAIL,
+
+      const templatePath = path.join(
+        __dirname,
+        "..",
+        "views",
+        "passwordResetEmail.ejs"
+      );
+      const template = fs.readFileSync(templatePath, "utf8");
+      const html = ejs.render(template, {
+        random: random,
+        logoPath: "http://161.97.139.96:3002/public/images/logo.png", // Adjust to your server URL and port
+      });
+
+      const mailOptions = {
+        from: process.env.EMAIL,
         to: email,
         subject: "Password Reset Request - Verify Your Email",
-        text: `Dear User,
-
-We received a request to reset your password. To complete the process, please use the OTP (One-Time Password) provided below:
-
-Your OTP: ${random}
-
-If you did not request a password reset, please ignore this email or contact our support team immediately.
-
-Thank you for helping us keep your account secure.
-
-Best regards,
-Cric Media Team
-`,
+        html: html,
       };
 
-      transpoter.sendMail(mailoption, function (error, info) {
-        if (error) {
-          console.log(error);
-          res.status(500).json({
-            status: 500,
-            success: false,
-            message: "Failed to send OTP email",
-            data: null,
-          });
-        }
-      });
-      const varifyemail = await otpData.save();
+      await transporter.sendMail(mailOptions);
+      await otpData.save();
       res.status(201).json({
         status: 201,
         success: true,
-        message: "OTP send successfully",
+        message: "OTP sent successfully",
         data: { Otp: random },
       });
     }
   } catch (error) {
+    console.error(error);
     next(error);
   }
 });

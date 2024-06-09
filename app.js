@@ -28,8 +28,11 @@ var app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(bodyparser.urlencoded({ extended: true }));
+app.use(express.static("public"));
 const upload = multer({ storage: storage });
 app.use(cors({ origin: "*" }));
+
+app.set("view engine", "ejs");
 
 // Middleware to ensure super admin exists
 app.use(async (req, res, next) => {
