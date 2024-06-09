@@ -173,6 +173,16 @@ exports.postAction = async (req, res, next, socketIo) => {
           data: null,
         });
 
+      case "stop_match":
+        await exports.handleStopMatch(matchId, data);
+        socketIo.emit("match-" + matchId);
+        return res.status(200).json({
+          success: true,
+          message: "Match stopped successfully",
+          status: 200,
+          data: null,
+        });
+
       // Add more cases for other action types as needed
 
       default:
@@ -767,4 +777,29 @@ exports.handleFinishInning = async (matchId, data) => {
   } catch (err) {
     throw new Error(err);
   }
+};
+
+exports.handleStopMatch = async (matchId, data) => {
+  const { stopReason } = data;
+
+  const match = await MatchDetails.findById(matchId);
+
+  if (!match) {
+    const error = new Error("No match found");
+    error.statusCode = 404;
+    return next(error);
+  }
+
+  if (!match.matchStopped) {
+    match.matchStopped = {
+      stop: true,
+      stopReason: stopReason,
+    };
+  } else {
+    match.matchStopped.stop = true;
+    match.matchStopped.stopReason = stopReason;
+  }
+
+  match.matchStatus = 2;
+  const updatedMatch = await match.save();
 };

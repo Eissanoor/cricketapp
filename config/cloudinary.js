@@ -44,7 +44,8 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
-    let folder = "uploads";
+    // let folder = "uploads";
+    let folder = "CRIC_MEDIA";
     let resource_type = "image";
     if (file.mimetype.startsWith("video/")) {
       resource_type = "video";
