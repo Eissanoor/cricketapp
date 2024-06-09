@@ -922,7 +922,9 @@ exports.deleteTeam = async (req, res, next) => {
 
 exports.getTournaments = async (req, res, next) => {
   try {
-    const tournaments = await Tournament.find().sort({ _id: -1 });
+    const tournaments = await Tournament.find()
+      .sort({ _id: -1 })
+      .populate("players", "name location role age additionalInfo");
 
     if (tournaments.length === 0) {
       const error = new Error("No tournaments found");
