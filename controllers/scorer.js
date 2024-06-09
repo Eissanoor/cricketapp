@@ -173,7 +173,7 @@ exports.postAction = async (req, res, next, socketIo) => {
           data: null,
         });
 
-      case "stop_match":
+      case "dropMatch":
         await exports.handleStopMatch(matchId, data);
         socketIo.emit("match-" + matchId);
         return res.status(200).json({
@@ -780,7 +780,7 @@ exports.handleFinishInning = async (matchId, data) => {
 };
 
 exports.handleStopMatch = async (matchId, data) => {
-  const { stopReason } = data;
+  const { droppedReason } = data;
 
   const match = await MatchDetails.findById(matchId);
 
@@ -790,14 +790,14 @@ exports.handleStopMatch = async (matchId, data) => {
     return next(error);
   }
 
-  if (!match.matchStopped) {
-    match.matchStopped = {
-      stop: true,
-      stopReason: stopReason,
+  if (!match.matchDropped) {
+    match.matchDropped = {
+      dropped: true,
+      droppedReason: droppedReason,
     };
   } else {
-    match.matchStopped.stop = true;
-    match.matchStopped.stopReason = stopReason;
+    match.matchDropped.dropped = true;
+    match.matchDropped.droppedReason = droppedReason;
   }
 
   match.matchStatus = 2;

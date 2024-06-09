@@ -122,6 +122,10 @@ const matchDetailsSchema = new mongoose.Schema(
       stop: { type: Boolean, default: false },
       stopReason: String,
     },
+    matchDropped: {
+      dropped: { type: Boolean, default: false },
+      droppedReason: String,
+    },
     // tournament: { type: mongoose.Schema.Types.ObjectId, ref: "Tournament" },
     tournamentInfo: {
       tournament: {
