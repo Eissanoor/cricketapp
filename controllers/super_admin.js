@@ -1044,3 +1044,73 @@ exports.deleteTournament = async (req, res, next) => {
 };
 
 // * Matches Section ***
+
+exports.getMatches = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    // Fetch matches with pagination and populate team1 and team2 fields along with players
+    const matches = await MatchDetails.find()
+      .select("team1 team2 matchStatus")
+      .populate({
+        path: "team1",
+        select: "name image",
+        populate: {
+          path: "players",
+          select: "name position role age Image additionalInfo",
+        },
+      })
+      .populate({
+        path: "team2",
+        select: "name image",
+        populate: {
+          path: "players",
+          select: "name position role age Image additionalInfo",
+        },
+      })
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    if (!matches || matches.length === 0) {
+      const error = new Error("No matches found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Matches fetched successfully",
+      data: matches,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteMatch = async (req, res, next) => {
+  try {
+    const matchId = req.params.id;
+
+    // Find and delete the match by its ID
+    const match = await MatchDetails.findByIdAndDelete(matchId);
+
+    if (!match) {
+      const error = new Error("Match not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Match deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
