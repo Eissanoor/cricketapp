@@ -1054,7 +1054,9 @@ exports.getMatches = async (req, res, next) => {
 
     // Fetch matches with pagination and populate team1 and team2 fields along with players
     const matches = await MatchDetails.find()
-      .select("team1 team2 matchStatus cityOrTown ground matchDateTime")
+      .select(
+        "team1 team2 matchStatus cityOrTown ground matchDateTime numberOfOvers tournamentInfo"
+      )
       .populate({
         path: "team1",
         select: "name image",
@@ -1070,6 +1072,10 @@ exports.getMatches = async (req, res, next) => {
           path: "players",
           select: "name position role age Image additionalInfo",
         },
+      })
+      .populate({
+        path: "tournamentInfo.tournament",
+        select: "seriesName",
       })
       .sort({ _id: -1 })
       .skip(skip)
