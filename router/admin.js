@@ -477,6 +477,13 @@ router.post(
   validators.validateMatch,
   adminController.postAddMatch
 );
+
+router.post(
+  "/add-match-details/:id",
+  validators.validateMatch,
+  adminController.putAddMatch
+);
+
 router.put(
   "/start-match/:matchId",
   validators.validateStartMatch,

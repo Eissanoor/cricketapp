@@ -1058,6 +1058,87 @@ exports.postAddMatch = async (req, res, next) => {
   }
 };
 
+exports.putAddMatch = async (req, res, next) => {
+  try {
+    const matchId = req.params.id; // Assuming the ID of the match is passed as a URL parameter
+    const {
+      admin,
+      team1,
+      team2,
+      matchType,
+      ballType,
+      pitchType,
+      numberOfOvers,
+      oversPerBowler,
+      cityOrTown,
+      ground,
+      matchDateTime,
+    } = req.body;
+
+    await adminMiddleware.checkAdminBlocked(req, res, next, admin);
+
+    // Find the match by ID
+    let matchDetails = await MatchDetails.findById(matchId);
+
+    if (!matchDetails) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "Match not found",
+      });
+    }
+
+    // Update match details
+    matchDetails.admin = admin;
+    matchDetails.team1 = team1;
+    matchDetails.team2 = team2;
+    matchDetails.matchType = matchType;
+    matchDetails.ballType = ballType;
+    matchDetails.pitchType = pitchType;
+    matchDetails.numberOfOvers = numberOfOvers;
+    matchDetails.oversPerBowler = oversPerBowler;
+    matchDetails.cityOrTown = cityOrTown;
+    matchDetails.ground = ground;
+    matchDetails.matchDateTime = matchDateTime;
+    // Keep other fields unchanged unless provided in req.body
+    matchDetails.whoWinsTheToss =
+      req.body.whoWinsTheToss || matchDetails.whoWinsTheToss;
+    matchDetails.tossDetails = req.body.tossDetails || matchDetails.tossDetails;
+    matchDetails.matchStatus = req.body.matchStatus || matchDetails.matchStatus;
+    matchDetails.team1Batting =
+      req.body.team1Batting || matchDetails.team1Batting;
+    matchDetails.team2Batting =
+      req.body.team2Batting || matchDetails.team2Batting;
+    matchDetails.team1toss = req.body.team1toss || matchDetails.team1toss;
+    matchDetails.team2toss = req.body.team2toss || matchDetails.team2toss;
+    matchDetails.manOfTheMatch =
+      req.body.manOfTheMatch || matchDetails.manOfTheMatch;
+    matchDetails.team1Score = req.body.team1Score || matchDetails.team1Score;
+    matchDetails.team2Score = req.body.team2Score || matchDetails.team2Score;
+    matchDetails.team1Overs = req.body.team1Overs || matchDetails.team1Overs;
+    matchDetails.team2Overs = req.body.team2Overs || matchDetails.team2Overs;
+    matchDetails.team1Balls = req.body.team1Balls || matchDetails.team1Balls;
+    matchDetails.team2Balls = req.body.team2Balls || matchDetails.team2Balls;
+    matchDetails.team1Outs = req.body.team1Outs || matchDetails.team1Outs;
+    matchDetails.team2Outs = req.body.team2Outs || matchDetails.team2Outs;
+    matchDetails.squad1 = req.body.squad1 || matchDetails.squad1;
+    matchDetails.squad2 = req.body.squad2 || matchDetails.squad2;
+
+    // Save the updated match details
+    const updatedMatchDetails = await matchDetails.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Match Details have been updated successfully",
+      data: updatedMatchDetails,
+    });
+  } catch (error) {
+    error.message = "Error while updating Match Details";
+    next(error);
+  }
+};
+
 exports.postStartMatch = async (req, res, next) => {
   try {
     const matchId = req.params.matchId;
