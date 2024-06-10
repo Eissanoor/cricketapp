@@ -42,32 +42,12 @@ router.use(bodyparser.urlencoded({ extended: true }));
 router.use(express.urlencoded({ extended: false }));
 router.use(bodyparser.json());
 router.use(express.json());
-const mailgun = require("mailgun-js");
-const mailGun = process.env.mailGun;
-const DOMAIN = mailGun;
-
-// const C_cloud_name = process.env.C_cloud_name;
-// const C_api_key = process.env.C_api_key;
-// const C_api_secret = process.env.C_api_secret;
-// const MailGun_api_key = process.env.MailGun_api_key;
-// cloudinary.config({
-//   cloud_name: C_cloud_name,
-//   api_key: C_api_key,
-//   api_secret: C_api_secret,
-// });
-// const storage = multer.memoryStorage();
-// const upload = multer({ storage: storage });
-router.use("/ProfileImage", express.static("public/upload"));
-router.use("/Image", express.static("public/upload"));
-router.use("/categoryThumbnail", express.static("public/upload"));
-
-require("../database/db");
 
 const adminController = require("../controllers/admin");
 
 const EMAIL = process.env.EMAIL;
-const Email_otp_pass = process.env.Email_otp_pass;
-const domain = process.env.HOST + ":" + process.env.PORT;
+const PASS = process.env.Email_otp_pass;
+const DOMAIN = process.env.HOST + ":" + process.env.PORT;
 
 function generateOTP() {
   const digits = "0123456789";
@@ -101,8 +81,8 @@ router.post("/signup", async (req, res, next) => {
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: process.env.EMAIL,
-          pass: process.env.Email_otp_pass,
+          user: EMAIL,
+          pass: PASS,
         },
       });
 
@@ -115,7 +95,7 @@ router.post("/signup", async (req, res, next) => {
       const template = fs.readFileSync(templatePath, "utf8");
       const html = ejs.render(template, {
         code: code,
-        logoPath: `${domain}/images/logo.png`,
+        logoPath: `${DOMAIN}/images/logo.png`,
       });
 
       const mailOptions = {
@@ -289,8 +269,8 @@ router.post("/send-otp-forpassword-change", async (req, res, next) => {
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: process.env.EMAIL,
-          pass: process.env.Email_otp_pass,
+          user: EMAIL,
+          pass: PASS,
         },
       });
 
@@ -303,7 +283,7 @@ router.post("/send-otp-forpassword-change", async (req, res, next) => {
       const template = fs.readFileSync(templatePath, "utf8");
       const html = ejs.render(template, {
         random: random,
-        logoPath: `${domain}/images/logo.png`,
+        logoPath: `${DOMAIN}/images/logo.png`,
       });
 
       const mailOptions = {
@@ -517,7 +497,7 @@ router.get(
         return res.status(404).json({
           status: 404,
           success: false,
-          message: "MatchDetails not found for this MatchDetails ID",
+          message: "MatchDetails not found",
           data: null,
         });
       }

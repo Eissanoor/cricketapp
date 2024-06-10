@@ -692,13 +692,21 @@ exports.getPlayers = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const query = req.query.query || "";
 
     const skip = (page - 1) * limit;
 
-    const players = await Player.find()
-      .sort({ _id: -1 })
-      .skip(skip)
-      .limit(limit);
+    let players;
+    if (query) {
+      players = await Player.find({
+        name: { $regex: query, $options: "i" }, // Case-insensitive regex search on name
+      })
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit);
+    } else {
+      players = await Player.find().sort({ _id: -1 }).skip(skip).limit(limit);
+    }
 
     if (!players || players.length === 0) {
       const error = new Error("No players found");
