@@ -13,6 +13,8 @@ const Tournament = require("../models/tournament");
 const MatchDetails = require("../models/match_details");
 
 const { cloudinary } = require("../config/cloudinary");
+const oneSignalClient = require("../config/onesignal");
+const { sendEmail } = require("../utils/emailHelper");
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -80,33 +82,54 @@ exports.getAdmins = async (req, res, next) => {
 
 exports.changeAdminStatus = async (req, res, next) => {
   const adminId = req.params.adminId;
-  const status = req.body.status;
+  const status = parseInt(req.body.status);
 
   if (![0, 1].includes(status)) {
-    const error = new Error("Invalid status");
-    error.statusCode = 400;
-    return next(error);
+    return res.status(400).json({
+      success: false,
+      message: "Invalid status",
+    });
   }
 
   try {
     const admin = await Admin.findById(adminId);
     if (!admin) {
-      const error = new Error("Admin not found");
-      error.statusCode = 404;
-      return next(error);
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found",
+      });
     }
 
     admin.status = status;
     await admin.save();
 
+    const templateName = status === 0 ? "adminBlocked" : "adminUnblocked";
+    const subject =
+      status === 0
+        ? "Account Blocked Notification"
+        : "Account Unblocked Notification";
+
+    // Use the sendEmail function from the mailService
+    await sendEmail({
+      to: admin.email,
+      subject: subject,
+      templateName: templateName,
+      templateVars: {
+        firstName: admin.firstName || "Admin", // Fallback in case firstName is not defined
+        logoPath: `${process.env.DOMAIN}/images/logo.png`,
+      },
+    });
+
     res.status(200).json({
-      status: 200,
       success: true,
-      message: "Admin status updated successfully",
+      message: `Admin status updated and ${
+        status === 0 ? "block" : "unblock"
+      } notification sent successfully`,
       data: admin,
     });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    console.error("Error when changing status or sending email:", error);
+    next(error);
   }
 };
 
@@ -1117,6 +1140,38 @@ exports.deleteMatch = async (req, res, next) => {
       message: "Match deleted successfully",
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+// * Notification Section ***
+
+exports.sendNotification = async (req, res, next) => {
+  const { title, message, segment = "Subscribed Users" } = req.body;
+
+  const notificationPayload = {
+    contents: {
+      en: message,
+    },
+    headings: {
+      en: title,
+    },
+    included_segments: [segment],
+  };
+
+  try {
+    const response = await oneSignalClient.createNotification(
+      notificationPayload
+    );
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Notification sent successfully",
+      data: response,
+    });
+  } catch (error) {
+    console.error("Error sending notification:", error);
+    error.message = "Failed to send notification";
     next(error);
   }
 };

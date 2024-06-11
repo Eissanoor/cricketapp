@@ -99,4 +99,8 @@ router.get("/matches", sAdminController.getMatches);
 
 router.delete("/match/:id", sAdminController.deleteMatch);
 
+// * Notification Section ***
+
+router.post("/send-notification", sAdminController.sendNotification);
+
 module.exports = router;

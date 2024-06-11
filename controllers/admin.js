@@ -653,6 +653,8 @@ exports.postAddPlayer = async (req, res, next) => {
       wickets,
     } = req.body;
 
+    await adminMiddleware.checkAdminBlocked(req, res, next, admins[0]);
+
     const adminObjectIds = Array.isArray(admins)
       ? admins.map((id) => mongoose.Types.ObjectId(id))
       : [];
