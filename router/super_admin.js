@@ -97,6 +97,6 @@ router.delete("/tournament/:tournamentId", sAdminController.deleteTournament);
 // * Matches Section ***
 router.get("/matches", sAdminController.getMatches);
 
-router.delete("/matches/:id", sAdminController.deleteMatch);
+router.delete("/match/:id", sAdminController.deleteMatch);
 
 module.exports = router;
