@@ -104,7 +104,6 @@ exports.changeAdminStatus = async (req, res, next) => {
     }
 
     admin.status = status;
-    await admin.save();
 
     const templateName = status === 0 ? "adminBlocked" : "adminUnblocked";
     const subject =
@@ -124,7 +123,10 @@ exports.changeAdminStatus = async (req, res, next) => {
       },
     });
 
+    await admin.save();
+
     res.status(200).json({
+      status: 200,
       success: true,
       message: `Admin status updated and ${
         status === 0 ? "block" : "unblock"
