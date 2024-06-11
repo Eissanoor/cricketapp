@@ -32,11 +32,15 @@ async function sendEmail({ to, subject, templateName, data }) {
       "views",
       `${templateName}.ejs`
     );
+
+    console.log(data);
     const template = fs.readFileSync(templatePath, "utf8");
-    const html = ejs.render(template, data);
+    const html = ejs.render(template, {
+      logoPath: `${DOMAIN}/images/logo.png`,
+    });
 
     const mailOptions = {
-      from: process.env.EMAIL,
+      from: EMAIL,
       to: to,
       subject: subject,
       html: html,
