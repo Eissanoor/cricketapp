@@ -112,14 +112,16 @@ exports.changeAdminStatus = async (req, res, next) => {
         ? "Account Blocked Notification"
         : "Account Unblocked Notification";
 
-    // Use the sendEmail function from the mailService
+    // Ensure you have DOMAIN defined in your environment or configuration
+    const logoPath = `${DOMAIN}/images/logo.png`;
+
     await sendEmail({
       to: admin.email,
       subject: subject,
       templateName: templateName,
       data: {
-        firstName: admin.fullname || "Admin", // Fallback in case firstName is not defined
-        logoPath: `${DOMAIN}/images/logo.png`,
+        firstName: admin.fullname || "Admin", // Fallback if fullname is not defined
+        logoPath: logoPath, // Pass logoPath to the sendEmail function
       },
     });
 
