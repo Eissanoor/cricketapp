@@ -112,7 +112,6 @@ exports.changeAdminStatus = async (req, res, next) => {
         ? "Account Blocked Notification"
         : "Account Unblocked Notification";
 
-    // Ensure you have DOMAIN defined in your environment or configuration
     const logoPath = `${DOMAIN}/images/logo.png`;
 
     await sendEmail({
