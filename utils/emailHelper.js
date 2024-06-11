@@ -4,12 +4,15 @@ const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
 
+const EMAIL = process.env.EMAIL;
+const PASS = process.env.Email_otp_pass;
+
 // Configure the transporter
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL,
-    pass: process.env.Email_otp_pass,
+    user: EMAIL,
+    pass: PASS,
   },
 });
 

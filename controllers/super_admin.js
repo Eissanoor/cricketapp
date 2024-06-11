@@ -16,6 +16,9 @@ const { cloudinary } = require("../config/cloudinary");
 const oneSignalClient = require("../config/onesignal");
 const { sendEmail } = require("../utils/emailHelper");
 
+// CONSTANTS
+const DOMAIN = process.env.HOST + ":" + process.env.PORT;
+
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -109,15 +112,13 @@ exports.changeAdminStatus = async (req, res, next) => {
         ? "Account Blocked Notification"
         : "Account Unblocked Notification";
 
-    const DOMAIN = process.env.HOST + ":" + process.env.PORT;
-
     // Use the sendEmail function from the mailService
     await sendEmail({
       to: admin.email,
       subject: subject,
       templateName: templateName,
       templateVars: {
-        firstName: admin.firstName || "Admin", // Fallback in case firstName is not defined
+        firstName: admin.fullname || "Admin", // Fallback in case firstName is not defined
         logoPath: `${DOMAIN}/images/logo.png`,
       },
     });
