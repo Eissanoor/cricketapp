@@ -1864,35 +1864,9 @@ exports.addTournamentMatch = async (req, res, next) => {
 exports.updateTournamentMatch = async (req, res, next) => {
   try {
     const matchId = req.params.matchId; // Assuming matchId is passed as a URL parameter
-    const {
-      admin,
-      team1,
-      team2,
-      matchType,
-      ballType,
-      pitchType,
-      numberOfOvers,
-      oversPerBowler,
-      cityOrTown,
-      ground,
-      matchDateTime,
-      whoWinsTheToss,
-      tossDetails,
-      matchStatus,
-      manOfTheMatch,
-      team1Score,
-      team2Score,
-      team1Overs,
-      team2Overs,
-      team1Balls,
-      team2Balls,
-      team1Outs,
-      team2Outs,
-      squad1,
-      squad2,
-    } = req.body;
+    const updateData = req.body;
 
-    await adminMiddleware.checkAdminBlocked(req, res, next, admin);
+    await adminMiddleware.checkAdminBlocked(req, res, next, updateData.admin);
 
     const matchDetails = await MatchDetails.findById(matchId);
     if (!matchDetails) {
@@ -1901,32 +1875,41 @@ exports.updateTournamentMatch = async (req, res, next) => {
       return next(error);
     }
 
-    // Update the match details
-    matchDetails.admin = admin;
-    matchDetails.team1 = team1;
-    matchDetails.team2 = team2;
-    matchDetails.matchType = matchType;
-    matchDetails.ballType = ballType;
-    matchDetails.pitchType = pitchType;
-    matchDetails.numberOfOvers = numberOfOvers;
-    matchDetails.oversPerBowler = oversPerBowler;
-    matchDetails.cityOrTown = cityOrTown;
-    matchDetails.ground = ground;
-    matchDetails.matchDateTime = matchDateTime;
-    matchDetails.whoWinsTheToss = whoWinsTheToss;
-    matchDetails.tossDetails = tossDetails;
-    matchDetails.matchStatus = matchStatus;
-    matchDetails.manOfTheMatch = manOfTheMatch;
-    matchDetails.team1Score = team1Score;
-    matchDetails.team2Score = team2Score;
-    matchDetails.team1Overs = team1Overs;
-    matchDetails.team2Overs = team2Overs;
-    matchDetails.team1Balls = team1Balls;
-    matchDetails.team2Balls = team2Balls;
-    matchDetails.team1Outs = team1Outs;
-    matchDetails.team2Outs = team2Outs;
-    matchDetails.squad1 = squad1;
-    matchDetails.squad2 = squad2;
+    // Dynamically update fields if they exist in the request body
+    if (updateData.admin) matchDetails.admin = updateData.admin;
+    if (updateData.team1) matchDetails.team1 = updateData.team1;
+    if (updateData.team2) matchDetails.team2 = updateData.team2;
+    if (updateData.matchType) matchDetails.matchType = updateData.matchType;
+    if (updateData.ballType) matchDetails.ballType = updateData.ballType;
+    if (updateData.pitchType) matchDetails.pitchType = updateData.pitchType;
+    if (updateData.numberOfOvers)
+      matchDetails.numberOfOvers = updateData.numberOfOvers;
+    if (updateData.oversPerBowler)
+      matchDetails.oversPerBowler = updateData.oversPerBowler;
+    if (updateData.cityOrTown) matchDetails.cityOrTown = updateData.cityOrTown;
+    if (updateData.ground) matchDetails.ground = updateData.ground;
+    if (updateData.matchDateTime)
+      matchDetails.matchDateTime = updateData.matchDateTime;
+    if (updateData.tournamentId)
+      matchDetails.tournamentInfo.tournament = updateData.tournamentId;
+    if (updateData.tournamentMatchType)
+      matchDetails.tournamentInfo.matchType = updateData.tournamentMatchType;
+    if (updateData.groupId)
+      matchDetails.tournamentInfo.group = updateData.groupId;
+
+    // Handle group totalMatches if provided
+    if (updateData.totalMatches && updateData.groupId) {
+      const tournament = await Tournament.findById(updateData.tournamentId);
+      if (tournament) {
+        const groupIndex = tournament.groups.findIndex(
+          (g) => g._id.toString() === updateData.groupId.toString()
+        );
+        if (groupIndex !== -1) {
+          tournament.groups[groupIndex].totalMatches = updateData.totalMatches;
+          await tournament.save();
+        }
+      }
+    }
 
     const savedMatchDetails = await matchDetails.save();
 

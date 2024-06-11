@@ -638,7 +638,7 @@ router.post(
 
 router.post(
   "/add-tournament-match/:matchId",
-  validators.validateTournamentMatch,
+  //   validators.validateTournamentMatch,
   adminController.updateTournamentMatch
 );
 
