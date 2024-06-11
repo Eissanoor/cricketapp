@@ -1861,6 +1861,86 @@ exports.addTournamentMatch = async (req, res, next) => {
   }
 };
 
+exports.updateTournamentMatch = async (req, res, next) => {
+  try {
+    const matchId = req.params.matchId; // Assuming matchId is passed as a URL parameter
+    const {
+      admin,
+      team1,
+      team2,
+      matchType,
+      ballType,
+      pitchType,
+      numberOfOvers,
+      oversPerBowler,
+      cityOrTown,
+      ground,
+      matchDateTime,
+      whoWinsTheToss,
+      tossDetails,
+      matchStatus,
+      manOfTheMatch,
+      team1Score,
+      team2Score,
+      team1Overs,
+      team2Overs,
+      team1Balls,
+      team2Balls,
+      team1Outs,
+      team2Outs,
+      squad1,
+      squad2,
+    } = req.body;
+
+    await adminMiddleware.checkAdminBlocked(req, res, next, admin);
+
+    const matchDetails = await MatchDetails.findById(matchId);
+    if (!matchDetails) {
+      const error = new Error("No match found with ID " + matchId);
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    // Update the match details
+    matchDetails.admin = admin;
+    matchDetails.team1 = team1;
+    matchDetails.team2 = team2;
+    matchDetails.matchType = matchType;
+    matchDetails.ballType = ballType;
+    matchDetails.pitchType = pitchType;
+    matchDetails.numberOfOvers = numberOfOvers;
+    matchDetails.oversPerBowler = oversPerBowler;
+    matchDetails.cityOrTown = cityOrTown;
+    matchDetails.ground = ground;
+    matchDetails.matchDateTime = matchDateTime;
+    matchDetails.whoWinsTheToss = whoWinsTheToss;
+    matchDetails.tossDetails = tossDetails;
+    matchDetails.matchStatus = matchStatus;
+    matchDetails.manOfTheMatch = manOfTheMatch;
+    matchDetails.team1Score = team1Score;
+    matchDetails.team2Score = team2Score;
+    matchDetails.team1Overs = team1Overs;
+    matchDetails.team2Overs = team2Overs;
+    matchDetails.team1Balls = team1Balls;
+    matchDetails.team2Balls = team2Balls;
+    matchDetails.team1Outs = team1Outs;
+    matchDetails.team2Outs = team2Outs;
+    matchDetails.squad1 = squad1;
+    matchDetails.squad2 = squad2;
+
+    const savedMatchDetails = await matchDetails.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Match updated successfully",
+      data: savedMatchDetails,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.tournamentUpcomingMatches = async (req, res, next) => {
   try {
     const tournamentId = req.params.id;

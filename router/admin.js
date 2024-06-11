@@ -636,6 +636,12 @@ router.post(
   adminController.addTournamentMatch
 );
 
+router.post(
+  "/add-tournament-match/:matchId",
+  validators.validateTournamentMatch,
+  adminController.updateTournamentMatch
+);
+
 router.get(
   "/tournament/upcoming/:id",
   adminController.tournamentUpcomingMatches
