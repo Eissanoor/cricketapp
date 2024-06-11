@@ -117,7 +117,7 @@ exports.changeAdminStatus = async (req, res, next) => {
       to: admin.email,
       subject: subject,
       templateName: templateName,
-      templateVars: {
+      data: {
         firstName: admin.fullname || "Admin", // Fallback in case firstName is not defined
         logoPath: `${DOMAIN}/images/logo.png`,
       },
