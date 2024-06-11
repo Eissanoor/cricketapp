@@ -27,6 +27,7 @@ const MatchDetails = require("../models/match_details");
 const Tournament = require("../models/tournament");
 
 const validators = require("../utils/validators");
+const adminMiddleware = require("../middleware/admin");
 
 const multer = require("multer");
 const { storage } = require("../config/cloudinary");
@@ -397,9 +398,17 @@ router.get("/admin/details/:id", adminController.getAdminDetails);
 
 router.get("/admin/invitations/:adminId", adminController.getAdminInvitations);
 
-router.put("/access", adminController.putAccess);
+router.put(
+  "/access",
+  adminMiddleware.checkAdminBlocked,
+  adminController.putAccess
+);
 
-router.put("/access/response", adminController.invitationResponse);
+router.put(
+  "/access/response",
+  adminMiddleware.checkAdminBlocked,
+  adminController.invitationResponse
+);
 
 router.post("/get-other-admin-by-adminid", adminController.getOtherAdmins);
 
@@ -409,6 +418,7 @@ router.post(
   "/add-players",
   upload.single("Image"),
   validators.validatePlayer,
+  adminMiddleware.checkAdminBlocked,
   adminController.postAddPlayer
   //   async (req, res, next) => {
   //     await adminController.postAddPlayer(req, res, next, cloudinary);
@@ -433,18 +443,24 @@ router.put(
   "/update-player",
   upload.single("Image"),
   validators.validateUpdatePlayer,
+  adminMiddleware.checkAdminBlocked,
   adminController.updatePlayer
   //   async (req, res, next) => {
   //     await adminController.updatePlayer(req, res, next, cloudinary);
   //   }
 );
-router.put("/share-player", adminController.sharePlayer);
+router.put(
+  "/share-player",
+  adminMiddleware.checkAdminBlocked,
+  adminController.sharePlayer
+);
 
 // * Team * * * * * * * * * * * * * * * * *
 router.post(
   "/add-team",
   upload.single("image"),
   validators.validateTeam,
+  adminMiddleware.checkAdminBlocked,
   adminController.postAddTeam
   //   async (req, res, next) => {
   //     await adminController.postAddTeam(req, res, next, cloudinary);
@@ -467,20 +483,30 @@ router.delete(
   //   await adminController.deleteTeam(res, res, next, cloudinary);
   // },
 );
-router.put("/in-team-add-player", adminController.putPlayerToTeam);
-router.put("/share-team", adminController.putShareTeam);
+router.put(
+  "/in-team-add-player",
+  adminMiddleware.checkAdminBlocked,
+  adminController.putPlayerToTeam
+);
+router.put(
+  "/share-team",
+  adminMiddleware.checkAdminBlocked,
+  adminController.putShareTeam
+);
 router.get("/get-players-by-teamId/:teamID", adminController.getTeamPlayers);
 
 // * Match Details * * * * * * * * * * * * * * * * * * *
 router.post(
   "/add-match-details",
   validators.validateMatch,
+  adminMiddleware.checkAdminBlocked,
   adminController.postAddMatch
 );
 
 router.post(
   "/add-match-details/:id",
   validators.validateMatch,
+  adminMiddleware.checkAdminBlocked,
   adminController.putAddMatch
 );
 
@@ -606,6 +632,7 @@ router.post(
   "/tournament",
   upload.single("image"),
   validators.validateTournament,
+  adminMiddleware.checkAdminBlocked,
   adminController.postTournament
   //   async (req, res, next) => {
   //     await adminController.postTournament(req, res, next, cloudinary);
@@ -616,6 +643,7 @@ router.put(
   "/tournament/:tournamentId",
   upload.single("image"),
   validators.validateTournament,
+  adminMiddleware.checkAdminBlocked,
   adminController.updateTournament
   //   (req, res, next) => {
   //     adminController.updateTournament(req, res, next, cloudinary);
@@ -626,19 +654,29 @@ router.get("/tournaments", adminController.getTournaments);
 
 router.get("/tournament/:tournamentId", adminController.getTournament);
 
-router.put("/team-to-tournament", adminController.putTeamToTournament);
+router.put(
+  "/team-to-tournament",
+  adminMiddleware.checkAdminBlocked,
+  adminController.putTeamToTournament
+);
 
-router.delete("/team-to-tournament", adminController.deleteTeamFromTournament);
+router.delete(
+  "/team-to-tournament",
+  adminMiddleware.checkAdminBlocked,
+  adminController.deleteTeamFromTournament
+);
 
 router.post(
   "/add-tournament-match",
   validators.validateTournamentMatch,
+  adminMiddleware.checkAdminBlocked,
   adminController.addTournamentMatch
 );
 
 router.post(
   "/add-tournament-match/:matchId",
   //   validators.validateTournamentMatch,
+  adminMiddleware.checkAdminBlocked,
   adminController.updateTournamentMatch
 );
 
@@ -656,18 +694,25 @@ router.get(
 
 router.put(
   "/group-to-tournament/:tournamentId",
+  adminMiddleware.checkAdminBlocked,
   adminController.putGroupToTournament
 );
 
-router.put("/group/from/tournament", adminController.deleteGroupFromTournament);
+router.put(
+  "/group/from/tournament",
+  adminMiddleware.checkAdminBlocked,
+  adminController.deleteGroupFromTournament
+);
 
 router.put(
   "/team-to-tournament-group",
+  adminMiddleware.checkAdminBlocked,
   adminController.putTeamToTournamentGroup
 );
 
 router.put(
   "/team-from-tournament-group",
+  adminMiddleware.checkAdminBlocked,
   adminController.deleteTeamFromTournamentGroup
 );
 
