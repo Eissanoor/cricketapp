@@ -36,7 +36,7 @@ async function sendEmail({ to, subject, templateName, data }) {
     console.log(data);
     const template = fs.readFileSync(templatePath, "utf8");
     const html = ejs.render(template, {
-      logoPath: `${DOMAIN}/images/logo.png`,
+      logoPath: data.logoPath,
     });
 
     const mailOptions = {
