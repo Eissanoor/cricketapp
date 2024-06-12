@@ -1185,34 +1185,51 @@ exports.storeFcmToken = async (req, res, next) => {
 };
 
 exports.sendNotification = async (req, res, next) => {
-  const { token, title, body } = req.body;
-  const message = {
-    token: token,
-    notification: {
-      title: title,
-      body: body,
-    },
-    data: {
-      key: "value",
-    },
-  };
+  const { title, body } = req.body;
 
   try {
-    const response = await admin.messaging().send(message);
-    console.log("Successfully sent message:", response);
+    // Retrieve all FCM tokens from the database
+    const users = await User.find({}, "fcmToken");
+    const tokens = users.map((user) => user.fcmToken);
+
+    if (tokens.length === 0) {
+      return res.status(404).json({
+        status: 404,
+        success: false,
+        message: "No devices found",
+      });
+    }
+
+    // Create a message object for each token
+    const messages = tokens.map((token) => ({
+      token: token,
+      notification: {
+        title: title,
+        body: body,
+        image: `${DOMAIN}/images/logo.png`,
+      },
+      data: {
+        key: "value",
+      },
+    }));
+
+    // Send notifications to all tokens
+    const response = await admin.messaging().sendAll(messages);
+    console.log("Successfully sent messages:", response);
+
     res.status(200).json({
       status: 200,
       success: true,
-      message: "Notification sent successfully",
+      message: "Notifications sent successfully",
       data: response,
     });
   } catch (error) {
-    console.error("Error sending message:", error);
+    console.error("Error sending notifications:", error);
     if (!res.headersSent) {
       res.status(500).json({
         status: 500,
         success: false,
-        message: "Failed to send notification",
+        message: "Failed to send notifications",
         error: error.message,
       });
     }
