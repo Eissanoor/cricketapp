@@ -101,6 +101,8 @@ router.delete("/match/:id", sAdminController.deleteMatch);
 
 // * Notification Section ***
 
+router.post("/store-token", sAdminController.storeFcmToken);
+
 router.post("/send-notification", sAdminController.sendNotification);
 
 module.exports = router;

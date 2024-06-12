@@ -11,10 +11,11 @@ const Player = require("../models/player");
 const Team = require("../models/team");
 const Tournament = require("../models/tournament");
 const MatchDetails = require("../models/match_details");
+const User = require("../models/user");
 
 const { cloudinary } = require("../config/cloudinary");
-const oneSignalClient = require("../config/onesignal");
 const { sendEmail } = require("../utils/emailHelper");
+const admin = require("../services/firebaseService");
 
 // CONSTANTS
 const DOMAIN = process.env.HOST + ":" + process.env.PORT;
@@ -104,6 +105,7 @@ exports.changeAdminStatus = async (req, res, next) => {
     }
 
     admin.status = status;
+    await admin.save();
 
     const templateName = status === 0 ? "adminBlocked" : "adminUnblocked";
     const subject =
@@ -122,8 +124,6 @@ exports.changeAdminStatus = async (req, res, next) => {
         logoPath: logoPath, // Pass logoPath to the sendEmail function
       },
     });
-
-    await admin.save();
 
     res.status(200).json({
       status: 200,
@@ -1152,23 +1152,54 @@ exports.deleteMatch = async (req, res, next) => {
 
 // * Notification Section ***
 
-exports.sendNotification = async (req, res, next) => {
-  const { title, message, segment = "Subscribed Users" } = req.body;
+exports.storeFcmToken = async (req, res, next) => {
+  const { userId, token } = req.body;
 
-  const notificationPayload = {
-    contents: {
-      en: message,
+  try {
+    // Find the user by userId
+    let user = await User.findOne({ userId: userId });
+
+    if (user) {
+      // If user exists, update the FCM token
+      user.fcmToken = token;
+    } else {
+      // If user does not exist, create a new user with the FCM token
+      user = new User({
+        userId: userId,
+        fcmToken: token,
+      });
+    }
+
+    // Save the user
+    await user.save();
+
+    res.status(201).json({
+      status: 201,
+      success: true,
+      message: "FCM token successfully stored",
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.sendNotification = async (req, res, next) => {
+  const { token, title, body } = req.body;
+  const message = {
+    token: token,
+    notification: {
+      title: title,
+      body: body,
     },
-    headings: {
-      en: title,
+    data: {
+      key: "value",
     },
-    included_segments: [segment],
   };
 
   try {
-    const response = await oneSignalClient.createNotification(
-      notificationPayload
-    );
+    const response = await admin.messaging().send(message);
+    console.log("Successfully sent message:", response);
     res.status(200).json({
       status: 200,
       success: true,
@@ -1176,8 +1207,15 @@ exports.sendNotification = async (req, res, next) => {
       data: response,
     });
   } catch (error) {
-    console.error("Error sending notification:", error);
-    error.message = "Failed to send notification";
+    console.error("Error sending message:", error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        status: 500,
+        success: false,
+        message: "Failed to send notification",
+        error: error.message,
+      });
+    }
     next(error);
   }
 };

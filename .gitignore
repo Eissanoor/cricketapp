@@ -3,3 +3,4 @@ config.env
 swger
 dublicate
 .vscode/settings.json
+config/firebase-config.json
