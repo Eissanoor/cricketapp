@@ -1215,7 +1215,6 @@ exports.sendNotification = async (req, res, next) => {
 
     // Send notifications to all tokens
     const response = await admin.messaging().sendAll(messages);
-    console.log("Successfully sent messages:", response);
 
     res.status(200).json({
       status: 200,
@@ -1224,7 +1223,6 @@ exports.sendNotification = async (req, res, next) => {
       data: response,
     });
   } catch (error) {
-    console.error("Error sending notifications:", error);
     if (!res.headersSent) {
       res.status(500).json({
         status: 500,
