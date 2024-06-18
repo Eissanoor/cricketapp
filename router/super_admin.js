@@ -7,58 +7,6 @@ const sAdminController = require("../controllers/super_admin");
 
 const router = express.Router();
 
-/**
- * @swagger
- * /superadmin/api/login:
- *   post:
- *     summary: Login as a super admin
- *     description: Authenticates a super admin by their email and password.
- *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 description: The super admin's email.
- *                 example: admin@example.com
- *               password:
- *                 type: string
- *                 description: The super admin's password.
- *                 example: securePassword123
- *     responses:
- *       200:
- *         description: SuperAdmin logged in successfully.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: integer
- *                   example: 200
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: SuperAdmin logged in successfully
- *                 data:
- *                   type: object
- *                   description: Additional data (if any) related to the login.
- *       401:
- *         description: Unauthorized. Password does not match.
- *       404:
- *         description: No SuperAdmin found with this email.
- *       500:
- *         description: Internal server error.
- */
 router.post("/login", sAdminController.login);
 
 // * Admins Section ***

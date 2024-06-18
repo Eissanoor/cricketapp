@@ -1,7 +1,6 @@
-const swaggerJSDoc = require("swagger-jsdoc");
+const path = require("path");
 
-// Define the router file name
-const routerFileName = "super_admin.js"; // This could also come from process.env or another source
+const swaggerJSDoc = require("swagger-jsdoc");
 
 const swaggerDefinition = {
   openapi: "3.0.0",
@@ -9,12 +8,26 @@ const swaggerDefinition = {
     title: "Cric Media",
     version: "1.0.0",
     description: "APIs Documentation",
+    contact: {
+      name: "Wasim Zaman",
+      email: "wasim@sairatec-solutions.com",
+    },
   },
+  servers: [
+    {
+      url: "http://localhost:3002",
+      description: "Development server",
+    },
+    {
+      url: "http://161.97.139.96:3002",
+      description: "Production server",
+    },
+  ],
 };
 
 const options = {
   swaggerDefinition,
-  apis: [`./router/${routerFileName}`], // Use the variable in the file path
+  apis: [path.join(__dirname, "./swaggerDef.js")],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
