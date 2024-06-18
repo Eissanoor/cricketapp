@@ -6,6 +6,8 @@ const bcrypt = require("bcrypt");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("./database/db");
+const swaggerUI = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
 
 // Cloudinary configuration
 const { cloudinary, storage } = require("./config/cloudinary");
@@ -34,6 +36,8 @@ app.use(cors({ origin: "*" }));
 
 app.set("view engine", "ejs");
 
+const PORT = process.env.PORT || 3002;
+
 // Middleware to ensure super admin exists
 app.use(async (req, res, next) => {
   const email = "lalkhan@superadmin.com";
@@ -51,6 +55,9 @@ app.use(async (req, res, next) => {
   }
   next();
 });
+
+// Serve Swagger documentation
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 // Example route for file upload (images and videos)
 app.post("/upload", upload.single("media"), (req, res) => {
@@ -94,14 +101,10 @@ app.use((error, req, res, next) => {
     .json({ message: message, status: status, success: success, data: data });
 });
 
-var swaggerUi = require("swagger-ui-express"),
-  swaggerDocument = require("./swagger.json");
-const ScoreCard = require("./models/score_card");
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-const PORT = process.env.PORT || 3002;
 const serverssss = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
 const socketIo = require("socket.io")(serverssss, {
   pingTimeout: 2000,
   cors: {
