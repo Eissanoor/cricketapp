@@ -89,19 +89,17 @@ exports.changeAdminStatus = async (req, res, next) => {
   const status = parseInt(req.body.status);
 
   if (![0, 1].includes(status)) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid status",
-    });
+    const error = new Error("Invalid status value. Status must be 0 or 1");
+    error.statusCode = 400;
+    return next(error);
   }
 
   try {
     const admin = await Admin.findById(adminId);
     if (!admin) {
-      return res.status(404).json({
-        success: false,
-        message: "Admin not found",
-      });
+      const error = new Error("Admin not found");
+      error.statusCode = 404;
+      return next(error);
     }
 
     admin.status = status;
