@@ -15,12 +15,12 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: "http://localhost:3002",
-      description: "Development server",
-    },
-    {
       url: "https://backend.afghancricmedia.com",
       description: "Production server",
+    },
+    {
+      url: "http://localhost:3002",
+      description: "Development server",
     },
   ],
 };

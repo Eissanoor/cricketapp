@@ -295,3 +295,232 @@
  *                   type: string
  *                   example: Detailed error message
  */
+
+// * PLAYERS SECTION
+
+/**
+ * @swagger
+ * /superadmin/api/players:
+ *   get:
+ *     summary: Retrieve a list of players
+ *     description: Fetches a paginated list of players, optionally filtered by a search query, including the total number of players.
+ *     tags: [Players]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         required: false
+ *         description: The page number to retrieve.
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         required: false
+ *         description: The number of players to retrieve per page.
+ *         example: 10
+ *       - in: query
+ *         name: query
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: The search query to filter players by name.
+ *         example: John
+ *     responses:
+ *       200:
+ *         description: Players fetched successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Players fetched successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 60d0fe4f5311236168a109ca
+ *                       name:
+ *                         type: string
+ *                         example: Player Name
+ *                       location:
+ *                         type: string
+ *                         example: Player Location
+ *                       role:
+ *                         type: string
+ *                         example: Player Role
+ *                       age:
+ *                         type: integer
+ *                         example: 25
+ *                       additionalInfo:
+ *                         type: string
+ *                         example: Additional Info
+ *                       Image:
+ *                         type: string
+ *                         example: https://example.com/player-image.png
+ *                 totalPlayers:
+ *                   type: integer
+ *                   example: 100
+ *       404:
+ *         description: No players found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: No players found
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ *                 error:
+ *                   type: string
+ *                   example: Detailed error message
+ */
+
+// * TEAMS SECTION
+
+/**
+ * @swagger
+ * /superadmin/api/teams:
+ *   get:
+ *     summary: Retrieve a list of teams
+ *     description: Fetches a paginated list of teams and their players, including the total number of teams.
+ *     tags: [Teams]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         required: false
+ *         description: The page number to retrieve.
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         required: false
+ *         description: The number of teams to retrieve per page.
+ *         example: 10
+ *     responses:
+ *       200:
+ *         description: Fetched teams successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Fetched teams successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 60d0fe4f5311236168a109ca
+ *                       name:
+ *                         type: string
+ *                         example: Team Name
+ *                       players:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             name:
+ *                               type: string
+ *                               example: Player Name
+ *                             location:
+ *                               type: string
+ *                               example: Player Location
+ *                             role:
+ *                               type: string
+ *                               example: Player Role
+ *                             age:
+ *                               type: integer
+ *                               example: 25
+ *                             additionalInfo:
+ *                               type: string
+ *                               example: Additional Info
+ *                             Image:
+ *                               type: string
+ *                               example: https://example.com/player-image.png
+ *                 totalTeams:
+ *                   type: integer
+ *                   example: 100
+ *       404:
+ *         description: No teams found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: No teams found
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ *                 error:
+ *                   type: string
+ *                   example: Detailed error message
+ */
