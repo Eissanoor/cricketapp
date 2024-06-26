@@ -1267,43 +1267,64 @@ exports.sendNotification = async (req, res, next) => {
 
 // * Viewers Section ***
 
-exports.getDailyViewers = async (req, res, next) => {
+exports.getViewers = async (req, res, next) => {
   try {
     // Calculate the start and end of the current day
     const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
     const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
 
-    // Aggregate the number of unique viewers for the current day
-    const dailyViewers = await User.aggregate([
-      {
-        $match: {
-          lastViewed: {
-            $gte: startOfDay,
-            $lt: endOfDay,
+    // Calculate the start and end of the current week
+    const startOfWeek = new Date(startOfDay);
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    const endOfWeek = new Date(endOfDay);
+    endOfWeek.setDate(endOfWeek.getDate() + (6 - endOfWeek.getDay()));
+
+    // Calculate the start and end of the current month
+    const startOfMonth = new Date(startOfDay);
+    startOfMonth.setDate(1);
+    const endOfMonth = new Date(endOfDay);
+    endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+    endOfMonth.setDate(0);
+
+    const aggregateViewers = async (start, end) => {
+      const viewers = await User.aggregate([
+        {
+          $match: {
+            lastViewed: {
+              $gte: start,
+              $lt: end,
+            },
           },
         },
-      },
-      {
-        $group: {
-          _id: null,
-          uniqueViewers: { $addToSet: "$userId" },
+        {
+          $group: {
+            _id: null,
+            uniqueViewers: { $addToSet: "$userId" },
+          },
         },
-      },
-      {
-        $project: {
-          _id: 0,
-          uniqueViewersCount: { $size: "$uniqueViewers" },
+        {
+          $project: {
+            _id: 0,
+            uniqueViewersCount: { $size: "$uniqueViewers" },
+          },
         },
-      },
-    ]);
+      ]);
+      return viewers[0] ? viewers[0].uniqueViewersCount : 0;
+    };
 
-    const count = dailyViewers[0] ? dailyViewers[0].uniqueViewersCount : 0;
+    const dailyViewers = await aggregateViewers(startOfDay, endOfDay);
+    const weeklyViewers = await aggregateViewers(startOfWeek, endOfWeek);
+    const monthlyViewers = await aggregateViewers(startOfMonth, endOfMonth);
 
     res.status(200).json({
       status: 200,
       success: true,
-      message: "Fetched daily viewers successfully",
-      data: { dailyViewers: count },
+      message: "Fetched viewers successfully",
+      data: {
+        dailyViewers,
+        weeklyViewers,
+        monthlyViewers,
+      },
     });
   } catch (error) {
     next(error);

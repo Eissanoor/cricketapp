@@ -499,14 +499,14 @@
 
 /**
  * @swagger
- * /superadmin/api/viewers/daily:
+ * /superadmin/api/viewers:
  *   get:
- *     summary: Get daily unique viewers
- *     description: Retrieves the number of unique viewers for the current day.
+ *     summary: Get daily, weekly, and monthly viewers
+ *     description: Retrieves the number of unique viewers for the current day, week, and month.
  *     tags: [Viewers]
  *     responses:
  *       200:
- *         description: Fetched daily viewers successfully.
+ *         description: Fetched viewers successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -520,10 +520,19 @@
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Fetched daily viewers successfully
- *                 dailyViewers:
- *                   type: integer
- *                   example: 100
+ *                   example: Fetched viewers successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     dailyViewers:
+ *                       type: integer
+ *                       example: 100
+ *                     weeklyViewers:
+ *                       type: integer
+ *                       example: 500
+ *                     monthlyViewers:
+ *                       type: integer
+ *                       example: 2000
  *       500:
  *         description: Internal server error.
  */

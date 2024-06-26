@@ -106,6 +106,6 @@ router.post("/store-token", sAdminController.storeFcmToken);
 router.post("/send-notification", sAdminController.sendNotification);
 
 // * Viewers Section ***
-router.get("/viewers/daily", sAdminController.getDailyViewers);
+router.get("/viewers", sAdminController.getViewers);
 
 module.exports = router;
