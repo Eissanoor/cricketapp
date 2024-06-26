@@ -11,6 +11,7 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  lastViewed: { type: Date, default: Date.now },
   // Other user fields can go here
 });
 

@@ -416,24 +416,25 @@
  * @swagger
  * /superadmin/api/teams:
  *   get:
- *     summary: Retrieve a list of teams
- *     description: Fetches a paginated list of teams and their players, including the total number of teams.
+ *     summary: Get teams with pagination and search
+ *     description: Retrieves a list of teams with pagination and optional search by name.
  *     tags: [Teams]
  *     parameters:
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
- *         required: false
- *         description: The page number to retrieve.
- *         example: 1
+ *         description: Page number for pagination
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
- *         required: false
- *         description: The number of teams to retrieve per page.
- *         example: 10
+ *         description: Number of teams per page
+ *       - in: query
+ *         name: query
+ *         schema:
+ *           type: string
+ *         description: Search query for team names
  *     responses:
  *       200:
  *         description: Fetched teams successfully.
@@ -458,10 +459,10 @@
  *                     properties:
  *                       _id:
  *                         type: string
- *                         example: 60d0fe4f5311236168a109ca
+ *                         example: 60c72b2f5f1b2c001c8e4a92
  *                       name:
  *                         type: string
- *                         example: Team Name
+ *                         example: Team A
  *                       players:
  *                         type: array
  *                         items:
@@ -469,43 +470,43 @@
  *                           properties:
  *                             name:
  *                               type: string
- *                               example: Player Name
+ *                               example: Player 1
  *                             location:
  *                               type: string
- *                               example: Player Location
+ *                               example: Location 1
  *                             role:
  *                               type: string
- *                               example: Player Role
+ *                               example: Batsman
  *                             age:
  *                               type: integer
  *                               example: 25
  *                             additionalInfo:
  *                               type: string
- *                               example: Additional Info
+ *                               example: Additional info about the player
  *                             Image:
  *                               type: string
- *                               example: https://example.com/player-image.png
+ *                               example: player1.jpg
  *                 totalTeams:
  *                   type: integer
  *                   example: 100
  *       404:
  *         description: No teams found.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: integer
- *                   example: 404
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: No teams found
  *       500:
  *         description: Internal server error.
+ */
+
+// * Viewers Section
+
+/**
+ * @swagger
+ * /superadmin/api/viewers/daily:
+ *   get:
+ *     summary: Get daily unique viewers
+ *     description: Retrieves the number of unique viewers for the current day.
+ *     tags: [Viewers]
+ *     responses:
+ *       200:
+ *         description: Fetched daily viewers successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -513,14 +514,16 @@
  *               properties:
  *                 status:
  *                   type: integer
- *                   example: 500
+ *                   example: 200
  *                 success:
  *                   type: boolean
- *                   example: false
+ *                   example: true
  *                 message:
  *                   type: string
- *                   example: Internal server error
- *                 error:
- *                   type: string
- *                   example: Detailed error message
+ *                   example: Fetched daily viewers successfully
+ *                 dailyViewers:
+ *                   type: integer
+ *                   example: 100
+ *       500:
+ *         description: Internal server error.
  */

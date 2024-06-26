@@ -867,18 +867,34 @@ exports.getTeams = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const query = req.query.query || "";
 
     const skip = (page - 1) * limit;
 
-    // Fetch teams with pagination and populate players
-    const teams = await Team.find()
-      .sort({ _id: -1 })
-      .skip(skip)
-      .limit(limit)
-      .populate("players", "name location role age additionalInfo Image");
+    let teams;
+    let totalTeams;
 
-    // Count total number of teams
-    const totalTeams = await Team.countDocuments();
+    if (query) {
+      const searchCriteria = {
+        name: { $regex: query, $options: "i" }, // Case-insensitive regex search on name
+      };
+
+      teams = await Team.find(searchCriteria)
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("players", "name location role age additionalInfo Image");
+
+      totalTeams = await Team.countDocuments(searchCriteria);
+    } else {
+      teams = await Team.find()
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("players", "name location role age additionalInfo Image");
+
+      totalTeams = await Team.countDocuments();
+    }
 
     if (!teams || teams.length === 0) {
       const error = new Error("No teams found");
@@ -1172,13 +1188,15 @@ exports.storeFcmToken = async (req, res, next) => {
     let user = await User.findOne({ userId: userId });
 
     if (user) {
-      // If user exists, update the FCM token
+      // If user exists, update the FCM token and lastViewed
       user.fcmToken = token;
+      user.lastViewed = Date.now();
     } else {
-      // If user does not exist, create a new user with the FCM token
+      // If user does not exist, create a new user with the FCM token and lastViewed
       user = new User({
         userId: userId,
         fcmToken: token,
+        lastViewed: Date.now(),
       });
     }
 
@@ -1243,6 +1261,51 @@ exports.sendNotification = async (req, res, next) => {
         error: error.message,
       });
     }
+    next(error);
+  }
+};
+
+// * Viewers Section ***
+
+exports.getDailyViewers = async (req, res, next) => {
+  try {
+    // Calculate the start and end of the current day
+    const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
+    const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
+
+    // Aggregate the number of unique viewers for the current day
+    const dailyViewers = await User.aggregate([
+      {
+        $match: {
+          lastViewed: {
+            $gte: startOfDay,
+            $lt: endOfDay,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          uniqueViewers: { $addToSet: "$userId" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          uniqueViewersCount: { $size: "$uniqueViewers" },
+        },
+      },
+    ]);
+
+    const count = dailyViewers[0] ? dailyViewers[0].uniqueViewersCount : 0;
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Fetched daily viewers successfully",
+      data: { dailyViewers: count },
+    });
+  } catch (error) {
     next(error);
   }
 };
