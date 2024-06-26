@@ -218,7 +218,7 @@
 
 /**
  * @swagger
- * /superadmin/api/notifications:
+ * /superadmin/api/send-notification:
  *   post:
  *     summary: Send a notification to all users
  *     description: Sends a notification to all users with a specified title and body.
