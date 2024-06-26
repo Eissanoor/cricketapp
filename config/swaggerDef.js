@@ -213,3 +213,85 @@
  *       500:
  *         description: Internal server error.
  */
+
+// * NOTIFICATIONS SECTION
+
+/**
+ * @swagger
+ * /superadmin/api/notifications:
+ *   post:
+ *     summary: Send a notification to all users
+ *     description: Sends a notification to all users with a specified title and body.
+ *     tags: [Notifications]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: The title of the notification.
+ *                 example: "New Announcement"
+ *               body:
+ *                 type: string
+ *                 description: The body content of the notification.
+ *                 example: "We have updated our terms of service."
+ *     responses:
+ *       200:
+ *         description: Notifications sent successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Notifications sent successfully
+ *                 data:
+ *                   type: object
+ *                   additionalProperties: true
+ *                   description: Response from the FCM service.
+ *       404:
+ *         description: No devices found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: No devices found
+ *       500:
+ *         description: Failed to send notifications.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Failed to send notifications
+ *                 error:
+ *                   type: string
+ *                   example: Detailed error message
+ */

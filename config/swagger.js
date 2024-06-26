@@ -19,7 +19,7 @@ const swaggerDefinition = {
       description: "Development server",
     },
     {
-      url: "http://161.97.139.96:3002",
+      url: "https://backend.afghancricmedia.com",
       description: "Production server",
     },
   ],

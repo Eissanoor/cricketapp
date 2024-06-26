@@ -81,7 +81,7 @@ app.put("/start-stop-match", (req, res, next) => {
 app.use(scorerRouter);
 app.use(adminRouter);
 app.use(userRouter);
-app.use("/superadmin/api/", superAdminRouter);
+app.use("/superadmin/api", superAdminRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`No route found for ${req.originalUrl}`);
