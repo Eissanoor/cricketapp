@@ -495,18 +495,18 @@
  *         description: Internal server error.
  */
 
-// * Viewers Section
+// * Counts Section
 
 /**
  * @swagger
- * /superadmin/api/viewers:
+ * /superadmin/api/counts:
  *   get:
- *     summary: Get daily, weekly, and monthly viewers
- *     description: Retrieves the number of unique viewers for the current day, week, and month.
+ *     summary: Get daily, weekly, and monthly viewers, total players, and total teams
+ *     description: Retrieves the number of unique viewers for the current day, week, and month, along with the total number of players and teams.
  *     tags: [Viewers]
  *     responses:
  *       200:
- *         description: Fetched viewers successfully.
+ *         description: Fetched viewers, total players, and total teams successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -520,7 +520,7 @@
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Fetched viewers successfully
+ *                   example: Fetched viewers, total players, and total teams successfully
  *                 data:
  *                   type: object
  *                   properties:
@@ -533,6 +533,12 @@
  *                     monthlyViewers:
  *                       type: integer
  *                       example: 2000
+ *                     totalPlayers:
+ *                       type: integer
+ *                       example: 3000
+ *                     totalTeams:
+ *                       type: integer
+ *                       example: 150
  *       500:
  *         description: Internal server error.
  */

@@ -1267,7 +1267,7 @@ exports.sendNotification = async (req, res, next) => {
 
 // * Viewers Section ***
 
-exports.getViewers = async (req, res, next) => {
+exports.getCounts = async (req, res, next) => {
   try {
     // Calculate the start and end of the current day
     const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
@@ -1316,6 +1316,10 @@ exports.getViewers = async (req, res, next) => {
     const weeklyViewers = await aggregateViewers(startOfWeek, endOfWeek);
     const monthlyViewers = await aggregateViewers(startOfMonth, endOfMonth);
 
+    // Fetch the total number of players and teams
+    const totalPlayers = await Player.countDocuments();
+    const totalTeams = await Team.countDocuments();
+
     res.status(200).json({
       status: 200,
       success: true,
@@ -1324,6 +1328,8 @@ exports.getViewers = async (req, res, next) => {
         dailyViewers,
         weeklyViewers,
         monthlyViewers,
+        totalPlayers,
+        totalTeams,
       },
     });
   } catch (error) {
