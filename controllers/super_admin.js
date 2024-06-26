@@ -724,15 +724,23 @@ exports.getPlayers = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     let players;
+    let totalPlayers;
+
     if (query) {
-      players = await Player.find({
+      const searchCriteria = {
         name: { $regex: query, $options: "i" }, // Case-insensitive regex search on name
-      })
+      };
+
+      players = await Player.find(searchCriteria)
         .sort({ _id: -1 })
         .skip(skip)
         .limit(limit);
+
+      totalPlayers = await Player.countDocuments(searchCriteria);
     } else {
       players = await Player.find().sort({ _id: -1 }).skip(skip).limit(limit);
+
+      totalPlayers = await Player.countDocuments();
     }
 
     if (!players || players.length === 0) {
@@ -746,6 +754,7 @@ exports.getPlayers = async (req, res, next) => {
       success: true,
       message: "Players fetched successfully",
       data: players,
+      totalPlayers: totalPlayers, // Include totalPlayers in the response
     });
   } catch (error) {
     next(error);
@@ -861,11 +870,15 @@ exports.getTeams = async (req, res, next) => {
 
     const skip = (page - 1) * limit;
 
+    // Fetch teams with pagination and populate players
     const teams = await Team.find()
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit)
       .populate("players", "name location role age additionalInfo Image");
+
+    // Count total number of teams
+    const totalTeams = await Team.countDocuments();
 
     if (!teams || teams.length === 0) {
       const error = new Error("No teams found");
@@ -878,6 +891,7 @@ exports.getTeams = async (req, res, next) => {
       success: true,
       message: "Fetched teams successfully",
       data: teams,
+      totalTeams: totalTeams, // Include totalTeams in the response
     });
   } catch (error) {
     next(error);
