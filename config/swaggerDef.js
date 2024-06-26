@@ -503,7 +503,7 @@
  *   get:
  *     summary: Get daily, weekly, and monthly viewers, total players, and total teams
  *     description: Retrieves the number of unique viewers for the current day, week, and month, along with the total number of players and teams.
- *     tags: [Viewers]
+ *     tags: [Counts]
  *     responses:
  *       200:
  *         description: Fetched viewers, total players, and total teams successfully.
