@@ -2207,3 +2207,227 @@
  *                   type: string
  *                   example: Internal server error
  */
+
+// * MATCHES SECTION
+
+/**
+ * @swagger
+ * /superadmin/api/matches:
+ *   get:
+ *     summary: Get paginated list of matches
+ *     description: Retrieves a paginated list of matches with details of teams and players.
+ *     tags: [Matches]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 10
+ *         description: Number of matches per page
+ *     responses:
+ *       200:
+ *         description: Matches fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Matches fetched successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       team1:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           image:
+ *                             type: string
+ *                           players:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 _id:
+ *                                   type: string
+ *                                 name:
+ *                                   type: string
+ *                                 position:
+ *                                   type: string
+ *                                 role:
+ *                                   type: string
+ *                                 age:
+ *                                   type: integer
+ *                                 Image:
+ *                                   type: string
+ *                                 additionalInfo:
+ *                                   type: string
+ *                       team2:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           image:
+ *                             type: string
+ *                           players:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 _id:
+ *                                   type: string
+ *                                 name:
+ *                                   type: string
+ *                                 position:
+ *                                   type: string
+ *                                 role:
+ *                                   type: string
+ *                                 age:
+ *                                   type: integer
+ *                                 Image:
+ *                                   type: string
+ *                                 additionalInfo:
+ *                                   type: string
+ *                       matchStatus:
+ *                         type: string
+ *                       cityOrTown:
+ *                         type: string
+ *                       ground:
+ *                         type: string
+ *                       matchDateTime:
+ *                         type: string
+ *                         format: date-time
+ *                       numberOfOvers:
+ *                         type: integer
+ *                       tournamentInfo:
+ *                         type: object
+ *                         properties:
+ *                           tournament:
+ *                             type: object
+ *                             properties:
+ *                               _id:
+ *                                 type: string
+ *                               seriesName:
+ *                                 type: string
+ *       404:
+ *         description: No matches found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: No matches found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+/**
+ * @swagger
+ * /superadmin/api/match/{id}:
+ *   delete:
+ *     summary: Delete a match
+ *     description: Deletes a match by its ID.
+ *     tags: [Matches]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the match to delete
+ *     responses:
+ *       200:
+ *         description: Match deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Match deleted successfully
+ *       404:
+ *         description: No match found with this ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: No match found with this ID
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
