@@ -57,22 +57,22 @@
  * @swagger
  * /superadmin/api/admins:
  *   get:
- *     summary: Get a list of admins with pagination
- *     description: Retrieves a paginated list of admins and the total number of admins.
+ *     summary: Get admins with pagination
+ *     description: Retrieves a list of admins with pagination and includes the total count of admins.
  *     tags: [Admins]
  *     parameters:
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
- *         required: false
+ *           example: 1
  *         description: Page number for pagination
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
- *         required: false
- *         description: Number of items per page
+ *           example: 10
+ *         description: Number of admins per page
  *     responses:
  *       200:
  *         description: Admins fetched successfully.
@@ -91,41 +91,61 @@
  *                   type: string
  *                   example: Admins fetched successfully
  *                 data:
- *                   type: object
- *                   properties:
- *                     admins:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           email:
- *                             type: string
- *                             example: admin@example.com
- *                           status:
- *                             type: string
- *                             example: active
- *                           Phone:
- *                             type: string
- *                             example: "1234567890"
- *                           ProfileImage:
- *                             type: string
- *                             example: "/path/to/profile/image.jpg"
- *                           fullname:
- *                             type: string
- *                             example: "Admin Name"
- *                           createdAt:
- *                             type: string
- *                             format: date-time
- *                           updatedAt:
- *                             type: string
- *                             format: date-time
- *                     totalAdmins:
- *                       type: integer
- *                       example: 50
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       email:
+ *                         type: string
+ *                       status:
+ *                         type: string
+ *                       Phone:
+ *                         type: string
+ *                       ProfileImage:
+ *                         type: string
+ *                       fullname:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                 totalAdmins:
+ *                   type: integer
+ *                   example: 50
  *       404:
  *         description: No Admins found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: No Admins found
  *       500:
  *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
  */
 
 /**
@@ -539,38 +559,63 @@
  *                   type: string
  *                   example: Fetched tournaments successfully
  *                 data:
- *                   type: object
- *                   properties:
- *                     tournaments:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           _id:
- *                             type: string
- *                           name:
- *                             type: string
- *                           startDate:
- *                             type: string
- *                             format: date-time
- *                           endDate:
- *                             type: string
- *                             format: date-time
- *                           status:
- *                             type: string
- *                           createdAt:
- *                             type: string
- *                             format: date-time
- *                           updatedAt:
- *                             type: string
- *                             format: date-time
- *                     totalTournaments:
- *                       type: integer
- *                       example: 50
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       startDate:
+ *                         type: string
+ *                         format: date-time
+ *                       endDate:
+ *                         type: string
+ *                         format: date-time
+ *                       status:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                 totalTournaments:
+ *                   type: integer
+ *                   example: 50
  *       404:
  *         description: No tournaments found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: No tournaments found
  *       500:
  *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
  */
 
 // * Counts Section
