@@ -63,10 +63,15 @@ exports.getAdmins = async (req, res, next) => {
   const skip = (page - 1) * limit;
 
   try {
+    // Fetch admins with pagination
     const admins = await Admin.find()
       .skip(skip)
       .limit(limit)
       .select("email status Phone ProfileImage fullname createdAt updatedAt");
+
+    // Count total number of admins
+    const totalAdmins = await Admin.countDocuments();
+
     if (!admins || admins.length === 0) {
       const error = new Error("No Admins found");
       error.statusCode = 404;
@@ -77,7 +82,10 @@ exports.getAdmins = async (req, res, next) => {
       status: 200,
       success: true,
       message: "Admins fetched successfully",
-      data: admins,
+      data: {
+        admins: admins,
+        totalAdmins: totalAdmins,
+      },
     });
   } catch (err) {
     next(err);
@@ -715,23 +723,36 @@ exports.putViewVideo = async (req, res, next) => {
 
 // * Players Section ***
 
-exports.getAdmins = async (req, res, next) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
-
+exports.getPlayers = async (req, res, next) => {
   try {
-    // Fetch admins with pagination
-    const admins = await Admin.find()
-      .skip(skip)
-      .limit(limit)
-      .select("email status Phone ProfileImage fullname createdAt updatedAt");
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const query = req.query.query || "";
 
-    // Count total number of admins
-    const totalAdmins = await Admin.countDocuments();
+    const skip = (page - 1) * limit;
 
-    if (!admins || admins.length === 0) {
-      const error = new Error("No Admins found");
+    let players;
+    let totalPlayers;
+
+    if (query) {
+      const searchCriteria = {
+        name: { $regex: query, $options: "i" }, // Case-insensitive regex search on name
+      };
+
+      players = await Player.find(searchCriteria)
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      totalPlayers = await Player.countDocuments(searchCriteria);
+    } else {
+      players = await Player.find().sort({ _id: -1 }).skip(skip).limit(limit);
+
+      totalPlayers = await Player.countDocuments();
+    }
+
+    if (!players || players.length === 0) {
+      const error = new Error("No players found");
       error.statusCode = 404;
       return next(error);
     }
@@ -739,14 +760,12 @@ exports.getAdmins = async (req, res, next) => {
     res.status(200).json({
       status: 200,
       success: true,
-      message: "Admins fetched successfully",
-      data: {
-        admins: admins,
-        totalAdmins: totalAdmins,
-      },
+      message: "Players fetched successfully",
+      data: players,
+      totalPlayers: totalPlayers, // Include totalPlayers in the response
     });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -1339,7 +1358,6 @@ exports.getCounts = async (req, res, next) => {
         totalTeams,
         totalAdmins,
         totalTournaments,
-        totalMatches,
       },
     });
   } catch (error) {
