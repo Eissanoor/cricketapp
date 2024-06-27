@@ -83,7 +83,7 @@ app.use(adminRouter);
 app.use(userRouter);
 app.use("/superadmin/api", superAdminRouter);
 
-app.post("/send-message", (req, res, next) => {
+app.post("/api/send-message", (req, res, next) => {
   const { message } = req.body;
 
   if (!message) {
