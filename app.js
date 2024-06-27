@@ -83,6 +83,25 @@ app.use(adminRouter);
 app.use(userRouter);
 app.use("/superadmin/api", superAdminRouter);
 
+app.post("/send-message", (req, res, next) => {
+  const { message } = req.body;
+
+  if (!message) {
+    const error = new Error("Message is required");
+    error.statusCode = 400;
+    return next(error);
+  }
+
+  // Emit the message event to all connected clients
+  socketIo.emit("message", message);
+
+  res.status(200).json({
+    status: 200,
+    success: true,
+    message: "Message sent to all clients successfully",
+  });
+});
+
 app.use((req, res, next) => {
   const error = new Error(`No route found for ${req.originalUrl}`);
   error.statusCode = 404;
