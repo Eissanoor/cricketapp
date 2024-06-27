@@ -82,10 +82,8 @@ exports.getAdmins = async (req, res, next) => {
       status: 200,
       success: true,
       message: "Admins fetched successfully",
-      data: {
-        admins: admins,
-        totalAdmins: totalAdmins,
-      },
+      data: admins,
+      totalAdmins: totalAdmins,
     });
   } catch (err) {
     next(err);
@@ -1022,10 +1020,8 @@ exports.getTournaments = async (req, res, next) => {
       status: 200,
       success: true,
       message: "Fetched tournaments successfully",
-      data: {
-        tournaments: tournaments,
-        totalTournaments: totalTournaments,
-      },
+      data: tournaments,
+      totalTournaments: totalTournaments,
     });
   } catch (error) {
     next(error);
@@ -1349,7 +1345,7 @@ exports.getCounts = async (req, res, next) => {
     res.status(200).json({
       status: 200,
       success: true,
-      message: "Fetched viewers successfully",
+      message: "Fetched counts successfully",
       data: {
         dailyViewers,
         weeklyViewers,
@@ -1358,6 +1354,7 @@ exports.getCounts = async (req, res, next) => {
         totalTeams,
         totalAdmins,
         totalTournaments,
+        totalMatches,
       },
     });
   } catch (error) {
