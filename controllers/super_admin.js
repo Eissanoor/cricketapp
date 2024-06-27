@@ -715,36 +715,23 @@ exports.putViewVideo = async (req, res, next) => {
 
 // * Players Section ***
 
-exports.getPlayers = async (req, res, next) => {
+exports.getAdmins = async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const query = req.query.query || "";
+    // Fetch admins with pagination
+    const admins = await Admin.find()
+      .skip(skip)
+      .limit(limit)
+      .select("email status Phone ProfileImage fullname createdAt updatedAt");
 
-    const skip = (page - 1) * limit;
+    // Count total number of admins
+    const totalAdmins = await Admin.countDocuments();
 
-    let players;
-    let totalPlayers;
-
-    if (query) {
-      const searchCriteria = {
-        name: { $regex: query, $options: "i" }, // Case-insensitive regex search on name
-      };
-
-      players = await Player.find(searchCriteria)
-        .sort({ _id: -1 })
-        .skip(skip)
-        .limit(limit);
-
-      totalPlayers = await Player.countDocuments(searchCriteria);
-    } else {
-      players = await Player.find().sort({ _id: -1 }).skip(skip).limit(limit);
-
-      totalPlayers = await Player.countDocuments();
-    }
-
-    if (!players || players.length === 0) {
-      const error = new Error("No players found");
+    if (!admins || admins.length === 0) {
+      const error = new Error("No Admins found");
       error.statusCode = 404;
       return next(error);
     }
@@ -752,12 +739,14 @@ exports.getPlayers = async (req, res, next) => {
     res.status(200).json({
       status: 200,
       success: true,
-      message: "Players fetched successfully",
-      data: players,
-      totalPlayers: totalPlayers, // Include totalPlayers in the response
+      message: "Admins fetched successfully",
+      data: {
+        admins: admins,
+        totalAdmins: totalAdmins,
+      },
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -990,9 +979,21 @@ exports.deleteTeam = async (req, res, next) => {
 // * Tournament Section ***
 
 exports.getTournaments = async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
   try {
-    const tournaments = await Tournament.find().sort({ _id: -1 });
-    if (tournaments.length === 0) {
+    // Fetch tournaments with pagination
+    const tournaments = await Tournament.find()
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Count total number of tournaments
+    const totalTournaments = await Tournament.countDocuments();
+
+    if (!tournaments || tournaments.length === 0) {
       const error = new Error("No tournaments found");
       error.statusCode = 404;
       return next(error);
@@ -1002,7 +1003,10 @@ exports.getTournaments = async (req, res, next) => {
       status: 200,
       success: true,
       message: "Fetched tournaments successfully",
-      data: tournaments,
+      data: {
+        tournaments: tournaments,
+        totalTournaments: totalTournaments,
+      },
     });
   } catch (error) {
     next(error);
@@ -1319,6 +1323,9 @@ exports.getCounts = async (req, res, next) => {
     // Fetch the total number of players and teams
     const totalPlayers = await Player.countDocuments();
     const totalTeams = await Team.countDocuments();
+    const totalAdmins = await Admin.coutDocuments();
+    const totalTournaments = await Tournament.countDocuments();
+    const totalMatches = await MatchDetails.countDocuments();
 
     res.status(200).json({
       status: 200,
@@ -1330,6 +1337,9 @@ exports.getCounts = async (req, res, next) => {
         monthlyViewers,
         totalPlayers,
         totalTeams,
+        totalAdmins,
+        totalTournaments,
+        totalMatches,
       },
     });
   } catch (error) {

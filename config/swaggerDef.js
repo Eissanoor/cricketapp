@@ -57,22 +57,22 @@
  * @swagger
  * /superadmin/api/admins:
  *   get:
- *     summary: Get a list of admins
- *     description: Retrieves a paginated list of admins.
+ *     summary: Get a list of admins with pagination
+ *     description: Retrieves a paginated list of admins and the total number of admins.
  *     tags: [Admins]
  *     parameters:
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
- *           default: 1
- *         description: The page number for pagination.
+ *         required: false
+ *         description: Page number for pagination
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
- *           default: 10
- *         description: The number of records per page.
+ *         required: false
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: Admins fetched successfully.
@@ -91,33 +91,37 @@
  *                   type: string
  *                   example: Admins fetched successfully
  *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       email:
- *                         type: string
- *                         example: admin@example.com
- *                       status:
- *                         type: string
- *                         example: active
- *                       Phone:
- *                         type: string
- *                         example: "+123456789"
- *                       ProfileImage:
- *                         type: string
- *                         example: "https://example.com/profile.jpg"
- *                       fullname:
- *                         type: string
- *                         example: "John Doe"
- *                       createdAt:
- *                         type: string
- *                         format: date-time
- *                         example: "2023-01-01T00:00:00Z"
- *                       updatedAt:
- *                         type: string
- *                         format: date-time
- *                         example: "2023-01-02T00:00:00Z"
+ *                   type: object
+ *                   properties:
+ *                     admins:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           email:
+ *                             type: string
+ *                             example: admin@example.com
+ *                           status:
+ *                             type: string
+ *                             example: active
+ *                           Phone:
+ *                             type: string
+ *                             example: "1234567890"
+ *                           ProfileImage:
+ *                             type: string
+ *                             example: "/path/to/profile/image.jpg"
+ *                           fullname:
+ *                             type: string
+ *                             example: "Admin Name"
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
+ *                     totalAdmins:
+ *                       type: integer
+ *                       example: 50
  *       404:
  *         description: No Admins found.
  *       500:
@@ -495,18 +499,31 @@
  *         description: Internal server error.
  */
 
-// * Counts Section
+// * TOURNAMENT SECTION
 
 /**
  * @swagger
- * /superadmin/api/counts:
+ * /superadmin/api/tournaments:
  *   get:
- *     summary: Get daily, weekly, and monthly viewers, total players, and total teams
- *     description: Retrieves the number of unique viewers for the current day, week, and month, along with the total number of players and teams.
- *     tags: [Counts]
+ *     summary: Get tournaments with pagination
+ *     description: Retrieves a list of tournaments with pagination and includes the total count of tournaments.
+ *     tags: [Tournaments]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           example: 10
+ *         description: Number of tournaments per page
  *     responses:
  *       200:
- *         description: Fetched viewers, total players, and total teams successfully.
+ *         description: Fetched tournaments successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -520,7 +537,68 @@
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Fetched viewers, total players, and total teams successfully
+ *                   example: Fetched tournaments successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     tournaments:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           startDate:
+ *                             type: string
+ *                             format: date-time
+ *                           endDate:
+ *                             type: string
+ *                             format: date-time
+ *                           status:
+ *                             type: string
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
+ *                     totalTournaments:
+ *                       type: integer
+ *                       example: 50
+ *       404:
+ *         description: No tournaments found.
+ *       500:
+ *         description: Internal server error.
+ */
+
+// * Counts Section
+
+/**
+ * @swagger
+ * /superadmin/api/counts:
+ *   get:
+ *     summary: Get various counts and statistics
+ *     description: Retrieves counts of daily, weekly, and monthly viewers along with total players, teams, admins, tournaments, and matches.
+ *     tags: [Counts]
+ *     responses:
+ *       200:
+ *         description: Counts fetched successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Fetched viewers successfully
  *                 data:
  *                   type: object
  *                   properties:
@@ -535,10 +613,19 @@
  *                       example: 2000
  *                     totalPlayers:
  *                       type: integer
- *                       example: 3000
+ *                       example: 150
  *                     totalTeams:
  *                       type: integer
- *                       example: 150
+ *                       example: 20
+ *                     totalAdmins:
+ *                       type: integer
+ *                       example: 5
+ *                     totalTournaments:
+ *                       type: integer
+ *                       example: 10
+ *                     totalMatches:
+ *                       type: integer
+ *                       example: 30
  *       500:
  *         description: Internal server error.
  */
