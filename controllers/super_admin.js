@@ -1338,7 +1338,7 @@ exports.getCounts = async (req, res, next) => {
     // Fetch the total number of players and teams
     const totalPlayers = await Player.countDocuments();
     const totalTeams = await Team.countDocuments();
-    const totalAdmins = await Admin.coutDocuments();
+    const totalAdmins = await Admin.countDocuments();
     const totalTournaments = await Tournament.countDocuments();
     const totalMatches = await MatchDetails.countDocuments();
 
