@@ -29,7 +29,11 @@ const Admin = require("../models/admin");
 
 exports.checkAdminBlocked = async (req, res, next) => {
   // Determine the admin ID from different sources and handle arrays
-  let adminId = req.body.admin || req.params.adminId || req.query.adminId;
+  let adminId =
+    req.body.adminId ||
+    req.body.admin ||
+    req.params.adminId ||
+    req.query.adminId;
   if (!adminId && req.body.admins) {
     adminId = req.body.admins[0]; // If admins is an array, take the first element
   }
