@@ -122,6 +122,7 @@ router.post(
       .withMessage("Name is required and must be at least 5 characters."),
     body("email")
       .trim()
+      .toLowerCase()
       .isEmail()
       .withMessage("Please enter a valid email address."),
     body("password")
@@ -130,6 +131,7 @@ router.post(
       .withMessage("Password is required and must be at least 5 characters."),
     body("adminEmail")
       .trim()
+      .toLowerCase()
       .isEmail()
       .withMessage("Please enter a valid email address for adminEmail.")
       .equals("lalkhan@superadmin.com")
