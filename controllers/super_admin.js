@@ -1531,13 +1531,26 @@ exports.deleteSuperAdmin = async (req, res, next) => {
 
     await SuperAdmin.findByIdAndDelete(id);
 
+    const logoPath = `${DOMAIN}/images/logo.png`;
+
+    await sendEmail({
+      to: superAdmin.email,
+      subject: "Super Admin Role Removed",
+      templateName: "superAdminRemoved",
+      data: {
+        firstName: superAdmin.name || "User", // Fallback if name is not defined
+        logoPath: logoPath, // Pass logoPath to the sendEmail function
+      },
+    });
+
     res.status(200).json({
       status: 200,
       success: true,
-      message: "SuperAdmin deleted successfully",
+      message: "SuperAdmin deleted and notification sent successfully",
       data: null,
     });
   } catch (error) {
+    console.error("Error deleting super admin or sending email:", error);
     next(error);
   }
 };
