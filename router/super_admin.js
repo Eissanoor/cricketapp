@@ -113,7 +113,30 @@ router.get("/counts", sAdminController.getCounts);
 // * Super Admin Section ***
 router.get("/super-admins", sAdminController.getSuperAdmins);
 
-router.post("/super-admin", sAdminController.postSuperAdmin);
+router.post(
+  "/super-admin",
+  [
+    body("name")
+      .trim()
+      .isLength({ min: 5 })
+      .withMessage("Name is required and must be at least 5 characters."),
+    body("email")
+      .trim()
+      .isEmail()
+      .withMessage("Please enter a valid email address."),
+    body("password")
+      .trim()
+      .isLength({ min: 5 })
+      .withMessage("Password is required and must be at least 5 characters."),
+    body("adminEmail")
+      .trim()
+      .isEmail()
+      .withMessage("Please enter a valid email address for adminEmail.")
+      .equals("lalkhan@superadmin.com")
+      .withMessage("You are not an administrator"),
+  ],
+  sAdminController.postSuperAdmin
+);
 
 router.put("/super-admin/:id", sAdminController.putSuperAdmin);
 

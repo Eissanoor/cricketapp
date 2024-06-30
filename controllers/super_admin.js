@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
 
 const SuperAdmin = require("../models/super_admin");
 const Admin = require("../models/admin");
@@ -1421,6 +1422,16 @@ exports.getSuperAdmins = async (req, res, next) => {
 exports.postSuperAdmin = async (req, res, next) => {
   try {
     const { name, email, password, adminEmail } = req.body;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        status: 422,
+        success: false,
+        message: "Validation failed, entered data is incorrect.",
+        data: errors,
+      });
+    }
 
     if (adminEmail !== "lalkhan@superadmin.com") {
       const error = new Error(
