@@ -142,7 +142,38 @@ router.post(
   sAdminController.postSuperAdmin
 );
 
-router.put("/super-admin/:id", sAdminController.putSuperAdmin);
+router.put(
+  "/super-admin/:id",
+  [
+    body("name")
+      .optional()
+      .trim()
+      .isLength({ min: 5 })
+      .withMessage("Name must be at least 5 characters if provided."),
+    body("email")
+      .optional()
+      .trim()
+      .toLowerCase()
+      .normalizeEmail()
+      .isEmail()
+      .withMessage("Please enter a valid email address if provided."),
+    body("password")
+      .optional()
+      .trim()
+      .isLength({ min: 5 })
+      .withMessage("Password must be at least 5 characters if provided."),
+    body("adminEmail")
+      .optional()
+      .trim()
+      .toLowerCase()
+      .normalizeEmail()
+      .isEmail()
+      .withMessage("Please enter a valid email address for adminEmail.")
+      .equals("lalkhan@superadmin.com")
+      .withMessage("You are not an administrator"),
+  ],
+  sAdminController.putSuperAdmin
+);
 
 router.delete("/super-admin/:id", sAdminController.deleteSuperAdmin);
 
