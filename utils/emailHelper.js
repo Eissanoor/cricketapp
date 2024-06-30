@@ -14,6 +14,8 @@ const transporter = nodemailer.createTransport({
     user: EMAIL,
     pass: PASS,
   },
+  pool: true,
+  rateLimit: false,
 });
 
 /**
@@ -25,6 +27,7 @@ const transporter = nodemailer.createTransport({
  */
 
 async function sendEmail({ to, subject, templateName, data }) {
+  console.log("Sending email");
   try {
     const templatePath = path.join(
       __dirname,

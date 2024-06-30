@@ -1419,7 +1419,7 @@ exports.postSuperAdmin = async (req, res, next) => {
   try {
     const { name, email, password, adminEmail } = req.body;
 
-    if (adminEmail != "lalkhan@superadmin.com") {
+    if (adminEmail !== "lalkhan@superadmin.com") {
       const error = new Error(
         "You are not allowed to create a new super admin"
       );
@@ -1444,13 +1444,29 @@ exports.postSuperAdmin = async (req, res, next) => {
 
     const savedSuperAdmin = await superAdmin.save();
 
+    // Send email notification to the new SuperAdmin
+    const logoPath = `${DOMAIN}/images/logo.png`;
+
+    await sendEmail({
+      to: email,
+      subject: "Super Admin Account Created",
+      templateName: "superAdminAssigned",
+      data: {
+        name: name || "Super Admin",
+        email: email,
+        password: password,
+        logoPath: logoPath,
+      },
+    });
+
     res.status(201).json({
       status: 201,
       success: true,
-      message: "SuperAdmin created successfully",
+      message: "SuperAdmin created successfully and notification sent",
       data: savedSuperAdmin,
     });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };

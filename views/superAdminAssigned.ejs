@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Super Admin Assigned</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+        background-color: #f4f4f4;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+      }
+      .logo {
+        display: block;
+        margin: 0 auto 20px;
+        width: 100px; /* Adjust logo size based on your needs */
+      }
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 12px;
+        color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <img src="<%= logoPath %>" alt="Company Logo" class="logo" />
+      <h1>Welcome to Cric Media!</h1>
+      <p>Hello,</p>
+      <p>
+        Congratulations! You have been chosen as a
+        <strong>Super Admin</strong> of the Cric Media application.
+      </p>
+      <p>Below are your login details:</p>
+      <p><strong>Email:</strong> <%= email %></p>
+      <p><strong>Password:</strong> <%= password %></p>
+      <p>
+        Please login to the application and change your password immediately for
+        security reasons.
+      </p>
+      <p>Regards,</p>
+      <p>Cric Media Team</p>
+      <div class="footer">
+        Best regards,<br />
+        Cric Media Team
+      </div>
+    </div>
+  </body>
+</html>
