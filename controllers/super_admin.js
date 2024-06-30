@@ -1515,7 +1515,9 @@ exports.deleteSuperAdmin = async (req, res, next) => {
     const { adminEmail } = req.body;
 
     if (adminEmail != "lalkhan@superadmin.com") {
-      const error = new Error("You are not allowed to create a new admin");
+      const error = new Error(
+        "You are not allowed to delete any super admin account"
+      );
       error.statusCode = 403;
       return next(error);
     }
