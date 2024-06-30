@@ -33,7 +33,7 @@
   </head>
   <body>
     <div class="email-container">
-      <img src="<%= logoPath %>" alt="Company Logo" class="logo" />
+      <img src="<%= data.logoPath %>" alt="Company Logo" class="logo" />
       <h1>Welcome to Cric Media!</h1>
       <p>Hello,</p>
       <p>
@@ -41,8 +41,8 @@
         <strong>Super Admin</strong> of the Cric Media application.
       </p>
       <p>Below are your login details:</p>
-      <p><strong>Email:</strong> <%= email %></p>
-      <p><strong>Password:</strong> <%= password %></p>
+      <p><strong>Email:</strong> <%= data.email %></p>
+      <p><strong>Password:</strong> <%= data.password %></p>
       <p>
         Please login to the application and change your password immediately for
         security reasons.
