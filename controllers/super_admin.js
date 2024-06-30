@@ -48,7 +48,7 @@ exports.login = async (req, res, next) => {
       status: 200,
       success: true,
       message: "SuperAdmin logged in successfully",
-      data: null,
+      data: superAdmin,
     });
   } catch (err) {
     next(err);

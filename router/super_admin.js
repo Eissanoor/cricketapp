@@ -1,11 +1,12 @@
 const express = require("express");
 const multer = require("multer");
-const { storage } = require("../config/cloudinary");
+const { body } = require("express-validator");
 
-const upload = multer({ storage: storage });
+const { storage } = require("../config/cloudinary");
 const sAdminController = require("../controllers/super_admin");
 
 const router = express.Router();
+const upload = multer({ storage: storage });
 
 router.post("/login", sAdminController.login);
 
