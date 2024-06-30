@@ -123,6 +123,7 @@ router.post(
     body("email")
       .trim()
       .toLowerCase()
+      .normalizeEmail()
       .isEmail()
       .withMessage("Please enter a valid email address."),
     body("password")
@@ -132,6 +133,7 @@ router.post(
     body("adminEmail")
       .trim()
       .toLowerCase()
+      .normalizeEmail()
       .isEmail()
       .withMessage("Please enter a valid email address for adminEmail.")
       .equals("lalkhan@superadmin.com")
