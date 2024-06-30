@@ -132,7 +132,6 @@ const socketIo = require("socket.io")(serverssss, {
 });
 socketIo.on("connection", (socket) => {
   console.log("A user connected");
-  socket.emit("message", "Hello from server");
   socket.on("disconnect", () => {
     console.log("User disconnected");
   });

@@ -2432,28 +2432,34 @@
  *                   example: Internal server error
  */
 
-////////////////////////////////////////////////////////////////
+// * SUPER ADMIN SECTION
 
 /**
  * @swagger
- * /api/send-message:
- *   post:
- *     summary: Send a message to all connected clients
- *     description: Emits a message event to all connected WebSocket clients.
- *     tags: [Messages]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               message:
- *                 type: string
- *                 example: "Hello, world!"
+ * /superadmin/api/super-admins:
+ *   get:
+ *     summary: Retrieve a list of super admins
+ *     description: Fetches a paginated list of super admins, with optional search functionality.
+ *     tags: [SuperAdmins]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number for pagination (default is 1)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Number of items per page (default is 10)
+ *       - in: query
+ *         name: query
+ *         schema:
+ *           type: string
+ *         description: Search query for filtering by name
  *     responses:
  *       200:
- *         description: Message sent to all clients successfully
+ *         description: SuperAdmins fetched successfully
  *         content:
  *           application/json:
  *             schema:
@@ -2467,9 +2473,31 @@
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: "Message sent to all clients successfully"
- *       400:
- *         description: Message is required
+ *                   example: SuperAdmins fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     superAdmins:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           email:
+ *                             type: string
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
+ *                     totalSuperAdmins:
+ *                       type: integer
+ *       404:
+ *         description: No SuperAdmins found
  *         content:
  *           application/json:
  *             schema:
@@ -2477,13 +2505,13 @@
  *               properties:
  *                 status:
  *                   type: integer
- *                   example: 400
+ *                   example: 404
  *                 success:
  *                   type: boolean
  *                   example: false
  *                 message:
  *                   type: string
- *                   example: "Message is required"
+ *                   example: No SuperAdmins found
  *       500:
  *         description: Internal server error
  *         content:
@@ -2499,5 +2527,326 @@
  *                   example: false
  *                 message:
  *                   type: string
- *                   example: "Internal server error"
+ *                   example: Internal server error
+ */
+
+/**
+ * @swagger
+ * /superadmin/api/super-admin:
+ *   post:
+ *     summary: Create a new super admin
+ *     description: Creates a new super admin. Only specific admin email is authorized to perform this action.
+ *     tags: [SuperAdmins]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *               - adminEmail
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               email:
+ *                 type: string
+ *                 example: johndoe@example.com
+ *               password:
+ *                 type: string
+ *                 example: strongpassword123
+ *               adminEmail:
+ *                 type: string
+ *                 example: lalkhan@superadmin.com
+ *     responses:
+ *       201:
+ *         description: SuperAdmin created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 201
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: SuperAdmin created successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *       403:
+ *         description: Unauthorized to create a super admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 403
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: You are not allowed to create a new super admin
+ *       409:
+ *         description: SuperAdmin with this email already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 409
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: SuperAdmin with this email already exists
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+/**
+ * @swagger
+ * /superadmin/api/super-admin/{id}:
+ *   put:
+ *     summary: Update a super admin
+ *     description: Updates a super admin. Only specific admin email is authorized to perform this action.
+ *     tags: [SuperAdmins]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the super admin to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               email:
+ *                 type: string
+ *                 example: johndoe@example.com
+ *               password:
+ *                 type: string
+ *                 example: newpassword123
+ *               adminEmail:
+ *                 type: string
+ *                 example: lalkhan@superadmin.com
+ *     responses:
+ *       200:
+ *         description: SuperAdmin updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: SuperAdmin updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *       403:
+ *         description: Unauthorized to update a super admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 403
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: You are not allowed to update any super admin
+ *       404:
+ *         description: SuperAdmin not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: SuperAdmin not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+/**
+ * @swagger
+ * /superadmin/api/super-admin/{id}:
+ *   delete:
+ *     summary: Delete a super admin
+ *     description: Deletes a super admin. Only specific admin email is authorized to perform this action.
+ *     tags: [SuperAdmins]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the super admin to delete
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - adminEmail
+ *             properties:
+ *               adminEmail:
+ *                 type: string
+ *                 example: lalkhan@superadmin.com
+ *     responses:
+ *       200:
+ *         description: SuperAdmin deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: SuperAdmin deleted successfully
+ *       403:
+ *         description: Unauthorized to delete a super admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 403
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: You are not allowed to create a new admin
+ *       404:
+ *         description: SuperAdmin not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: SuperAdmin not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
  */

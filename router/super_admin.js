@@ -109,4 +109,13 @@ router.post("/send-notification", sAdminController.sendNotification);
 
 router.get("/counts", sAdminController.getCounts);
 
+// * Super Admin Section ***
+router.get("/super-admins", sAdminController.getSuperAdmin);
+
+router.post("/super-admin", sAdminController.postSuperAdmin);
+
+router.put("/super-admin/:id", sAdminController.putSuperAdmin);
+
+router.delete("/super-admin/:id", sAdminController.deleteSuperAdmin);
+
 module.exports = router;

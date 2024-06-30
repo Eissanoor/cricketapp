@@ -1361,3 +1361,167 @@ exports.getCounts = async (req, res, next) => {
     next(error);
   }
 };
+
+// * Super Admin Section ***
+
+const SuperAdmin = require("../models/superAdmin");
+
+exports.getSuperAdmins = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const query = req.query.query || "";
+
+    const skip = (page - 1) * limit;
+
+    let superAdmins;
+    let totalSuperAdmins;
+
+    if (query) {
+      const searchCriteria = {
+        name: { $regex: query, $options: "i" }, // Case-insensitive regex search on name
+      };
+
+      superAdmins = await SuperAdmin.find(searchCriteria)
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      totalSuperAdmins = await SuperAdmin.countDocuments(searchCriteria);
+    } else {
+      superAdmins = await SuperAdmin.find()
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      totalSuperAdmins = await SuperAdmin.countDocuments();
+    }
+
+    if (!superAdmins || superAdmins.length === 0) {
+      const error = new Error("No SuperAdmins found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "SuperAdmins fetched successfully",
+      data: {
+        superAdmins: superAdmins,
+        totalSuperAdmins: totalSuperAdmins,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.postSuperAdmin = async (req, res, next) => {
+  try {
+    const { name, email, password, adminEmail } = req.body;
+
+    if (adminEmail != "lalkhan@superadmin.com") {
+      const error = new Error(
+        "You are not allowed to create a new super admin"
+      );
+      error.statusCode = 403;
+      return next(error);
+    }
+
+    const existingSuperAdmin = await SuperAdmin.findOne({ email });
+    if (existingSuperAdmin) {
+      const error = new Error("SuperAdmin with this email already exists");
+      error.statusCode = 409;
+      return next(error);
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const superAdmin = new SuperAdmin({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    const savedSuperAdmin = await superAdmin.save();
+
+    res.status(201).json({
+      status: 201,
+      success: true,
+      message: "SuperAdmin created successfully",
+      data: savedSuperAdmin,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.putSuperAdmin = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, email, password, adminEmail } = req.body;
+
+    if (adminEmail != "lalkhan@superadmin.com") {
+      const error = new Error("You are not allowed to update any super admin");
+      error.statusCode = 403;
+      return next(error);
+    }
+
+    const superAdmin = await SuperAdmin.findById(id);
+    if (!superAdmin) {
+      const error = new Error("SuperAdmin not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    if (name) superAdmin.name = name;
+    if (email) superAdmin.email = email;
+
+    if (password) {
+      superAdmin.password = await bcrypt.hash(password, 10);
+    }
+
+    const updatedSuperAdmin = await superAdmin.save();
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "SuperAdmin updated successfully",
+      data: updatedSuperAdmin,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteSuperAdmin = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { adminEmail } = req.body;
+
+    if (adminEmail != "lalkhan@superadmin.com") {
+      const error = new Error("You are not allowed to create a new admin");
+      error.statusCode = 403;
+      return next(error);
+    }
+
+    const superAdmin = await SuperAdmin.findById(id);
+    if (!superAdmin) {
+      const error = new Error("SuperAdmin not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    await SuperAdmin.findByIdAndDelete(id);
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "SuperAdmin deleted successfully",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
