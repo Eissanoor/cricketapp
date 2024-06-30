@@ -1364,8 +1364,6 @@ exports.getCounts = async (req, res, next) => {
 
 // * Super Admin Section ***
 
-const SuperAdmin = require("../models/superAdmin");
-
 exports.getSuperAdmins = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;

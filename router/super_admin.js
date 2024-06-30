@@ -110,7 +110,7 @@ router.post("/send-notification", sAdminController.sendNotification);
 router.get("/counts", sAdminController.getCounts);
 
 // * Super Admin Section ***
-router.get("/super-admins", sAdminController.getSuperAdmin);
+router.get("/super-admins", sAdminController.getSuperAdmins);
 
 router.post("/super-admin", sAdminController.postSuperAdmin);
 
